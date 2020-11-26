@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="layout">
+    <link rel="shortcut icon" th:href="@{/img/favicon.png}" type="image/png"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+
+    <script th:fragment="paths" th:inline="javascript" type="text/javascript">
+        const context = /*[[@{/}]]*/ '';
+        console.debug('context: ' + context)
+    </script>
+
+    <meta charset="UTF-8">
+    <title th:include=":: #pageTitle">AdaptiveSurvey Project</title>
+</head>
+<body>
+
+<div class="container">
+
+    <div th:fragment="header">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" th:fragment="navbar">
+            <div class="container">
+                <a class="navbar-brand" href="#" th:href="@{/dashboard}">Adaptive Survey - Dashboard</a>
+                <button aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation"
+                        class="navbar-toggler"
+                        data-target="#navbarColor01" data-toggle="collapse" type="button">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarColor01">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item" th:classappend="${page} == 'dashboard' ? 'active' : ''">
+                            <a class="nav-link" href="#" th:href="@{/dashboard}">Dashboard</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="blocky"></div>
+    </div>
+
+    <div class="jumbotron">
+        Some Content
+    </div>
+
+    <div class="card dark mb-3" th:fragment="footer">
+        <div class="card-body">
+            <div style="text-align: center;">
+                <a href="http://www.idsia.ch">IDSIA</a>
+                <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}">2020</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
