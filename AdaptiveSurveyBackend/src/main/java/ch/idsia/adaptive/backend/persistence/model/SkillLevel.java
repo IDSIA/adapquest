@@ -1,6 +1,7 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,6 +15,7 @@ import javax.persistence.Id;
  */
 @Entity
 @Data
+@NoArgsConstructor
 public class SkillLevel implements Comparable<SkillLevel> {
 
 	@Id
@@ -29,6 +31,11 @@ public class SkillLevel implements Comparable<SkillLevel> {
 	 * Numeric value of this level. Used for sorting from lower to high.
 	 */
 	private Double level;
+
+	public SkillLevel(String name, Double level) {
+		this.name = name;
+		this.level = level;
+	}
 
 	@Override
 	public int compareTo(SkillLevel other) {

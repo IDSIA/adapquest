@@ -1,6 +1,7 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,6 +15,7 @@ import javax.persistence.Id;
  */
 @Entity
 @Data
+@NoArgsConstructor
 public class QuestionDifficulty implements Comparable<QuestionDifficulty> {
 
 	@Id
@@ -29,6 +31,11 @@ public class QuestionDifficulty implements Comparable<QuestionDifficulty> {
 	 * Numeric value of this difficulty level. Used for sorting from lower to high.
 	 */
 	private Double difficulty;
+
+	public QuestionDifficulty(String name, Double difficulty) {
+		this.name = name;
+		this.difficulty = difficulty;
+	}
 
 	@Override
 	public int compareTo(QuestionDifficulty other) {

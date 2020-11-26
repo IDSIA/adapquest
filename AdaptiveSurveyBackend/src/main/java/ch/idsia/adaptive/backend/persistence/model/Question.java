@@ -1,6 +1,7 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Set;
  */
 @Entity
 @Data
+@Accessors(chain = true)
 public class Question {
 
 	@Id
@@ -39,7 +41,7 @@ public class Question {
 	/**
 	 * Weight of this question in points.
 	 */
-	private Double answerWeight;
+	private Double weight = 1.0;
 
 	/**
 	 * If true this question will be shown as an example question that cannot be answered.

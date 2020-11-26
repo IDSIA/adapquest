@@ -47,7 +47,7 @@ public class SurveyController {
 	public Map<String, double[]> getCurrentState(String accessCode) {
 		logger.info("Request status for accessCode={}", accessCode);
 
-		Status status = statusRepository.findBySessionAccessCode(accessCode);
+		Status status = statusRepository.findBySessionToken(accessCode);
 		return status.getState();
 	}
 
@@ -55,7 +55,7 @@ public class SurveyController {
 	public List<Answer> getAnswers(String accessCode) {
 		logger.info("Request all answers for accessCode={}", accessCode);
 
-		return answerRepository.findAllBySessionAccessCodeOrderByCreationAsc(accessCode);
+		return answerRepository.findAllBySessionTokenOrderByCreationAsc(accessCode);
 	}
 
 	// TODO: getActiveTests?
@@ -107,16 +107,24 @@ public class SurveyController {
 	/**
 	 * Request the service to return the complete exercise that the interface will display to the user.
 	 *
-	 * @param guid
+	 * @param token
 	 * @return
 	 */
-	public Question getNextQuestion
-	(String guid) {
+	@GetMapping("/next")
+	public Question nextQuestion(String token) {
+		try {
+			sessionService.getSession(token);
+
+		} catch (SessionException e) {
+			// TODO: error code
+			e.printStackTrace();
+		}
 		// TODO
 		throw new NotImplementedException();
 	}
 
-	public Result getTestResults(String guid) {
+	@GetMapping("/results")
+	public Result surveyResults(String token) {
 		// TODO
 		throw new NotImplementedException();
 	}

@@ -14,5 +14,5 @@ import java.util.List;
 @Repository
 public interface AnswerRepository extends CrudRepository<Answer, Long> {
 
-	List<Answer> findAllBySessionAccessCodeOrderByCreationAsc(String accessCode);
+	List<Answer> findAllBySessionTokenOrderByCreationAsc(String token);
 }
