@@ -7,6 +7,7 @@ import ch.idsia.adaptive.backend.persistence.dao.QuestionRepository;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.services.SessionService;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +16,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Set;
 
@@ -36,24 +39,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		SurveyController.class,
 		SessionService.class,
 })
+@Transactional
 class TestSurveyFlow {
 
 	String accessCode = "Code123";
 
 	@Autowired
-	private MockMvc mvc;
+	MockMvc mvc;
 
 	@Autowired
-	private SurveyRepository surveys;
+	SurveyRepository surveys;
 
 	@Autowired
-	private QuestionRepository questions;
+	QuestionRepository questions;
+
+	@Autowired
+	DataSource dataSource;
 
 	@BeforeEach
 	void setUp() {
 		// single skill
 		Skill skill = new Skill()
-				.setName("skill(A)")
+				.setName("A")
 				.setLevels(List.of(
 						new SkillLevel("low", 0.0),
 						new SkillLevel("high", 1.0))
@@ -114,4 +121,18 @@ class TestSurveyFlow {
 		// get last status
 		mvc.perform(get("/survey/status")).andExpect(status().isOk());
 	}
+
+	@Test
+	void wrongAccessCode() throws Exception {
+		// TODO
+		throw new NotImplementedException();
+	}
+
+	@Test
+	void wrongSessionToken() throws Exception {
+		// TODO
+		throw new NotImplementedException();
+	}
+
+
 }
