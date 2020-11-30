@@ -12,7 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class AdaptiveSurveyBackend {
 
 	public static void main(String[] args) {
-		System.setProperty("server.servlet.context-path", "/adaptive");
+		System.setProperty("server.servlet.context-path", "/");
 		SpringApplication.run(AdaptiveSurveyBackend.class, args);
 	}
 

@@ -62,13 +62,14 @@ public class Question {
 	/**
 	 * Skill associated with this question.
 	 */
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
 	private Skill skill;
+	transient
 
 	/**
 	 * Difficulty associated with this question.
 	 */
-	@ManyToOne
+	@ManyToOne(cascade = CascadeType.ALL)
 	private QuestionDifficulty difficulty;
 
 	/**

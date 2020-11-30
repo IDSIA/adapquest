@@ -1,11 +1,8 @@
 package ch.idsia.adaptive.backend.services;
 
-import ch.idsia.adaptive.backend.persistence.authentication.AuthenticationData;
 import ch.idsia.adaptive.backend.persistence.dao.SessionRepository;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
-import ch.idsia.adaptive.backend.persistence.model.Answer;
-import ch.idsia.adaptive.backend.persistence.model.Session;
-import ch.idsia.adaptive.backend.persistence.model.Survey;
+import ch.idsia.adaptive.backend.persistence.model.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -38,7 +35,7 @@ public class SessionService {
 	 * @param data User's authentication data
 	 * @throws SessionException is the session already exists or the accessCode is not valid
 	 */
-	public void registerNewSession(AuthenticationData data) throws SessionException {
+	public void registerNewSession(SurveyData data) throws SessionException {
 		Session session = repository.findByToken(data.getToken());
 
 		if (session == null) {
@@ -50,14 +47,14 @@ public class SessionService {
 			if (survey == null)
 				throw new SessionException("Survey with accessCode=" + data.getAccessCode() + " does not exists!");
 
-			session = new Session();
-			session.setUserAgent(data.getUserAgent());
-			session.setRemoteAddr(data.getRemoteAddress());
-			session.setSurvey(survey);
+			session = new Session()
+					.setUserAgent(data.getUserAgent())
+					.setRemoteAddr(data.getRemoteAddress())
+					.setSurvey(survey)
+					.setToken(SurveyToken.create(data));
 
-			// TODO: set user
 			repository.save(session);
-			data.setToken(session.getToken());
+			data.setFromSession(session);
 		} else {
 			throw new SessionException("Session already exists for token " + data.getToken() + "!");
 		}

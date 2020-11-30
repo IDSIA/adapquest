@@ -12,6 +12,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StatusRepository extends CrudRepository<Status, Long> {
 
-	Status findBySessionToken(String token);
+	Status findBySessionId(Long sid);
 
 }

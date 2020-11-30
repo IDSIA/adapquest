@@ -1,23 +1,20 @@
 package ch.idsia.adaptive.backend.controller;
 
-import ch.idsia.adaptive.backend.persistence.authentication.AuthenticationData;
 import ch.idsia.adaptive.backend.persistence.dao.AnswerRepository;
 import ch.idsia.adaptive.backend.persistence.dao.StatusRepository;
-import ch.idsia.adaptive.backend.persistence.model.Answer;
-import ch.idsia.adaptive.backend.persistence.model.Question;
-import ch.idsia.adaptive.backend.persistence.model.Result;
-import ch.idsia.adaptive.backend.persistence.model.Status;
+import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.services.SessionException;
 import ch.idsia.adaptive.backend.services.SessionService;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -43,14 +40,61 @@ public class SurveyController {
 		this.answerRepository = answerRepository;
 	}
 
+	/**
+	 * Return the current state for each skill of the {@link Survey} for the session related to the given token.
+	 *
+	 * @param token identifier of the session generate after an init call
+	 * @return a map where for each {@link Skill} name there is associated a probability distribution
+	 */
 	@GetMapping("/state")
-	public Map<String, double[]> getCurrentState(String accessCode) {
-		logger.info("Request status for accessCode={}", accessCode);
+	@ResponseBody
+	public ResponseEntity<Map<String, double[]>> getCurrentState(@RequestParam("token") String token) {
+		logger.info("Request status for accessCode={}", token);
 
-		Status status = statusRepository.findBySessionToken(accessCode);
-		return status.getState();
+		try {
+			Session session = sessionService.getSession(token);
+			Status status = statusRepository.findBySessionId(session.getId());
+
+			if (status == null)
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+			return new ResponseEntity<>(status.getState(), HttpStatus.OK);
+		} catch (SessionException e) {
+			logger.warn("Session not found for token={}", token);
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
 	}
 
+	/**
+	 * Initialize the survey with session data
+	 *
+	 * @param accessCode code to access a survey
+	 * @param request    servlet request component
+	 * @return the token for this session
+	 */
+	@GetMapping("/init")
+	@ResponseBody
+	public ResponseEntity<SurveyData> initTest(@RequestParam("accessCode") String accessCode, HttpServletRequest request) {
+		try {
+			SurveyData data = new SurveyData()
+					.setAccessCode(accessCode)
+					.setUserAgent(request.getHeader("User-Agent"))
+					.setRemoteAddress(request.getRemoteAddr());
+
+			sessionService.registerNewSession(data);
+
+			// TODO: initialize a timer or timeout for the time-limit achieved when someone abandons the survey
+
+			// TODO: insert first session status (empty or trivial data)
+
+			return new ResponseEntity<>(data, HttpStatus.OK);
+		} catch (SessionException e) {
+			logger.error(e);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	// TODO: remove or move to another controller
 	@GetMapping("/answers")
 	public List<Answer> getAnswers(String accessCode) {
 		logger.info("Request all answers for accessCode={}", accessCode);
@@ -59,32 +103,6 @@ public class SurveyController {
 	}
 
 	// TODO: getActiveTests?
-
-	// TODO: validateAccessCode?
-
-	/**
-	 * Initialize the survey with session data
-	 *
-	 * @param data session data
-	 * @return the token for this session
-	 */
-	@GetMapping("/init")
-	public String initTest(AuthenticationData data) {
-		try {
-			sessionService.registerNewSession(data);
-
-			// TODO: initialize a time for the time-limit?
-
-			return data.getToken();
-
-		} catch (SessionException e) {
-			// TODO: error code
-			e.printStackTrace();
-		}
-
-		// TODO
-		throw new NotImplementedException();
-	}
 
 	/**
 	 * Update the adaptive model for the given user based on its answer.

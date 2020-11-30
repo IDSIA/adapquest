@@ -7,7 +7,9 @@ import ch.idsia.adaptive.backend.persistence.dao.QuestionRepository;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.services.SessionService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.NotImplementedException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import javax.sql.DataSource;
 import javax.transaction.Transactional;
@@ -43,6 +46,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class TestSurveyFlow {
 
 	String accessCode = "Code123";
+
+	@Autowired
+	ObjectMapper om;
 
 	@Autowired
 	MockMvc mvc;
@@ -108,9 +114,18 @@ class TestSurveyFlow {
 
 	@Test
 	void defaultFlow() throws Exception {
-
 		// use access code to register, init a survey, and get personal the access token
-		mvc.perform(get("/survey/init").param("accessCode", accessCode)).andExpect(status().isOk());
+		MvcResult result = mvc.perform(get("/survey/init").param("accessCode", this.accessCode))
+				.andExpect(status().isOk())
+				.andReturn();
+
+		SurveyData data = om.readValue(result.getResponse().getContentAsString(), SurveyData.class);
+
+		Assertions.assertNotNull(data.getToken(), "Session token is null");
+		Assertions.assertEquals(accessCode, data.getAccessCode(), "Access codes are different");
+
+		// get current state of the skills
+		mvc.perform(get("/survey/state")).andExpect(status().isOk());
 
 		// get next question
 		mvc.perform(get("/survey/next")).andExpect(status().isOk());

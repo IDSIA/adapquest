@@ -1,11 +1,15 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.apache.commons.lang3.NotImplementedException;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -15,6 +19,7 @@ import java.util.*;
 @Entity
 @Table(name = "Session")
 @Data
+@Accessors(chain = true)
 public class Session {
 
 	@Id
@@ -25,7 +30,7 @@ public class Session {
 	 * Code used to generate this session and access to a survey.
 	 */
 	@Column(nullable = false)
-	private String token = UUID.randomUUID().toString();
+	private String token;
 
 	/**
 	 * IP address of the user.
