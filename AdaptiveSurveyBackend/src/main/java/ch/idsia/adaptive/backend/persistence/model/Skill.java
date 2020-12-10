@@ -11,6 +11,9 @@ import java.util.Set;
  * Author:  Claudio "Dna" Bonesana
  * Project: AdaptiveSurvey
  * Date:    25.11.2020 11:51
+ * <p>
+ *
+ * </p>
  */
 @Entity
 @Data
@@ -29,7 +32,7 @@ public class Skill {
 	/**
 	 * Level grades of this skill.
 	 */
-	@OneToMany
+	@OneToMany(cascade = CascadeType.ALL)
 	@OrderBy("level ASC")
 	private List<SkillLevel> levels;
 

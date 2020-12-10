@@ -1,7 +1,6 @@
 package ch.idsia.adaptive.backend.persistence.dao;
 
-import ch.idsia.adaptive.backend.persistence.model.Session;
-import ch.idsia.adaptive.backend.persistence.model.Status;
+import ch.idsia.adaptive.backend.persistence.model.AdaptiveModel;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,8 +10,8 @@ import org.springframework.stereotype.Repository;
  * Date:    24.11.2020 17:43
  */
 @Repository
-public interface StatusRepository extends CrudRepository<Status, Long> {
+public interface AdaptiveModelRepository extends CrudRepository<AdaptiveModel, Long> {
 
-	Status findBySessionOrderByCreationDesc(Session s);
+	AdaptiveModel findAllById(Long id);
 
 }

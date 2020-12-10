@@ -30,12 +30,15 @@ public class SessionService {
 	}
 
 	/**
-	 * Check if exists a session with the given parameters. If it exists, returns this session, otherwise initializes and returns a new one.
+	 * Check if exists a session with the given parameters. If it exists, returns this session, otherwise initializes
+	 * and returns a new one. In this second case, the input {@link SurveyData} will be update with information from
+	 * the session itself (token for the session, survey id, start time).
 	 *
-	 * @param data User's authentication data
+	 * @param data User's {@link SurveyData}, this will be updated
+	 * @return
 	 * @throws SessionException is the session already exists or the accessCode is not valid
 	 */
-	public void registerNewSession(SurveyData data) throws SessionException {
+	public Session registerNewSession(SurveyData data) throws SessionException {
 		Session session = repository.findByToken(data.getToken());
 
 		if (session == null) {
@@ -55,6 +58,8 @@ public class SessionService {
 
 			repository.save(session);
 			data.setFromSession(session);
+
+			return session;
 		} else {
 			throw new SessionException("Session already exists for token " + data.getToken() + "!");
 		}

@@ -3,12 +3,19 @@ package ch.idsia.adaptive.backend;
 import ch.idsia.adaptive.backend.config.PersistenceConfig;
 import ch.idsia.adaptive.backend.config.WebConfig;
 import ch.idsia.adaptive.backend.controller.SurveyController;
+import ch.idsia.adaptive.backend.persistence.dao.AdaptiveModelRepository;
 import ch.idsia.adaptive.backend.persistence.dao.QuestionRepository;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
+import ch.idsia.adaptive.backend.persistence.utils.MapStringDoubleArrayConverter;
+import ch.idsia.adaptive.backend.services.AdaptiveModelService;
 import ch.idsia.adaptive.backend.services.SessionService;
+import ch.idsia.crema.factor.bayesian.BayesianFactor;
+import ch.idsia.crema.model.graphical.BayesianNetwork;
+import ch.idsia.crema.model.io.uai.BayesUAIWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.NotImplementedException;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,9 +26,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import javax.sql.DataSource;
 import javax.transaction.Transactional;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -41,6 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		QuestionRepository.class,
 		SurveyController.class,
 		SessionService.class,
+		AdaptiveModelService.class,
 })
 @Transactional
 class TestSurveyFlow {
@@ -60,42 +69,86 @@ class TestSurveyFlow {
 	QuestionRepository questions;
 
 	@Autowired
-	DataSource dataSource;
+	AdaptiveModelRepository models;
+
 
 	@BeforeEach
 	void setUp() {
+		// network
+		BayesianNetwork bn = new BayesianNetwork();
+		int A = bn.addVariable(2); // skill: A(low, high)
+		int L = bn.addVariable(3); // question: low interest (a, b, c)
+		int M = bn.addVariable(2); // question: medium interest (1, 2)
+		int H = bn.addVariable(3); // question: high interest (*, **, ***)
+
+		bn.addParent(L, A);
+		bn.addParent(M, A);
+		bn.addParent(H, A);
+
+		BayesianFactor[] factors = new BayesianFactor[4];
+		factors[A] = new BayesianFactor(bn.getDomain(A));
+		factors[L] = new BayesianFactor(bn.getDomain(A, L));
+		factors[M] = new BayesianFactor(bn.getDomain(A, M));
+		factors[H] = new BayesianFactor(bn.getDomain(A, H));
+
+		factors[A].setData(new int[]{A}, new double[]{.4, .6});
+		factors[L].setData(new int[]{A, L}, new double[]{.2, .8, .4, .6, .7, .3});
+		factors[M].setData(new int[]{A, M}, new double[]{.4, .6, .6, .4});
+		factors[H].setData(new int[]{A, H}, new double[]{.8, .2, .6, .4, .3, .7});
+
+		bn.setFactors(factors);
+
+		List<String> lines = new BayesUAIWriter(bn, "").serialize();
+
 		// single skill
 		Skill skill = new Skill()
 				.setName("A")
 				.setLevels(List.of(
 						new SkillLevel("low", 0.0),
-						new SkillLevel("high", 1.0))
-				);
+						new SkillLevel("high", 1.0)
+				));
+
+		Map<String, Integer> map = new HashMap<>();
+		map.put(skill.getName(), A);
+
+		// create a simple model
+		AdaptiveModel am = new AdaptiveModel()
+				.setSkillOrder(List.of(skill.getName()))
+				.setSkillToVariable(map)
+				.setData(String.join("\n", lines))
+				.setMixedSkillOrder(false)
+				.setIsAdaptive(false);
+
+		models.save(am);
+
+		// question levels
+		QuestionLevel low = new QuestionLevel("Low interest");
+		QuestionLevel medium = new QuestionLevel("Medium interest");
+		QuestionLevel high = new QuestionLevel("High interest");
 
 		// 3 questions
 		Question q1 = new Question()
 				.setSkill(skill)
-				.setAnswersAvailable(List.of(
+				.setLevel(low)
+				.setAnswersAvailable(Lists.list(
 						new QuestionAnswer("a"),
 						new QuestionAnswer("b"),
-						new QuestionAnswer("c", true),
-						new QuestionAnswer("d")
+						new QuestionAnswer("c")
 				));
 		Question q2 = new Question()
 				.setSkill(skill)
-				.setAnswersAvailable(List.of(
-						new QuestionAnswer("a"),
-						new QuestionAnswer("b"),
-						new QuestionAnswer("c", true),
-						new QuestionAnswer("d")
+				.setLevel(medium)
+				.setAnswersAvailable(Lists.list(
+						new QuestionAnswer("1"),
+						new QuestionAnswer("2")
 				));
 		Question q3 = new Question()
 				.setSkill(skill)
-				.setAnswersAvailable(List.of(
-						new QuestionAnswer("a"),
-						new QuestionAnswer("b"),
-						new QuestionAnswer("c", true),
-						new QuestionAnswer("d")
+				.setLevel(high)
+				.setAnswersAvailable(Lists.list(
+						new QuestionAnswer("*"),
+						new QuestionAnswer("**"),
+						new QuestionAnswer("***")
 				));
 
 		questions.saveAll(List.of(q1, q2, q3));
@@ -105,7 +158,8 @@ class TestSurveyFlow {
 				.setAccessCode(accessCode)
 				.setDescription("This is just a description")
 				.setDuration(3600L)
-				.setQuestions(Set.of(q1, q2, q3));
+				.setQuestions(Set.of(q1, q2, q3))
+				.setModel(am);
 
 		surveys.save(survey);
 
@@ -115,7 +169,8 @@ class TestSurveyFlow {
 	@Test
 	void defaultFlow() throws Exception {
 		// use access code to register, init a survey, and get personal the access token
-		MvcResult result = mvc.perform(get("/survey/init").param("accessCode", this.accessCode))
+		MvcResult result;
+		result = mvc.perform(get("/survey/init").param("accessCode", this.accessCode))
 				.andExpect(status().isOk())
 				.andReturn();
 
@@ -125,7 +180,12 @@ class TestSurveyFlow {
 		Assertions.assertEquals(accessCode, data.getAccessCode(), "Access codes are different");
 
 		// get current state of the skills
-		mvc.perform(get("/survey/state")).andExpect(status().isOk());
+		result = mvc.perform(get("/survey/state").param("token", data.getToken()))
+				.andExpect(status().isOk())
+				.andReturn();
+
+		Map<String, double[]> status = new MapStringDoubleArrayConverter()
+				.convertToEntityAttribute(result.getResponse().getContentAsString());
 
 		// get next question
 		mvc.perform(get("/survey/next")).andExpect(status().isOk());
@@ -138,13 +198,13 @@ class TestSurveyFlow {
 	}
 
 	@Test
-	void wrongAccessCode() throws Exception {
+	void wrongAccessCode() {
 		// TODO
 		throw new NotImplementedException();
 	}
 
 	@Test
-	void wrongSessionToken() throws Exception {
+	void wrongSessionToken() {
 		// TODO
 		throw new NotImplementedException();
 	}

@@ -14,8 +14,6 @@ import java.time.LocalDateTime;
 @Accessors(chain = true)
 public class SurveyData {
 
-	private Long id;
-
 	private String accessCode;
 	private String token; // this is a unique id and is NOT the access token!
 
@@ -23,13 +21,13 @@ public class SurveyData {
 	private String userAgent;
 	private LocalDateTime startTime;
 
-	private Long survey;
-	private Long question;
+	private Long surveyId;
+	private Long lastQuestionId;
 
 	public void setFromSession(Session session) {
 		setToken(session.getToken());
 		setStartTime(session.getStartTime());
-		setSurvey(session.getSurvey().getId());
-		setQuestion(-1L);
+		setSurveyId(session.getSurvey().getId());
+		setLastQuestionId(-1L);
 	}
 }

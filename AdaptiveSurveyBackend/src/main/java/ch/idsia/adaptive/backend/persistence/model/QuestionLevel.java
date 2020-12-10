@@ -16,7 +16,7 @@ import javax.persistence.Id;
 @Entity
 @Data
 @NoArgsConstructor
-public class QuestionDifficulty implements Comparable<QuestionDifficulty> {
+public class QuestionLevel implements Comparable<QuestionLevel> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,20 +30,24 @@ public class QuestionDifficulty implements Comparable<QuestionDifficulty> {
 	/**
 	 * Numeric value of this difficulty level. Used for sorting from lower to high.
 	 */
-	private Double difficulty;
+	private Double points = 1.;
 
-	public QuestionDifficulty(String name, Double difficulty) {
+	public QuestionLevel(String name, Double points) {
 		this.name = name;
-		this.difficulty = difficulty;
+		this.points = points;
+	}
+
+	public QuestionLevel(String name) {
+		this.name = name;
 	}
 
 	@Override
-	public int compareTo(QuestionDifficulty other) {
+	public int compareTo(QuestionLevel other) {
 		return Long.compare(this.id, other.id);
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%d %.2f %s", id, difficulty, name);
+		return String.format("%d %.2f %s", id, points, name);
 	}
 }

@@ -3,6 +3,7 @@ package ch.idsia.adaptive.backend.controller;
 import ch.idsia.adaptive.backend.persistence.dao.AnswerRepository;
 import ch.idsia.adaptive.backend.persistence.dao.StatusRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
+import ch.idsia.adaptive.backend.services.AdaptiveModelService;
 import ch.idsia.adaptive.backend.services.SessionException;
 import ch.idsia.adaptive.backend.services.SessionService;
 import org.apache.commons.lang3.NotImplementedException;
@@ -29,13 +30,15 @@ public class SurveyController {
 	private static final Logger logger = LogManager.getLogger(SurveyController.class);
 
 	final SessionService sessionService;
+	final AdaptiveModelService modelService;
 
 	final StatusRepository statusRepository;
 	final AnswerRepository answerRepository;
 
 	@Autowired
-	public SurveyController(SessionService sessionService, StatusRepository statusRepository, AnswerRepository answerRepository) {
+	public SurveyController(SessionService sessionService, AdaptiveModelService modelService, StatusRepository statusRepository, AnswerRepository answerRepository) {
 		this.sessionService = sessionService;
+		this.modelService = modelService;
 		this.statusRepository = statusRepository;
 		this.answerRepository = answerRepository;
 	}
@@ -53,7 +56,7 @@ public class SurveyController {
 
 		try {
 			Session session = sessionService.getSession(token);
-			Status status = statusRepository.findBySessionId(session.getId());
+			Status status = statusRepository.findBySessionOrderByCreationDesc(session);
 
 			if (status == null)
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -81,9 +84,17 @@ public class SurveyController {
 					.setUserAgent(request.getHeader("User-Agent"))
 					.setRemoteAddress(request.getRemoteAddr());
 
-			sessionService.registerNewSession(data);
+			// update data and assign session token
+			Session session = sessionService.registerNewSession(data);
 
 			// TODO: initialize a timer or timeout for the time-limit achieved when someone abandons the survey
+
+			modelService.init(data);
+
+			Status s = modelService.getState(data)
+					// TODO: add missing parameters: questionsTotal, skillCompleted, ...
+					.setSession(session);
+			statusRepository.save(s);
 
 			// TODO: insert first session status (empty or trivial data)
 
@@ -110,7 +121,7 @@ public class SurveyController {
 	 * @param answer
 	 */
 	@PostMapping("/answer")
-	public void checkAnswer(String token, Answer answer) {
+	public ResponseEntity<SurveyData> checkAnswer(String token, @RequestParam("answer") Answer answer) {
 		try {
 			sessionService.getSession(token);
 

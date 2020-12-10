@@ -34,7 +34,7 @@ public class Question {
 	/**
 	 * Available answers for this multiple choice question.
 	 */
-	@OneToMany
+	@OneToMany(cascade = CascadeType.ALL)
 	@OrderBy("id asc")
 	private List<QuestionAnswer> answersAvailable;
 
@@ -64,13 +64,12 @@ public class Question {
 	 */
 	@ManyToOne(cascade = CascadeType.ALL)
 	private Skill skill;
-	transient
 
 	/**
 	 * Difficulty associated with this question.
 	 */
 	@ManyToOne(cascade = CascadeType.ALL)
-	private QuestionDifficulty difficulty;
+	private QuestionLevel level;
 
 	/**
 	 * Survey that include this question.

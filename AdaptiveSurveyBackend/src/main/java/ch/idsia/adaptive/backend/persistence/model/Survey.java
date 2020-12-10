@@ -49,4 +49,7 @@ public class Survey {
 	 */
 	@OneToMany
 	private Set<Session> sessions;
+
+	@ManyToOne
+	private AdaptiveModel model;
 }

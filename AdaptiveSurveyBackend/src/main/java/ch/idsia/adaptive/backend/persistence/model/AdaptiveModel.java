@@ -1,10 +1,14 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
 import ch.idsia.adaptive.backend.persistence.utils.ListStringConverter;
+import ch.idsia.adaptive.backend.persistence.utils.MapStringIntegerConverter;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -13,6 +17,7 @@ import java.util.List;
  */
 @Entity
 @Data
+@Accessors(chain = true)
 public class AdaptiveModel {
 
 	/*
@@ -27,7 +32,7 @@ public class AdaptiveModel {
 	/**
 	 * Model to load from disk.
 	 */
-	private String path;
+	private String data;
 
 	/**
 	 * Order of the skill in the model skill-chain.
@@ -37,13 +42,17 @@ public class AdaptiveModel {
 	@Convert(converter = ListStringConverter.class)
 	private List<String> skillOrder;
 
+	@Transient
+	@Convert(converter = MapStringIntegerConverter.class)
+	private Map<String, Integer> skillToVariable;
+
 	/**
-	 * If ture questions can be asked with a random order, otherwise it will follow the skillOrder field.
+	 * If true questions can be asked with a random order, otherwise it will follow the skillOrder field.
 	 */
 	private Boolean mixedSkillOrder = true;
 
 	/**
-	 * If true, this model follow an adaptive schema.
+	 * If true, this model follows an adaptive schema.
 	 */
 	private Boolean isAdaptive = true;
 
@@ -58,8 +67,11 @@ public class AdaptiveModel {
 	private Integer questionPerSkillMax;
 
 	/**
-	 * Entrpy threshold for early stop.
+	 * Entropy threshold for early stop.
 	 */
-	private Integer entropyMin;
+	private Double entropyMin;
+
+	@OneToMany(cascade = CascadeType.ALL)
+	private Set<Survey> surveys;
 
 }
