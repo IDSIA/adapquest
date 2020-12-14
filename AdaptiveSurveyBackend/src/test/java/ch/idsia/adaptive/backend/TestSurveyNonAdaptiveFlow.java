@@ -8,8 +8,8 @@ import ch.idsia.adaptive.backend.persistence.dao.QuestionRepository;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.persistence.utils.MapStringDoubleArrayConverter;
-import ch.idsia.adaptive.backend.services.AdaptiveModelService;
 import ch.idsia.adaptive.backend.services.SessionService;
+import ch.idsia.adaptive.backend.services.SurveyManagerService;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
@@ -30,7 +30,6 @@ import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -49,10 +48,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		QuestionRepository.class,
 		SurveyController.class,
 		SessionService.class,
-		AdaptiveModelService.class,
+		SurveyManagerService.class,
 })
 @Transactional
-class TestSurveyFlow {
+class TestSurveyNonAdaptiveFlow {
 
 	String accessCode = "Code123";
 
@@ -158,7 +157,7 @@ class TestSurveyFlow {
 				.setAccessCode(accessCode)
 				.setDescription("This is just a description")
 				.setDuration(3600L)
-				.setQuestions(Set.of(q1, q2, q3))
+				.setQuestions(List.of(q1, q2, q3))
 				.setModel(am);
 
 		surveys.save(survey);
@@ -188,7 +187,7 @@ class TestSurveyFlow {
 				.convertToEntityAttribute(result.getResponse().getContentAsString());
 
 		// get next question
-		mvc.perform(get("/survey/next")).andExpect(status().isOk());
+		mvc.perform(get("/survey/question")).andExpect(status().isOk());
 
 		// post answer
 		mvc.perform(post("/survey/answer")).andExpect(status().isOk());

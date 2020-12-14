@@ -3,9 +3,10 @@ package ch.idsia.adaptive.backend.controller;
 import ch.idsia.adaptive.backend.persistence.dao.AnswerRepository;
 import ch.idsia.adaptive.backend.persistence.dao.StatusRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
-import ch.idsia.adaptive.backend.services.AdaptiveModelService;
+import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import ch.idsia.adaptive.backend.services.SessionException;
 import ch.idsia.adaptive.backend.services.SessionService;
+import ch.idsia.adaptive.backend.services.SurveyManagerService;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -30,13 +30,18 @@ public class SurveyController {
 	private static final Logger logger = LogManager.getLogger(SurveyController.class);
 
 	final SessionService sessionService;
-	final AdaptiveModelService modelService;
+	final SurveyManagerService modelService;
 
 	final StatusRepository statusRepository;
 	final AnswerRepository answerRepository;
 
 	@Autowired
-	public SurveyController(SessionService sessionService, AdaptiveModelService modelService, StatusRepository statusRepository, AnswerRepository answerRepository) {
+	public SurveyController(
+			SessionService sessionService,
+			SurveyManagerService modelService,
+			StatusRepository statusRepository,
+			AnswerRepository answerRepository
+	) {
 		this.sessionService = sessionService;
 		this.modelService = modelService;
 		this.statusRepository = statusRepository;
@@ -51,7 +56,7 @@ public class SurveyController {
 	 */
 	@GetMapping("/state")
 	@ResponseBody
-	public ResponseEntity<Map<String, double[]>> getCurrentState(@RequestParam("token") String token) {
+	public ResponseEntity<ResponseState> getCurrentState(@RequestParam("token") String token) {
 		logger.info("Request status for accessCode={}", token);
 
 		try {
@@ -61,7 +66,7 @@ public class SurveyController {
 			if (status == null)
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-			return new ResponseEntity<>(status.getState(), HttpStatus.OK);
+			return new ResponseEntity<>(new ResponseState(status), HttpStatus.OK);
 		} catch (SessionException e) {
 			logger.warn("Session not found for token={}", token);
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
@@ -78,6 +83,8 @@ public class SurveyController {
 	@GetMapping("/init")
 	@ResponseBody
 	public ResponseEntity<SurveyData> initTest(@RequestParam("accessCode") String accessCode, HttpServletRequest request) {
+		logger.info("Request test initialization with accessCode=" + accessCode);
+
 		try {
 			SurveyData data = new SurveyData()
 					.setAccessCode(accessCode)
@@ -86,6 +93,8 @@ public class SurveyController {
 
 			// update data and assign session token
 			Session session = sessionService.registerNewSession(data);
+
+			logger.info("New initialization for accessCode=" + accessCode + " received token=" + session.getToken());
 
 			// TODO: initialize a timer or timeout for the time-limit achieved when someone abandons the survey
 
@@ -139,17 +148,34 @@ public class SurveyController {
 	 * @param token
 	 * @return
 	 */
-	@GetMapping("/next")
-	public Question nextQuestion(String token) {
+	@GetMapping("/question")
+	public ResponseEntity<Question> nextQuestion(@RequestParam("token") String token, HttpServletRequest request) {
 		try {
-			sessionService.getSession(token);
+			Session session = sessionService.getSession(token);
+			SurveyData data = new SurveyData()
+					.setFromSession(session)
+					.setUserAgent(request.getHeader("User-Agent"))
+					.setRemoteAddress(request.getRemoteAddr());
+
+			// check for end time
+			if (sessionService.getRemainingTime(data) <= 0) {
+				// TODO: the survey is over
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+
+			if (modelService.isFinished(data)) {
+				// TODO: the survey is over
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+
+			Question q = modelService.getNextQuestion(data);
+
+			return new ResponseEntity<>(q, HttpStatus.OK);
 
 		} catch (SessionException e) {
-			// TODO: error code
-			e.printStackTrace();
+			logger.error(e);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		// TODO
-		throw new NotImplementedException();
 	}
 
 	@GetMapping("/results")

@@ -5,7 +5,6 @@ import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -40,5 +39,6 @@ public class Skill {
 	 * Questions assigned to this skill.
 	 */
 	@OneToMany
-	private Set<Question> questions;
+	@OrderBy("id ASC")
+	private List<Question> questions;
 }

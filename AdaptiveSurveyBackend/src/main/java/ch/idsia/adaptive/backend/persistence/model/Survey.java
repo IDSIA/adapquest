@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -36,13 +37,39 @@ public class Survey {
 	private Long duration;
 
 	/**
+	 * Minimum number of questions to ask for each skill.
+	 */
+	private Integer questionPerSkillMin = 0;
+
+	/**
+	 * Maximum number of questions to ask for each skill.
+	 */
+	private Integer questionPerSkillMax = Integer.MAX_VALUE;
+
+	/**
+	 * Minimum number of question to start check for the validity of a skill.
+	 */
+	private Integer questionValidityCheckMin = 0;
+
+	/**
+	 * Minimum number of questions to ask in total.
+	 */
+	private Integer questionTotalMin = 0;
+
+	/**
+	 * Maximum number of questions to ask in total.
+	 */
+	private Integer questionTotalMax = Integer.MAX_VALUE;
+
+	/**
 	 * Set of questions available for this Survey.
 	 */
 	// TODO: maybe consider
 	//  (1) a pool of questions shared between surveys?
 	//  (2) group of questions instead of a single question?
 	@OneToMany
-	private Set<Question> questions;
+	@OrderBy("id ASC")
+	private List<Question> questions;
 
 	/**
 	 * Survey Sessions open for this Survey.

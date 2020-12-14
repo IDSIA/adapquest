@@ -17,7 +17,6 @@ import java.util.Set;
  * Date:    25.11.2020 11:54
  */
 @Entity
-@Table(name = "Session")
 @Data
 @Accessors(chain = true)
 public class Session {

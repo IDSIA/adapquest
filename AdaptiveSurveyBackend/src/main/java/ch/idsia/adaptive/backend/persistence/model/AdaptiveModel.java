@@ -59,12 +59,22 @@ public class AdaptiveModel {
 	/**
 	 * Minimum number of questions to be asked for each skill.
 	 */
-	private Integer questionPerSkillMin;
+	private Integer questionPerSkillMin = 0;
 
 	/**
 	 * Maximum number of questions that can be asked for each skill.
 	 */
-	private Integer questionPerSkillMax;
+	private Integer questionPerSkillMax = Integer.MAX_VALUE;
+
+	/**
+	 * Stop the skill query when the entropy of the model is above this threshold.
+	 */
+	private Double entropyUpperThreshold = 1.0;
+
+	/**
+	 * Stop the skill query when the entropy of the model is below this threshold.
+	 */
+	private Double entropyLowerThreshold = 0.0;
 
 	/**
 	 * Entropy threshold for early stop.

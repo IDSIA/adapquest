@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 @Accessors(chain = true)
 public class SurveyData {
 
+	// TODO: maybe convert as a response?
+
 	private String accessCode;
 	private String token; // this is a unique id and is NOT the access token!
 
@@ -24,10 +26,12 @@ public class SurveyData {
 	private Long surveyId;
 	private Long lastQuestionId;
 
-	public void setFromSession(Session session) {
+	public SurveyData setFromSession(Session session) {
 		setToken(session.getToken());
 		setStartTime(session.getStartTime());
 		setSurveyId(session.getSurvey().getId());
 		setLastQuestionId(-1L);
+
+		return this;
 	}
 }

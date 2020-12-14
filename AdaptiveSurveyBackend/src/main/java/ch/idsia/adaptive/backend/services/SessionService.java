@@ -110,12 +110,12 @@ public class SessionService {
 	}
 
 	/**
-	 * @param token session token
+	 * @param data {@link SurveyData} for a valid {@link Session}
 	 * @return the number of seconds still available to complete the survey of the session
 	 * @throws SessionException is the session does not exists
 	 */
-	public Long getRemainingTime(String token) throws SessionException {
-		Session session = getSession(token);
+	public Long getRemainingTime(SurveyData data) throws SessionException {
+		Session session = getSession(data.getToken());
 
 		Long seconds = session.getSurvey().getDuration();
 		LocalDateTime start = session.getStartTime();

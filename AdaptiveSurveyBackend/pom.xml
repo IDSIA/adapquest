@@ -117,6 +117,19 @@
 			<version>5.4.24.Final</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-quartz -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-quartz</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<!-- quartz -->
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
+			<version>2.3.0</version>
+		</dependency>
+
 		<!-- webjar bootstrap and jquery dependencies -->
 		<dependency>
 			<groupId>org.webjars</groupId>
