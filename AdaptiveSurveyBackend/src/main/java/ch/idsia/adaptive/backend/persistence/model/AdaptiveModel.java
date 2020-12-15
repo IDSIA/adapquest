@@ -81,6 +81,21 @@ public class AdaptiveModel {
 	 */
 	private Double entropyMin;
 
+	/**
+	 * Minimum number of question to start check for the validity of a skill.
+	 */
+	private Integer questionValidityCheckMin = 0;
+
+	/**
+	 * Minimum number of questions to ask in total.
+	 */
+	private Integer questionTotalMin = 0;
+
+	/**
+	 * Maximum number of questions to ask in total.
+	 */
+	private Integer questionTotalMax = Integer.MAX_VALUE;
+
 	@OneToMany(cascade = CascadeType.ALL)
 	private Set<Survey> surveys;
 

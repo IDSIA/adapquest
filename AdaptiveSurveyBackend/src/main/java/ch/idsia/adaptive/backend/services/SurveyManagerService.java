@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -33,15 +34,6 @@ public class SurveyManagerService {
 		this.questionRepository = questionRepository;
 	}
 
-	private Survey getSurvey(SurveyData data) {
-		return surveyRepository.findById(data.getSurveyId())
-				.orElseThrow(() -> new IllegalArgumentException("No model associated with SurveyId=" + data.getSurveyId()));
-	}
-
-	private AdaptiveModel getModel(SurveyData data) {
-		return getSurvey(data).getModel();
-	}
-
 	/**
 	 * Load the {@link AdaptiveModel} associated with the active session stored in the given {@link SurveyData}.
 	 *
@@ -49,7 +41,11 @@ public class SurveyManagerService {
 	 * @throws IllegalArgumentException when the survey id is not valid
 	 */
 	public void init(SurveyData data) {
-		Survey survey = getSurvey(data);
+		Long surveyId = data.getSurveyId();
+		Survey survey = surveyRepository
+				.findById(surveyId)
+				.orElseThrow(() -> new IllegalArgumentException("No model associated with SurveyId=" + surveyId));
+
 		AdaptiveModel model = survey.getModel();
 		AbstractSurvey content;
 
@@ -66,15 +62,9 @@ public class SurveyManagerService {
 
 	public Status getState(SurveyData data) {
 		String token = data.getToken();
-		if (!activeSurveys.containsKey(token))
-			throw new IllegalArgumentException("Cannot load status: no model for token=" + token);
-
-		return activeSurveys.get(token).getState();
-	}
-
-	private boolean isSkillValid() {
-		// TODO
-		throw new NotImplementedException();
+		return Optional.ofNullable(activeSurveys.get(token))
+				.orElseThrow(() -> new IllegalArgumentException("Cannot load status: no model for token=" + token))
+				.getState();
 	}
 
 	public boolean isFinished(SurveyData data) {

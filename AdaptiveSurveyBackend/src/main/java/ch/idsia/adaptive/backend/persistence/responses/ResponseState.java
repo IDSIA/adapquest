@@ -1,8 +1,11 @@
 package ch.idsia.adaptive.backend.persistence.responses;
 
 import ch.idsia.adaptive.backend.persistence.model.Status;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,13 +14,14 @@ import java.util.Set;
  * Project: AdaptiveSurvey
  * Date:    11.12.2020 09:29
  */
+@NoArgsConstructor
 public class ResponseState {
 
-	public final Map<String, double[]> skillDistribution;
-	public final Set<String> skillCompleted;
-	public final Map<String, Long> questionsPerSkill;
-	public final LocalDateTime creationTime;
-	public final Long questionsTotal;
+	public Map<String, double[]> skillDistribution = new HashMap<>();
+	public Set<String> skillCompleted = new HashSet<>();
+	public Map<String, Long> questionsPerSkill = new HashMap<>();
+	public LocalDateTime creationTime = LocalDateTime.now();
+	public Long questionsTotal = 0L;
 
 	public ResponseState(Status status) {
 		skillDistribution = status.getState();

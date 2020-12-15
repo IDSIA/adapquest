@@ -7,7 +7,7 @@ import ch.idsia.adaptive.backend.persistence.dao.AdaptiveModelRepository;
 import ch.idsia.adaptive.backend.persistence.dao.QuestionRepository;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
-import ch.idsia.adaptive.backend.persistence.utils.MapStringDoubleArrayConverter;
+import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import ch.idsia.adaptive.backend.services.SessionService;
 import ch.idsia.adaptive.backend.services.SurveyManagerService;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
@@ -90,10 +90,10 @@ class TestSurveyNonAdaptiveFlow {
 		factors[M] = new BayesianFactor(bn.getDomain(A, M));
 		factors[H] = new BayesianFactor(bn.getDomain(A, H));
 
-		factors[A].setData(new int[]{A}, new double[]{.4, .6});
-		factors[L].setData(new int[]{A, L}, new double[]{.2, .8, .4, .6, .7, .3});
-		factors[M].setData(new int[]{A, M}, new double[]{.4, .6, .6, .4});
-		factors[H].setData(new int[]{A, H}, new double[]{.8, .2, .6, .4, .3, .7});
+		factors[A].setData(new double[]{.4, .6});
+		factors[L].setData(new double[]{.2, .4, .7, .8, .6, .3});
+		factors[M].setData(new double[]{.4, .6, .6, .4});
+		factors[H].setData(new double[]{.8, .6, .3, .2, .4, .7});
 
 		bn.setFactors(factors);
 
@@ -183,8 +183,7 @@ class TestSurveyNonAdaptiveFlow {
 				.andExpect(status().isOk())
 				.andReturn();
 
-		Map<String, double[]> status = new MapStringDoubleArrayConverter()
-				.convertToEntityAttribute(result.getResponse().getContentAsString());
+		ResponseState status = om.readValue(result.getResponse().getContentAsString(), ResponseState.class);
 
 		// get next question
 		mvc.perform(get("/survey/question")).andExpect(status().isOk());
