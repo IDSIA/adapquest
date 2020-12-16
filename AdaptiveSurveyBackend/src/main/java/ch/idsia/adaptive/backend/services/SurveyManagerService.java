@@ -10,6 +10,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -46,12 +47,14 @@ public class SurveyManagerService {
 				.findById(surveyId)
 				.orElseThrow(() -> new IllegalArgumentException("No model associated with SurveyId=" + surveyId));
 
+		Long seed = data.getStartTime().toEpochSecond(OffsetDateTime.now().getOffset());
+
 		AbstractSurvey content;
 
 		if (survey.getIsAdaptive()) {
-			content = new AdaptiveSurvey(survey);
+			content = new AdaptiveSurvey(survey, seed);
 		} else {
-			content = new NonAdaptiveSurvey(survey);
+			content = new NonAdaptiveSurvey(survey, seed);
 		}
 
 		content.addQuestions(survey.getQuestions());
@@ -79,6 +82,7 @@ public class SurveyManagerService {
 	}
 
 	public Question nextQuestion(SurveyData data) {
+		// TODO: check for answer before get new question
 		return getSurvey(data).next();
 	}
 

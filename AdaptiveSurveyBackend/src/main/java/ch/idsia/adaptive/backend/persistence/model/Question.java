@@ -76,4 +76,13 @@ public class Question {
 	 */
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Survey survey;
+
+	@Override
+	public String toString() {
+		return "Question{" +
+				"id=" + id +
+				", question=" + question +
+				", skill=" + skill +
+				'}';
+	}
 }

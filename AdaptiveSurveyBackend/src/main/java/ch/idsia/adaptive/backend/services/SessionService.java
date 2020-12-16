@@ -35,7 +35,7 @@ public class SessionService {
 	 * the session itself (token for the session, survey id, start time).
 	 *
 	 * @param data User's {@link SurveyData}, this will be updated
-	 * @return
+	 * @return a new session if one does not already exists.
 	 * @throws SessionException is the session already exists or the accessCode is not valid
 	 */
 	public Session registerNewSession(SurveyData data) throws SessionException {

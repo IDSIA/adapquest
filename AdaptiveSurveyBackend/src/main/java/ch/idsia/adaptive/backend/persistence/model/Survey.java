@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 import javax.persistence.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -62,6 +63,11 @@ public class Survey {
 	@Transient
 	@Convert(converter = MapLongIntegerConverter.class)
 	private Map<Long, Integer> questionToVariable;
+
+	/**
+	 * If true, the questions will be chosen randomly.
+	 */
+	private Boolean questionsAreRandom = false;
 
 	/**
 	 * If true questions can be asked with a random order, otherwise it will follow the skillOrder field.
@@ -129,4 +135,27 @@ public class Survey {
 	@OneToMany(fetch = FetchType.LAZY)
 	private Set<Session> sessions;
 
+	/**
+	 * Returns the variable index (an {@link Integer} associated with the given {@link Skill}.
+	 *
+	 * @param s the given skill
+	 * @return the variable index associated with the given skill
+	 * @throws IllegalArgumentException if the skill is not present in the {@link #skillToVariable} {@link Map}.
+	 */
+	public Integer getVariable(Skill s) {
+		return Optional.ofNullable(skillToVariable.get(s.getName()))
+				.orElseThrow(() -> new IllegalArgumentException("Skill " + s + " is not part of the model"));
+	}
+
+	/**
+	 * Returns the variable index (an {@link Integer} associated with the given {@link Question}.
+	 *
+	 * @param q the given question
+	 * @return the variable index associated with the given question
+	 * @throws IllegalArgumentException if the question is not present in the {@link #questionToVariable} {@link Map}.
+	 */
+	public Integer getVariable(Question q) {
+		return Optional.ofNullable(questionToVariable.get(q.getId()))
+				.orElseThrow(() -> new IllegalArgumentException("Question " + q + " is not part of the model"));
+	}
 }

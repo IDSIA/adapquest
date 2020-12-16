@@ -3,7 +3,9 @@ package ch.idsia.adaptive.backend.services.commons;
 import ch.idsia.adaptive.backend.persistence.model.Answer;
 import ch.idsia.adaptive.backend.persistence.model.Question;
 import ch.idsia.adaptive.backend.persistence.model.Survey;
-import org.apache.commons.lang3.NotImplementedException;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -12,19 +14,34 @@ import org.apache.commons.lang3.NotImplementedException;
  */
 public class NonAdaptiveSurvey extends AbstractSurvey {
 
-	public NonAdaptiveSurvey(Survey model) {
-		super(model);
+	protected LinkedList<Question> questions = new LinkedList<>();
+
+	public NonAdaptiveSurvey(Survey model, Long seed) {
+		super(model, seed);
+	}
+
+	@Override
+	public void addQuestions(List<Question> questions) {
+		this.questions.addAll(questions);
 	}
 
 	@Override
 	public void check(Answer answer) {
-		// TODO
-		throw new NotImplementedException();
+		// nothing
 	}
 
 	@Override
 	public Question next() {
-		// TODO
-		throw new NotImplementedException();
+		if (survey.getQuestionsAreRandom()) {
+			int i = random.nextInt(questions.size());
+			return questions.remove(i);
+		} else {
+			return questions.poll();
+		}
+	}
+
+	@Override
+	public boolean isFinished() {
+		return questions.isEmpty();
 	}
 }

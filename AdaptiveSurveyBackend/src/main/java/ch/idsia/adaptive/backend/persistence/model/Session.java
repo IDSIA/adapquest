@@ -42,7 +42,7 @@ public class Session {
 	private String userAgent;
 
 	/**
-	 * When this session started.
+	 * When this session started. This is also used as a seed for the randomness.
 	 */
 	private LocalDateTime startTime = LocalDateTime.now();
 

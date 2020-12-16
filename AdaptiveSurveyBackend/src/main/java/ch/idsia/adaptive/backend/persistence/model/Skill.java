@@ -42,4 +42,12 @@ public class Skill {
 	@OneToMany
 	@OrderBy("id ASC")
 	private List<Question> questions;
+
+	@Override
+	public String toString() {
+		return "Skill{" +
+				"id=" + id +
+				", name='" + name + '\'' +
+				'}';
+	}
 }
