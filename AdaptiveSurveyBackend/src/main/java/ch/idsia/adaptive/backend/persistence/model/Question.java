@@ -49,8 +49,8 @@ public class Question {
 	/**
 	 * Available answers for this multiple choice question.
 	 */
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@OrderBy("id asc")
+	@OneToMany(cascade = CascadeType.ALL)
+	@OrderBy("id ASC")
 	private List<QuestionAnswer> answersAvailable;
 
 	/**

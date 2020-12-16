@@ -1,6 +1,7 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
  */
 @Entity
 @Data
+@Accessors(chain = true)
 public class Answer {
 
 	@Id
@@ -31,7 +33,7 @@ public class Answer {
 	/**
 	 * The answer given.
 	 */
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne
 	private QuestionAnswer answerGiven;
 
 	/**

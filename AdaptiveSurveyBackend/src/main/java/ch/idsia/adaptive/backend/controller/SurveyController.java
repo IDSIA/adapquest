@@ -1,8 +1,11 @@
 package ch.idsia.adaptive.backend.controller;
 
 import ch.idsia.adaptive.backend.persistence.dao.AnswerRepository;
+import ch.idsia.adaptive.backend.persistence.dao.QuestionAnswerRepository;
 import ch.idsia.adaptive.backend.persistence.dao.StatusRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
+import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
+import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import ch.idsia.adaptive.backend.services.SessionException;
 import ch.idsia.adaptive.backend.services.SessionService;
@@ -33,6 +36,7 @@ public class SurveyController {
 	final SurveyManagerService modelService;
 
 	final StatusRepository statusRepository;
+	final QuestionAnswerRepository questionAnswerRepository;
 	final AnswerRepository answerRepository;
 
 	@Autowired
@@ -40,11 +44,13 @@ public class SurveyController {
 			SessionService sessionService,
 			SurveyManagerService modelService,
 			StatusRepository statusRepository,
+			QuestionAnswerRepository questionAnswerRepository,
 			AnswerRepository answerRepository
 	) {
 		this.sessionService = sessionService;
 		this.modelService = modelService;
 		this.statusRepository = statusRepository;
+		this.questionAnswerRepository = questionAnswerRepository;
 		this.answerRepository = answerRepository;
 	}
 
@@ -82,7 +88,7 @@ public class SurveyController {
 	 */
 	@GetMapping("/init")
 	@ResponseBody
-	public ResponseEntity<SurveyData> initTest(@RequestParam("accessCode") String accessCode, HttpServletRequest request) {
+	public ResponseEntity<ResponseData> initTest(@RequestParam("accessCode") String accessCode, HttpServletRequest request) {
 		logger.info("Request test initialization with accessCode=" + accessCode);
 
 		try {
@@ -107,7 +113,7 @@ public class SurveyController {
 
 			// TODO: insert first session status (empty or trivial data)
 
-			return new ResponseEntity<>(data, HttpStatus.OK);
+			return new ResponseEntity<>(new ResponseData(data), HttpStatus.OK);
 		} catch (SessionException e) {
 			logger.error(e);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -127,12 +133,17 @@ public class SurveyController {
 	/**
 	 * Update the adaptive model for the given user based on its answer.
 	 *
-	 * @param answer
+	 * @param token
+	 * @param answerId
 	 * @param request
 	 * @return
 	 */
 	@PostMapping("/answer")
-	public ResponseEntity<SurveyData> checkAnswer(String token, @RequestParam("answer") Answer answer, HttpServletRequest request) {
+	public ResponseEntity<SurveyData> checkAnswer(@RequestParam("token") String token,
+	                                              @RequestParam("answer") Long answerId,
+	                                              HttpServletRequest request) {
+		logger.info("User with token={} gave answer={}", token, answerId);
+
 		try {
 			Session session = sessionService.getSession(token);
 			SurveyData data = new SurveyData()
@@ -140,12 +151,26 @@ public class SurveyController {
 					.setUserAgent(request.getHeader("User-Agent"))
 					.setRemoteAddress(request.getRemoteAddr());
 
+			QuestionAnswer qa = questionAnswerRepository.findById(answerId)
+					.orElseThrow(Exception::new);
+
+			Answer answer = new Answer()
+					.setSession(session)
+					.setAnswerGiven(qa)
+					.setIsCorrect(qa.getIsCorrect())
+					.setQuestion(qa.getQuestion());
+
+			answerRepository.save(answer);
+
 			modelService.checkAnswer(data, answer);
 
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (SessionException e) {
 			logger.error(e);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (Exception e) {
+			logger.error(e);
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -157,7 +182,7 @@ public class SurveyController {
 	 * @return
 	 */
 	@GetMapping("/question")
-	public ResponseEntity<Question> nextQuestion(@RequestParam("token") String token, HttpServletRequest request) {
+	public ResponseEntity<ResponseQuestion> nextQuestion(@RequestParam("token") String token, HttpServletRequest request) {
 		try {
 			Session session = sessionService.getSession(token);
 			SurveyData data = new SurveyData()
@@ -178,8 +203,7 @@ public class SurveyController {
 			}
 
 			Question q = modelService.nextQuestion(data);
-
-			return new ResponseEntity<>(q, HttpStatus.OK);
+			return new ResponseEntity<>(new ResponseQuestion(q), HttpStatus.OK);
 		} catch (SessionException e) {
 			logger.error(e);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

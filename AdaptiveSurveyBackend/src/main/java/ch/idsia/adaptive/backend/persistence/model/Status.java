@@ -34,6 +34,7 @@ public class Status {
 	/**
 	 * If a skill is completed (no more questions) its name should be saved there there.
 	 */
+	// TODO
 	@Transient
 	@Convert(converter = SetStringConverter.class)
 	public Set<String> skillCompleted;
@@ -41,6 +42,7 @@ public class Status {
 	/**
 	 * Total answers given for each skill, mapped by skill name.
 	 */
+	// TODO
 	@Transient
 	@Convert(converter = MapStringLongConverter.class)
 	private Map<String, Long> questionsPerSkill;
@@ -58,6 +60,7 @@ public class Status {
 	/**
 	 * Total answers given.
 	 */
+	// TODO
 	private Long questionsTotal;
 
 	/**

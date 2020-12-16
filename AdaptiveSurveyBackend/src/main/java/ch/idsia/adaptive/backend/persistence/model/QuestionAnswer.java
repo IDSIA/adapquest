@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -29,8 +30,11 @@ public class QuestionAnswer {
 	 */
 	private Boolean isCorrect;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	private Answer answer;
+	@OneToMany(fetch = FetchType.LAZY)
+	private List<Answer> answer;
+
+	@ManyToOne
+	private Question question;
 
 	public QuestionAnswer(String text) {
 		this.text = text;

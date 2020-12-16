@@ -6,6 +6,8 @@ import ch.idsia.adaptive.backend.controller.SurveyController;
 import ch.idsia.adaptive.backend.persistence.dao.QuestionRepository;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
+import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
+import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import ch.idsia.adaptive.backend.services.SessionService;
 import ch.idsia.adaptive.backend.services.SurveyManagerService;
@@ -15,7 +17,6 @@ import ch.idsia.crema.model.io.uai.BayesUAIWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.NotImplementedException;
 import org.assertj.core.util.Lists;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -52,8 +54,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 class TestSurveyNonAdaptiveFlow {
 
-	String accessCode = "Code123";
-
 	@Autowired
 	ObjectMapper om;
 
@@ -66,6 +66,8 @@ class TestSurveyNonAdaptiveFlow {
 	@Autowired
 	QuestionRepository questions;
 
+	String accessCode = "Code123";
+	Question q1, q2, q3;
 
 	@BeforeEach
 	void setUp() {
@@ -112,7 +114,8 @@ class TestSurveyNonAdaptiveFlow {
 		QuestionLevel high = new QuestionLevel("High interest");
 
 		// 3 questions
-		Question q1 = new Question()
+		q1 = new Question()
+				.setQuestion("Question 1")
 				.setSkill(skill)
 				.setLevel(low)
 				.setAnswersAvailable(Lists.list(
@@ -120,14 +123,16 @@ class TestSurveyNonAdaptiveFlow {
 						new QuestionAnswer("b"),
 						new QuestionAnswer("c")
 				));
-		Question q2 = new Question()
+		q2 = new Question()
+				.setQuestion("Question 2")
 				.setSkill(skill)
 				.setLevel(medium)
 				.setAnswersAvailable(Lists.list(
 						new QuestionAnswer("1"),
 						new QuestionAnswer("2")
 				));
-		Question q3 = new Question()
+		q3 = new Question()
+				.setQuestion("Question 3")
 				.setSkill(skill)
 				.setLevel(high)
 				.setAnswersAvailable(Lists.list(
@@ -169,26 +174,48 @@ class TestSurveyNonAdaptiveFlow {
 				.andExpect(status().isOk())
 				.andReturn();
 
-		SurveyData data = om.readValue(result.getResponse().getContentAsString(), SurveyData.class);
+		ResponseData data = om.readValue(result.getResponse().getContentAsString(), ResponseData.class);
 
-		Assertions.assertNotNull(data.getToken(), "Session token is null");
-		Assertions.assertEquals(accessCode, data.getAccessCode(), "Access codes are different");
+		assertNotNull(data.token, "Session token is null");
+		assertEquals(accessCode, data.code, "Access codes are different");
 
 		// get current state of the skills
-		result = mvc.perform(get("/survey/state").param("token", data.getToken()))
+		result = mvc.perform(get("/survey/state").param("token", data.token))
 				.andExpect(status().isOk())
 				.andReturn();
 
-		ResponseState status = om.readValue(result.getResponse().getContentAsString(), ResponseState.class);
+		ResponseState status1 = om.readValue(result.getResponse().getContentAsString(), ResponseState.class);
+
+		assertNotNull(status1.skillDistribution, "Skill distribution is null!");
+		assertFalse(status1.skillDistribution.isEmpty(), "Skill distribution is empty");
 
 		// get next question
-		mvc.perform(get("/survey/question")).andExpect(status().isOk());
+		result = mvc.perform(get("/survey/question").param("token", data.token))
+				.andExpect(status().isOk())
+				.andReturn();
+
+		ResponseQuestion question = om.readValue(result.getResponse().getContentAsString(), ResponseQuestion.class);
+
+		assertNotNull(question.question);
+		assertEquals(q1.getQuestion(), question.question);
+		assertEquals(3, question.answers.size());
 
 		// post answer
-		mvc.perform(post("/survey/answer")).andExpect(status().isOk());
+		mvc.perform(post("/survey/answer").param("token", data.token).param("answer", "1"))
+				.andExpect(status().isOk());
 
-		// get last status
-		mvc.perform(get("/survey/status")).andExpect(status().isOk());
+		// get last status1
+		result = mvc.perform(get("/survey/state").param("token", data.token))
+				.andExpect(status().isOk())
+				.andReturn();
+
+		// TODO: set evidence based on answer!
+		ResponseState status2 = om.readValue(result.getResponse().getContentAsString(), ResponseState.class);
+
+//		assertNotEquals(status1.skillDistribution.get("A")[0], status2.skillDistribution.get("A")[0]);
+//		assertNotEquals(status1.skillDistribution.get("A")[1], status2.skillDistribution.get("A")[1]);
+
+		// TODO: check for values saved on database
 	}
 
 	@Test
@@ -202,6 +229,5 @@ class TestSurveyNonAdaptiveFlow {
 		// TODO
 		throw new NotImplementedException();
 	}
-
 
 }
