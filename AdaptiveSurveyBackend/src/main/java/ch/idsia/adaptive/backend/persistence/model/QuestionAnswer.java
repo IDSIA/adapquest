@@ -3,10 +3,7 @@ package ch.idsia.adaptive.backend.persistence.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -31,6 +28,9 @@ public class QuestionAnswer {
 	 * True if this is a correct answer.
 	 */
 	private Boolean isCorrect;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	private Answer answer;
 
 	public QuestionAnswer(String text) {
 		this.text = text;

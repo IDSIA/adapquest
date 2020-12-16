@@ -3,7 +3,6 @@ package ch.idsia.adaptive.backend;
 import ch.idsia.adaptive.backend.config.PersistenceConfig;
 import ch.idsia.adaptive.backend.config.WebConfig;
 import ch.idsia.adaptive.backend.controller.SurveyController;
-import ch.idsia.adaptive.backend.persistence.dao.AdaptiveModelRepository;
 import ch.idsia.adaptive.backend.persistence.dao.QuestionRepository;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
@@ -67,9 +66,6 @@ class TestSurveyNonAdaptiveFlow {
 	@Autowired
 	QuestionRepository questions;
 
-	@Autowired
-	AdaptiveModelRepository models;
-
 
 	@BeforeEach
 	void setUp() {
@@ -107,18 +103,8 @@ class TestSurveyNonAdaptiveFlow {
 						new SkillLevel("high", 1.0)
 				));
 
-		Map<String, Integer> map = new HashMap<>();
-		map.put(skill.getName(), A);
-
-		// create a simple model
-		AdaptiveModel am = new AdaptiveModel()
-				.setSkillOrder(List.of(skill.getName()))
-				.setSkillToVariable(map)
-				.setData(String.join("\n", lines))
-				.setMixedSkillOrder(false)
-				.setIsAdaptive(false);
-
-		models.save(am);
+		Map<String, Integer> mapS = new HashMap<>();
+		mapS.put(skill.getName(), A);
 
 		// question levels
 		QuestionLevel low = new QuestionLevel("Low interest");
@@ -152,13 +138,23 @@ class TestSurveyNonAdaptiveFlow {
 
 		questions.saveAll(List.of(q1, q2, q3));
 
+		Map<Long, Integer> mapQ = new HashMap<>();
+		mapQ.put(q1.getId(), L);
+		mapQ.put(q2.getId(), M);
+		mapQ.put(q3.getId(), H);
+
 		// create new survey
 		Survey survey = new Survey()
 				.setAccessCode(accessCode)
 				.setDescription("This is just a description")
 				.setDuration(3600L)
 				.setQuestions(List.of(q1, q2, q3))
-				.setModel(am);
+				.setSkillOrder(List.of(skill.getName()))
+				.setSkillToVariable(mapS)
+				.setQuestionToVariable(mapQ)
+				.setModelData(String.join("\n", lines))
+				.setMixedSkillOrder(false)
+				.setIsAdaptive(false);
 
 		surveys.save(survey);
 

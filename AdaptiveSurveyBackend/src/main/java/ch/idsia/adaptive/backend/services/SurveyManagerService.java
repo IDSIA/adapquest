@@ -1,6 +1,6 @@
 package ch.idsia.adaptive.backend.services;
 
-import ch.idsia.adaptive.backend.persistence.dao.QuestionRepository;
+import ch.idsia.adaptive.backend.persistence.dao.AnswerRepository;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.services.commons.AbstractSurvey;
@@ -23,19 +23,19 @@ import java.util.Optional;
 public class SurveyManagerService {
 
 	private final SurveyRepository surveyRepository;
-	private final QuestionRepository questionRepository;
+	private final AnswerRepository answerRepository;
 
 	// TODO: add cache for models
 	private final Map<String, AbstractSurvey> activeSurveys = new HashMap<>();
 
 	@Autowired
-	public SurveyManagerService(SurveyRepository surveyRepository, QuestionRepository questionRepository) {
+	public SurveyManagerService(SurveyRepository surveyRepository, AnswerRepository answerRepository) {
 		this.surveyRepository = surveyRepository;
-		this.questionRepository = questionRepository;
+		this.answerRepository = answerRepository;
 	}
 
 	/**
-	 * Load the {@link AdaptiveModel} associated with the active session stored in the given {@link SurveyData}.
+	 * Load the {@link Survey} associated with the active session stored in the given {@link SurveyData}.
 	 *
 	 * @param data the {@link SurveyData} passed must be initialized correctly from a {@link SessionService}.
 	 * @throws IllegalArgumentException when the survey id is not valid
@@ -46,13 +46,12 @@ public class SurveyManagerService {
 				.findById(surveyId)
 				.orElseThrow(() -> new IllegalArgumentException("No model associated with SurveyId=" + surveyId));
 
-		AdaptiveModel model = survey.getModel();
 		AbstractSurvey content;
 
-		if (model.getIsAdaptive()) {
-			content = new AdaptiveSurvey(model);
+		if (survey.getIsAdaptive()) {
+			content = new AdaptiveSurvey(survey);
 		} else {
-			content = new NonAdaptiveSurvey(model);
+			content = new NonAdaptiveSurvey(survey);
 		}
 
 		content.addQuestions(survey.getQuestions());
@@ -60,21 +59,27 @@ public class SurveyManagerService {
 		activeSurveys.put(data.getToken(), content);
 	}
 
-	public Status getState(SurveyData data) {
+	public AbstractSurvey getSurvey(SurveyData data) {
 		String token = data.getToken();
 		return Optional.ofNullable(activeSurveys.get(token))
-				.orElseThrow(() -> new IllegalArgumentException("Cannot load status: no model for token=" + token))
-				.getState();
+				.orElseThrow(() -> new IllegalArgumentException("Cannot load status: no model for token=" + token));
+	}
+
+	public Status getState(SurveyData data) {
+		return getSurvey(data).getState();
 	}
 
 	public boolean isFinished(SurveyData data) {
-		// TODO
-		throw new NotImplementedException();
+		return getSurvey(data).isFinished();
 	}
 
-	public Question getNextQuestion(SurveyData data) {
-		// TODO
-		throw new NotImplementedException();
+	public void checkAnswer(SurveyData data, Answer answer) {
+		answerRepository.save(answer);
+		getSurvey(data).check(answer);
+	}
+
+	public Question nextQuestion(SurveyData data) {
+		return getSurvey(data).next();
 	}
 
 	public void complete(SurveyData data) {

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractSurvey {
 
-	protected final AdaptiveModel model;
+	protected final Survey model;
 	protected final BayesianNetwork network;
 	protected final BeliefPropagation<BayesianFactor> inference;
 
@@ -29,10 +29,10 @@ public abstract class AbstractSurvey {
 	@Getter
 	protected Skill nextSkill = null;
 
-	public AbstractSurvey(AdaptiveModel model) {
-		this.model = model;
+	public AbstractSurvey(Survey survey) {
+		this.model = survey;
 
-		List<String> lines = Arrays.stream(model.getData().split("\n")).collect(Collectors.toList());
+		List<String> lines = Arrays.stream(survey.getModelData().split("\n")).collect(Collectors.toList());
 
 		this.network = new BayesUAIParser(lines).parse();
 		this.inference = new BeliefPropagation<>(network);
@@ -56,6 +56,10 @@ public abstract class AbstractSurvey {
 			questionsDonePerSkill.putIfAbsent(s, 0);
 			availableQuestions.computeIfAbsent(s, x -> new HashSet<>()).add(q.getLevel());
 		}
+	}
+
+	public boolean isFinished() {
+		return availableQuestions.values().stream().allMatch(Set::isEmpty);
 	}
 
 	/**
@@ -99,8 +103,7 @@ public abstract class AbstractSurvey {
 		availableQuestions.get(skill).remove(level);
 	}
 
-	public abstract void check();
+	public abstract void check(Answer answer);
 
-	public abstract void next();
-
+	public abstract Question next();
 }

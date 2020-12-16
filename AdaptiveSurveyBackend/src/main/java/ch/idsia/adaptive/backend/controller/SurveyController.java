@@ -128,24 +128,32 @@ public class SurveyController {
 	 * Update the adaptive model for the given user based on its answer.
 	 *
 	 * @param answer
+	 * @param request
+	 * @return
 	 */
 	@PostMapping("/answer")
-	public ResponseEntity<SurveyData> checkAnswer(String token, @RequestParam("answer") Answer answer) {
+	public ResponseEntity<SurveyData> checkAnswer(String token, @RequestParam("answer") Answer answer, HttpServletRequest request) {
 		try {
-			sessionService.getSession(token);
+			Session session = sessionService.getSession(token);
+			SurveyData data = new SurveyData()
+					.setFromSession(session)
+					.setUserAgent(request.getHeader("User-Agent"))
+					.setRemoteAddress(request.getRemoteAddr());
 
+			modelService.checkAnswer(data, answer);
+
+			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (SessionException e) {
-			// TODO: error code
-			e.printStackTrace();
+			logger.error(e);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		// TODO
-		throw new NotImplementedException();
 	}
 
 	/**
 	 * Request the service to return the complete exercise that the interface will display to the user.
 	 *
 	 * @param token
+	 * @param request
 	 * @return
 	 */
 	@GetMapping("/question")
@@ -165,13 +173,13 @@ public class SurveyController {
 
 			if (modelService.isFinished(data)) {
 				// TODO: the survey is over
+				modelService.complete(data);
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
-			Question q = modelService.getNextQuestion(data);
+			Question q = modelService.nextQuestion(data);
 
 			return new ResponseEntity<>(q, HttpStatus.OK);
-
 		} catch (SessionException e) {
 			logger.error(e);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

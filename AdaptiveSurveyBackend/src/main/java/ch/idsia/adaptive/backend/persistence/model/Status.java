@@ -63,7 +63,7 @@ public class Status {
 	/**
 	 * Session associated with this Status.
 	 */
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	private Session session;
 
 }

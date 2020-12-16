@@ -31,9 +31,8 @@ public class Answer {
 	/**
 	 * The answer given.
 	 */
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	private QuestionAnswer answerGiven;
-
 
 	/**
 	 * Question of which this answer is for.
@@ -44,7 +43,7 @@ public class Answer {
 	/**
 	 * Session associated with this answer.
 	 */
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	private Session session;
 
 	public Long getQuestionId() {

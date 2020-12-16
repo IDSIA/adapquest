@@ -32,13 +32,6 @@ public class Question {
 	private String question;
 
 	/**
-	 * Available answers for this multiple choice question.
-	 */
-	@OneToMany(cascade = CascadeType.ALL)
-	@OrderBy("id asc")
-	private List<QuestionAnswer> answersAvailable;
-
-	/**
 	 * Weight of this question in points.
 	 */
 	private Double weight = 1.0;
@@ -54,9 +47,16 @@ public class Question {
 	private Boolean randomAnswers = false;
 
 	/**
+	 * Available answers for this multiple choice question.
+	 */
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OrderBy("id asc")
+	private List<QuestionAnswer> answersAvailable;
+
+	/**
 	 * Given answers to this question.
 	 */
-	@OneToMany
+	@OneToMany(fetch = FetchType.LAZY)
 	private Set<Answer> answers;
 
 	/**
@@ -74,6 +74,6 @@ public class Question {
 	/**
 	 * Survey that include this question.
 	 */
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	private Survey survey;
 }

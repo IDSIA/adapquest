@@ -3,10 +3,8 @@ package ch.idsia.adaptive.backend.persistence.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -31,6 +29,9 @@ public class QuestionLevel implements Comparable<QuestionLevel> {
 	 * Numeric value of this difficulty level. Used for sorting from lower to high.
 	 */
 	private Double points = 1.;
+
+	@OneToMany(fetch = FetchType.LAZY)
+	private List<Question> question;
 
 	public QuestionLevel(String name, Double points) {
 		this.name = name;

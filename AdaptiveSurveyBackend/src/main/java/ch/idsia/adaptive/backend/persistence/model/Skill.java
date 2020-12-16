@@ -1,5 +1,6 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
+import ch.idsia.adaptive.backend.persistence.utils.ListSkillLevelConverter;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -31,8 +32,8 @@ public class Skill {
 	/**
 	 * Level grades of this skill.
 	 */
-	@OneToMany(cascade = CascadeType.ALL)
-	@OrderBy("level ASC")
+	@Transient
+	@Convert(converter = ListSkillLevelConverter.class)
 	private List<SkillLevel> levels;
 
 	/**

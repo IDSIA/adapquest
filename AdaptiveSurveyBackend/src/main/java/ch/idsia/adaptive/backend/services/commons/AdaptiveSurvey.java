@@ -1,6 +1,8 @@
 package ch.idsia.adaptive.backend.services.commons;
 
-import ch.idsia.adaptive.backend.persistence.model.AdaptiveModel;
+import ch.idsia.adaptive.backend.persistence.model.Answer;
+import ch.idsia.adaptive.backend.persistence.model.Question;
+import ch.idsia.adaptive.backend.persistence.model.Survey;
 import org.apache.commons.lang3.NotImplementedException;
 
 /**
@@ -10,18 +12,18 @@ import org.apache.commons.lang3.NotImplementedException;
  */
 public class AdaptiveSurvey extends AbstractSurvey {
 
-	public AdaptiveSurvey(AdaptiveModel model) {
+	public AdaptiveSurvey(Survey model) {
 		super(model);
 	}
 
 	@Override
-	public void check() {
+	public void check(Answer answer) {
 		// TODO
 		throw new NotImplementedException();
 	}
 
 	@Override
-	public void next() {
+	public Question next() {
 		// TODO
 		throw new NotImplementedException();
 	}
