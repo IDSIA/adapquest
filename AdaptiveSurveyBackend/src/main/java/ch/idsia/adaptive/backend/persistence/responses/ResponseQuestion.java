@@ -1,11 +1,10 @@
 package ch.idsia.adaptive.backend.persistence.responses;
 
 import ch.idsia.adaptive.backend.persistence.model.Question;
-import ch.idsia.adaptive.backend.persistence.model.QuestionAnswer;
 import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -16,14 +15,16 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class ResponseQuestion {
 
+	public Long id;
 	public String explanation = "";
 	public String question = "";
-	public Map<Long, String> answers = new HashMap<>();
+	public List<ResponseAnswer> answers = new ArrayList<>();
 
 	public Boolean isExample = false;
 	public Boolean randomAnswers = false;
 
 	public ResponseQuestion(Question question) {
+		this.id = question.getId();
 		this.explanation = question.getExplanation();
 		this.question = question.getQuestion();
 
@@ -31,9 +32,7 @@ public class ResponseQuestion {
 		this.randomAnswers = question.getRandomAnswers();
 
 		this.answers = question.getAnswersAvailable().stream()
-				.collect(Collectors.toMap(
-						QuestionAnswer::getId,
-						QuestionAnswer::getText
-				));
+				.map(ResponseAnswer::new)
+				.collect(Collectors.toList());
 	}
 }

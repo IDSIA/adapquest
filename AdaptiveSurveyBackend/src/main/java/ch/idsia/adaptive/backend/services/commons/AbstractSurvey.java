@@ -9,10 +9,7 @@ import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import lombok.Getter;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -25,10 +22,12 @@ public abstract class AbstractSurvey {
 	protected final Survey survey;
 	protected final Random random;
 
+	protected LinkedList<Question> questions = new LinkedList<>();
+
 	protected final BayesianNetwork network;
 	protected final BeliefPropagation<BayesianFactor> inference;
 
-	protected TIntIntMap answers = new TIntIntHashMap();
+	protected TIntIntMap observations = new TIntIntHashMap();
 
 	@Getter
 	protected QuestionLevel nextQuestionLevel = null;
@@ -46,28 +45,29 @@ public abstract class AbstractSurvey {
 	}
 
 	public Status getState() {
-		Map<String, double[]> state = survey.getSkillToVariable()
-				.entrySet()
+		Map<String, double[]> state = survey.getSkills()
 				.stream()
 				.collect(Collectors.toMap(
-						Map.Entry::getKey,
-						e -> {
-							inference.setEvidence(answers);
-							return inference.query(e.getValue()).getData();
+						Skill::getName,
+						s -> {
+							inference.setEvidence(observations);
+							return inference.query(s.getVariable()).getData();
 						}
 				));
 
 		return new Status().setState(state);
 	}
 
-	public abstract void addQuestions(List<Question> questions);
+	public void addQuestions(List<Question> questions) {
+		this.questions.addAll(questions);
+	}
 
 	public abstract boolean isFinished();
 
 	public void check(Answer answer) {
-		Integer s = survey.getVariable(answer.getQuestion());
-		// TODO: get the correct value from answer.answerGiven
-		answers.put(s, 1);
+		Integer variable = answer.getQuestion().getLevel().getVariable();
+		Integer state = answer.getAnswerGiven().getState();
+		observations.put(variable, state);
 	}
 
 	public abstract Question next();

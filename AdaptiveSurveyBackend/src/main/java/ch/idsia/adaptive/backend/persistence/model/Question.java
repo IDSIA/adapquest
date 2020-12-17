@@ -4,8 +4,10 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -24,12 +26,12 @@ public class Question {
 	/**
 	 * Explanation text.
 	 */
-	private String explanation;
+	private String explanation = "";
 
 	/**
 	 * Question text.
 	 */
-	private String question;
+	private String question = "";
 
 	/**
 	 * Weight of this question in points.
@@ -76,6 +78,13 @@ public class Question {
 	 */
 	@ManyToOne(fetch = FetchType.LAZY)
 	private Survey survey;
+
+	public Question addAnswersAvailable(QuestionAnswer... answersAvailable) {
+		this.answersAvailable = Arrays.stream(answersAvailable)
+				.peek(a -> a.setQuestion(this))
+				.collect(Collectors.toList());
+		return this;
+	}
 
 	@Override
 	public String toString() {

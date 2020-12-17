@@ -16,7 +16,6 @@ import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.NotImplementedException;
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -27,9 +26,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import javax.transaction.Transactional;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -95,58 +92,67 @@ class TestSurveyNonAdaptiveFlow {
 
 		bn.setFactors(factors);
 
-		List<String> lines = new BayesUAIWriter(bn, "").serialize();
+//		BeliefPropagation<BayesianFactor> inf = new BeliefPropagation<>(bn);
+//
+//		TIntIntHashMap obs = new TIntIntHashMap();
+//
+//		obs.put(L, 0);
+//		inf.setEvidence(obs);
+//		System.out.println(inf.query(A));
+//
+//		obs.put(L, 1);
+//		inf.setEvidence(obs);
+//		System.out.println(inf.query(A));
+//
+//		obs.put(L, 2);
+//		inf.setEvidence(obs);
+//		System.out.println(inf.query(A));
+
+		List<String> modelData = new BayesUAIWriter(bn, "").serialize();
 
 		// single skill
 		Skill skill = new Skill()
 				.setName("A")
+				.setVariable(A)
 				.setLevels(List.of(
 						new SkillLevel("low", 0.0),
 						new SkillLevel("high", 1.0)
 				));
 
-		Map<String, Integer> mapS = new HashMap<>();
-		mapS.put(skill.getName(), A);
-
 		// question levels
-		QuestionLevel low = new QuestionLevel("Low interest");
-		QuestionLevel medium = new QuestionLevel("Medium interest");
-		QuestionLevel high = new QuestionLevel("High interest");
+		QuestionLevel low = new QuestionLevel().setName("Low interest").setVariable(L);
+		QuestionLevel medium = new QuestionLevel().setName("Medium interest").setVariable(M);
+		QuestionLevel high = new QuestionLevel().setName("High interest").setVariable(H);
 
 		// 3 questions
 		q1 = new Question()
 				.setQuestion("Question 1")
 				.setSkill(skill)
 				.setLevel(low)
-				.setAnswersAvailable(Lists.list(
-						new QuestionAnswer("a"),
-						new QuestionAnswer("b"),
-						new QuestionAnswer("c")
-				));
+				.addAnswersAvailable(
+						new QuestionAnswer().setText("a").setState(0),
+						new QuestionAnswer().setText("b").setState(1),
+						new QuestionAnswer().setText("c").setState(2)
+				);
 		q2 = new Question()
 				.setQuestion("Question 2")
 				.setSkill(skill)
 				.setLevel(medium)
-				.setAnswersAvailable(Lists.list(
-						new QuestionAnswer("1"),
-						new QuestionAnswer("2")
-				));
+				.addAnswersAvailable(
+						new QuestionAnswer().setText("1").setState(0),
+						new QuestionAnswer().setText("2").setState(1)
+				);
 		q3 = new Question()
 				.setQuestion("Question 3")
 				.setSkill(skill)
 				.setLevel(high)
-				.setAnswersAvailable(Lists.list(
-						new QuestionAnswer("*"),
-						new QuestionAnswer("**"),
-						new QuestionAnswer("***")
-				));
+				.addAnswersAvailable(
+						new QuestionAnswer().setText("*").setState(0),
+						new QuestionAnswer().setText("**").setState(1),
+						new QuestionAnswer().setText("***").setState(2)
+				);
 
 		questions.saveAll(List.of(q1, q2, q3));
-
-		Map<Long, Integer> mapQ = new HashMap<>();
-		mapQ.put(q1.getId(), L);
-		mapQ.put(q2.getId(), M);
-		mapQ.put(q3.getId(), H);
 
 		// create new survey
 		Survey survey = new Survey()
@@ -154,10 +160,9 @@ class TestSurveyNonAdaptiveFlow {
 				.setDescription("This is just a description")
 				.setDuration(3600L)
 				.setQuestions(List.of(q1, q2, q3))
+				.setSkills(List.of(skill))
 				.setSkillOrder(List.of(skill.getName()))
-				.setSkillToVariable(mapS)
-				.setQuestionToVariable(mapQ)
-				.setModelData(String.join("\n", lines))
+				.setModelData(String.join("\n", modelData))
 				.setMixedSkillOrder(false)
 				.setIsAdaptive(false);
 
@@ -170,7 +175,10 @@ class TestSurveyNonAdaptiveFlow {
 	void defaultFlow() throws Exception {
 		// use access code to register, init a survey, and get personal the access token
 		MvcResult result;
-		result = mvc.perform(get("/survey/init").param("accessCode", this.accessCode))
+		result = mvc
+				.perform(get("/survey/init")
+						.param("accessCode", this.accessCode)
+				)
 				.andExpect(status().isOk())
 				.andReturn();
 
@@ -180,7 +188,10 @@ class TestSurveyNonAdaptiveFlow {
 		assertEquals(accessCode, data.code, "Access codes are different");
 
 		// get current state of the skills
-		result = mvc.perform(get("/survey/state").param("token", data.token))
+		result = mvc
+				.perform(get("/survey/state")
+						.param("token", data.token)
+				)
 				.andExpect(status().isOk())
 				.andReturn();
 
@@ -190,7 +201,10 @@ class TestSurveyNonAdaptiveFlow {
 		assertFalse(status1.skillDistribution.isEmpty(), "Skill distribution is empty");
 
 		// get next question
-		result = mvc.perform(get("/survey/question").param("token", data.token))
+		result = mvc
+				.perform(get("/survey/question")
+						.param("token", data.token)
+				)
 				.andExpect(status().isOk())
 				.andReturn();
 
@@ -201,19 +215,25 @@ class TestSurveyNonAdaptiveFlow {
 		assertEquals(3, question.answers.size());
 
 		// post answer
-		mvc.perform(post("/survey/answer").param("token", data.token).param("answer", "1"))
-				.andExpect(status().isOk());
+		mvc
+				.perform(post("/survey/answer")
+						.param("token", data.token)
+						.param("question", "" + question.id)
+						.param("answer", "" + question.answers.get(2).id)
+				).andExpect(status().isOk());
 
 		// get last status1
-		result = mvc.perform(get("/survey/state").param("token", data.token))
+		result = mvc
+				.perform(get("/survey/state")
+						.param("token", data.token)
+				)
 				.andExpect(status().isOk())
 				.andReturn();
 
-		// TODO: set evidence based on answer!
 		ResponseState status2 = om.readValue(result.getResponse().getContentAsString(), ResponseState.class);
 
-//		assertNotEquals(status1.skillDistribution.get("A")[0], status2.skillDistribution.get("A")[0]);
-//		assertNotEquals(status1.skillDistribution.get("A")[1], status2.skillDistribution.get("A")[1]);
+		assertNotEquals(status1.skillDistribution.get("A")[0], status2.skillDistribution.get("A")[0]);
+		assertNotEquals(status1.skillDistribution.get("A")[1], status2.skillDistribution.get("A")[1]);
 
 		// TODO: check for values saved on database
 	}

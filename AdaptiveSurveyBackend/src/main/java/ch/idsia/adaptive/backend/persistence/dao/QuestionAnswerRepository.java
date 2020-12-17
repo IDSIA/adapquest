@@ -12,4 +12,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface QuestionAnswerRepository extends CrudRepository<QuestionAnswer, Long> {
 
+	QuestionAnswer findByIdAndQuestionId(Long answerId, Long questionId);
+
 }

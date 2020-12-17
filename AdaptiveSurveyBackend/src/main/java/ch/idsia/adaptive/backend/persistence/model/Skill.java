@@ -18,7 +18,7 @@ import java.util.List;
 @Entity
 @Data
 @Accessors(chain = true)
-public class Skill {
+public class Skill implements Comparable<Skill> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,11 +30,16 @@ public class Skill {
 	private String name;
 
 	/**
-	 * Level grades of this skill.
+	 * Level grades of this skill. They are equals to the states of the variable in the model.
 	 */
 	@Transient
 	@Convert(converter = ListSkillLevelConverter.class)
 	private List<SkillLevel> levels;
+
+	/**
+	 * Index of the variable in the model.
+	 */
+	private Integer variable;
 
 	/**
 	 * Questions assigned to this skill.
@@ -43,11 +48,19 @@ public class Skill {
 	@OrderBy("id ASC")
 	private List<Question> questions;
 
+	@OneToMany
+	private List<Survey> surveys;
+
 	@Override
 	public String toString() {
 		return "Skill{" +
 				"id=" + id +
 				", name='" + name + '\'' +
 				'}';
+	}
+
+	@Override
+	public int compareTo(Skill other) {
+		return Integer.compare(this.variable, other.variable);
 	}
 }

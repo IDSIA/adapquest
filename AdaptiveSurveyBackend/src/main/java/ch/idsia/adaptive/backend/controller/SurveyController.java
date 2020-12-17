@@ -67,7 +67,7 @@ public class SurveyController {
 
 		try {
 			Session session = sessionService.getSession(token);
-			Status status = statusRepository.findBySessionOrderByCreationDesc(session);
+			Status status = statusRepository.findFirstBySessionOrderByCreationDesc(session);
 
 			if (status == null)
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -134,12 +134,14 @@ public class SurveyController {
 	 * Update the adaptive model for the given user based on its answer.
 	 *
 	 * @param token
+	 * @param questionId
 	 * @param answerId
 	 * @param request
 	 * @return
 	 */
 	@PostMapping("/answer")
 	public ResponseEntity<SurveyData> checkAnswer(@RequestParam("token") String token,
+	                                              @RequestParam("question") Long questionId,
 	                                              @RequestParam("answer") Long answerId,
 	                                              HttpServletRequest request) {
 		logger.info("User with token={} gave answer={}", token, answerId);
@@ -151,8 +153,17 @@ public class SurveyController {
 					.setUserAgent(request.getHeader("User-Agent"))
 					.setRemoteAddress(request.getRemoteAddr());
 
-			QuestionAnswer qa = questionAnswerRepository.findById(answerId)
-					.orElseThrow(Exception::new);
+			// check for all parameters
+			if (questionId == null)
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+			if (answerId == null)
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+			QuestionAnswer qa = questionAnswerRepository.findByIdAndQuestionId(answerId, questionId);
+
+			if (qa == null)
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
 			Answer answer = new Answer()
 					.setSession(session)
@@ -164,13 +175,15 @@ public class SurveyController {
 
 			modelService.checkAnswer(data, answer);
 
+			Status s = modelService.getState(data)
+					// TODO: add missing parameters: questionsTotal, skillCompleted, ...
+					.setSession(session);
+			statusRepository.save(s);
+
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (SessionException e) {
 			logger.error(e);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		} catch (Exception e) {
-			logger.error(e);
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
 

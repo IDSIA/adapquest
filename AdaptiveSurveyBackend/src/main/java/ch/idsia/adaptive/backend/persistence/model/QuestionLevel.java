@@ -2,6 +2,7 @@ package ch.idsia.adaptive.backend.persistence.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
+@Accessors(chain = true)
 public class QuestionLevel implements Comparable<QuestionLevel> {
 
 	@Id
@@ -29,6 +31,11 @@ public class QuestionLevel implements Comparable<QuestionLevel> {
 	 * Numeric value of this difficulty level. Used for sorting from lower to high.
 	 */
 	private Double points = 1.;
+
+	/**
+	 * Refers to the state of the the model associated with this answer.
+	 */
+	private Integer variable;
 
 	@OneToMany(fetch = FetchType.LAZY)
 	private List<Question> question;

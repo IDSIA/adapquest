@@ -73,6 +73,9 @@ public class SessionService {
 	 * @throws SessionException is the session does not exists
 	 */
 	public Session getSession(String token) throws SessionException {
+		if (token == null)
+			throw new SessionException("No token provided!");
+
 		Session session = repository.findByToken(token);
 
 		if (session == null)

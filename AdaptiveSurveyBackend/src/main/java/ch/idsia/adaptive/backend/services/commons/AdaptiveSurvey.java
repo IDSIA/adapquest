@@ -12,7 +12,7 @@ import java.util.*;
  * Project: AdaptiveSurvey
  * Date:    14.12.2020 17:17
  */
-public class AdaptiveSurvey extends AbstractSurvey {
+public class AdaptiveSurvey extends NonAdaptiveSurvey {
 	protected Map<String, Skill> nameToSkill = new HashMap<>();
 
 	protected Map<Skill, Integer> questionsDonePerSkill = new HashMap<>();

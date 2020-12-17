@@ -1,6 +1,5 @@
 package ch.idsia.adaptive.backend.services;
 
-import ch.idsia.adaptive.backend.persistence.dao.AnswerRepository;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.services.commons.AbstractSurvey;
@@ -24,15 +23,13 @@ import java.util.Optional;
 public class SurveyManagerService {
 
 	private final SurveyRepository surveyRepository;
-	private final AnswerRepository answerRepository;
 
 	// TODO: add cache for models
 	private final Map<String, AbstractSurvey> activeSurveys = new HashMap<>();
 
 	@Autowired
-	public SurveyManagerService(SurveyRepository surveyRepository, AnswerRepository answerRepository) {
+	public SurveyManagerService(SurveyRepository surveyRepository) {
 		this.surveyRepository = surveyRepository;
-		this.answerRepository = answerRepository;
 	}
 
 	/**
@@ -56,7 +53,6 @@ public class SurveyManagerService {
 		} else {
 			content = new NonAdaptiveSurvey(survey, seed);
 		}
-
 		content.addQuestions(survey.getQuestions());
 
 		activeSurveys.put(data.getToken(), content);
@@ -77,7 +73,6 @@ public class SurveyManagerService {
 	}
 
 	public void checkAnswer(SurveyData data, Answer answer) {
-		answerRepository.save(answer);
 		getSurvey(data).check(answer);
 	}
 

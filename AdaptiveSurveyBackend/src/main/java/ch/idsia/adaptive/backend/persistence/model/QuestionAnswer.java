@@ -2,6 +2,7 @@ package ch.idsia.adaptive.backend.persistence.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 @Entity
 @Data
 @NoArgsConstructor
+@Accessors(chain = true)
 public class QuestionAnswer {
 
 	@Id
@@ -28,12 +30,17 @@ public class QuestionAnswer {
 	/**
 	 * True if this is a correct answer.
 	 */
-	private Boolean isCorrect;
+	private Boolean isCorrect = false;
+
+	/**
+	 * Refers to the state of the the model associated with this answer.
+	 */
+	private Integer state;
 
 	@OneToMany(fetch = FetchType.LAZY)
-	private List<Answer> answer;
+	private List<Answer> answers;
 
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private Question question;
 
 	public QuestionAnswer(String text) {

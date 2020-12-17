@@ -13,6 +13,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface StatusRepository extends CrudRepository<Status, Long> {
 
-	Status findBySessionOrderByCreationDesc(Session s);
+	Status findFirstBySessionOrderByCreationDesc(Session s);
 
 }
