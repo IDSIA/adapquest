@@ -23,6 +23,7 @@ public abstract class AbstractSurvey {
 	protected final Random random;
 
 	protected LinkedList<Question> questions = new LinkedList<>();
+	protected List<Question> questionsDone = new ArrayList<>();
 
 	protected final BayesianNetwork network;
 	protected final BeliefPropagation<BayesianFactor> inference;
@@ -45,6 +46,8 @@ public abstract class AbstractSurvey {
 	}
 
 	public Status getState() {
+		// TODO: add missing parameters: skillCompleted, ...
+
 		Map<String, double[]> state = survey.getSkills()
 				.stream()
 				.collect(Collectors.toMap(
@@ -55,7 +58,15 @@ public abstract class AbstractSurvey {
 						}
 				));
 
-		return new Status().setState(state);
+		Map<String, Long> qps = questionsDone.stream().map(Question::getSkill).collect(Collectors.groupingBy(
+				Skill::getName,
+				Collectors.counting()
+		));
+
+		return new Status()
+				.setState(state)
+				.setQuestionsPerSkill(qps)
+				.setTotalAnswers(questionsDone.size());
 	}
 
 	public void addQuestions(List<Question> questions) {

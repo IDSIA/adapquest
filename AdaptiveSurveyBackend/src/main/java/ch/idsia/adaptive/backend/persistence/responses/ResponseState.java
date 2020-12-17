@@ -21,13 +21,13 @@ public class ResponseState {
 	public Set<String> skillCompleted = new HashSet<>();
 	public Map<String, Long> questionsPerSkill = new HashMap<>();
 	public LocalDateTime creationTime = LocalDateTime.now();
-	public Long questionsTotal = 0L;
+	public Integer totalAnswers = 0;
 
 	public ResponseState(Status status) {
 		skillDistribution = status.getState();
 		skillCompleted = status.getSkillCompleted();
 		questionsPerSkill = status.getQuestionsPerSkill();
 		creationTime = status.getCreation();
-		questionsTotal = status.getQuestionsTotal();
+		totalAnswers = status.getTotalAnswers();
 	}
 }

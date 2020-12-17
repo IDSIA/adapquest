@@ -232,6 +232,8 @@ class TestSurveyNonAdaptiveFlow {
 
 		ResponseState status2 = om.readValue(result.getResponse().getContentAsString(), ResponseState.class);
 
+		assertEquals(1, status2.totalAnswers);
+		assertEquals(1, status2.questionsPerSkill.get("A"));
 		assertNotEquals(status1.skillDistribution.get("A")[0], status2.skillDistribution.get("A")[0]);
 		assertNotEquals(status1.skillDistribution.get("A")[1], status2.skillDistribution.get("A")[1]);
 

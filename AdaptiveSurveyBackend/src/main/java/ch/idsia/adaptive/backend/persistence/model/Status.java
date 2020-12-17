@@ -42,16 +42,17 @@ public class Status {
 	/**
 	 * Total answers given for each skill, mapped by skill name.
 	 */
-	// TODO
 	@Transient
 	@Convert(converter = MapStringLongConverter.class)
 	private Map<String, Long> questionsPerSkill;
+
 	/**
 	 * Mapping skill name to distribution.
 	 */
 	@Transient
 	@Convert(converter = MapStringDoubleArrayConverter.class)
 	public Map<String, double[]> state;
+
 	/**
 	 * Moment in time when this Status was created.
 	 */
@@ -60,8 +61,7 @@ public class Status {
 	/**
 	 * Total answers given.
 	 */
-	// TODO
-	private Long questionsTotal;
+	private Integer totalAnswers;
 
 	/**
 	 * Session associated with this Status.

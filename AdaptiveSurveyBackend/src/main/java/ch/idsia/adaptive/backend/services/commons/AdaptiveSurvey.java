@@ -88,6 +88,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 	@Override
 	public Question next() {
 		// TODO: Consider conditional entropy of skill
+		// TODO: register which question has been chose
 		throw new NotImplementedException();
 	}
 }
