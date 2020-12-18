@@ -138,8 +138,6 @@ public class SurveyController {
 					.setSession(session);
 			statusRepository.save(s);
 
-			// TODO: insert first session status (empty or trivial data)
-
 			return new ResponseEntity<>(new ResponseData(data), HttpStatus.OK);
 		} catch (SessionException e) {
 			logger.error(e);

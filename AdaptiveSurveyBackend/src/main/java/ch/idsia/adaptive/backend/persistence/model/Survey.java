@@ -44,7 +44,9 @@ public class Survey {
 	 */
 	private String modelData;
 
-
+	/**
+	 * Skills used in the survey.
+	 */
 	@OneToMany
 	private List<Skill> skills;
 
@@ -55,14 +57,6 @@ public class Survey {
 	@Transient
 	@Convert(converter = ListStringConverter.class)
 	private List<String> skillOrder;
-
-//	@Transient
-//	@Convert(converter = MapStringIntegerConverter.class)
-//	private Map<String, Integer> skillToVariable;
-//
-//	@Transient
-//	@Convert(converter = MapLongIntegerConverter.class)
-//	private Map<Long, Integer> questionToVariable;
 
 	/**
 	 * If true, the questions will be chosen randomly.
@@ -135,27 +129,4 @@ public class Survey {
 	@OneToMany(fetch = FetchType.LAZY)
 	private Set<Session> sessions;
 
-//	/**
-//	 * Returns the variable index (an {@link Integer} associated with the given {@link Skill}.
-//	 *
-//	 * @param s the given skill
-//	 * @return the variable index associated with the given skill
-//	 * @throws IllegalArgumentException if the skill is not present in the {@link #skillToVariable} {@link Map}.
-//	 */
-//	public Integer getVariable(Skill s) {
-//		return Optional.ofNullable(skillToVariable.get(s.getName()))
-//				.orElseThrow(() -> new IllegalArgumentException("Skill " + s + " is not part of the model"));
-//	}
-//
-//	/**
-//	 * Returns the variable index (an {@link Integer} associated with the given {@link Question}.
-//	 *
-//	 * @param q the given question
-//	 * @return the variable index associated with the given question
-//	 * @throws IllegalArgumentException if the question is not present in the {@link #questionToVariable} {@link Map}.
-//	 */
-//	public Integer getVariable(Question q) {
-//		return Optional.ofNullable(questionToVariable.get(q.getId()))
-//				.orElseThrow(() -> new IllegalArgumentException("Question " + q + " is not part of the model"));
-//	}
 }

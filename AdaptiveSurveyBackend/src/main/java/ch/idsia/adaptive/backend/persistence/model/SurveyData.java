@@ -14,8 +14,6 @@ import java.time.LocalDateTime;
 @Accessors(chain = true)
 public class SurveyData {
 
-	// TODO: maybe convert as a response?
-
 	private String accessCode;
 	private String token; // this is a unique id and is NOT the access token!
 

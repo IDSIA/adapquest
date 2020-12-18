@@ -71,10 +71,10 @@ class TestSurveyNonAdaptiveFlow {
 	void setUp() {
 		// network
 		BayesianNetwork bn = new BayesianNetwork();
-		int A = bn.addVariable(2); // skill: A(low, high)
-		int L = bn.addVariable(3); // question: low interest (a, b, c)
+		int A = bn.addVariable(2); // skill:    A               (low, high)
+		int L = bn.addVariable(3); // question: low interest    (a, b, c)
 		int M = bn.addVariable(2); // question: medium interest (1, 2)
-		int H = bn.addVariable(3); // question: high interest (*, **, ***)
+		int H = bn.addVariable(3); // question: high interest   (*, **, ***)
 
 		bn.addParent(L, A);
 		bn.addParent(M, A);
@@ -92,22 +92,6 @@ class TestSurveyNonAdaptiveFlow {
 		factors[H].setData(new double[]{.8, .6, .3, .2, .4, .7});
 
 		bn.setFactors(factors);
-
-//		BeliefPropagation<BayesianFactor> inf = new BeliefPropagation<>(bn);
-//
-//		TIntIntHashMap obs = new TIntIntHashMap();
-//
-//		obs.put(L, 0);
-//		inf.setEvidence(obs);
-//		System.out.println(inf.query(A));
-//
-//		obs.put(L, 1);
-//		inf.setEvidence(obs);
-//		System.out.println(inf.query(A));
-//
-//		obs.put(L, 2);
-//		inf.setEvidence(obs);
-//		System.out.println(inf.query(A));
 
 		List<String> modelData = new BayesUAIWriter(bn, "").serialize();
 
