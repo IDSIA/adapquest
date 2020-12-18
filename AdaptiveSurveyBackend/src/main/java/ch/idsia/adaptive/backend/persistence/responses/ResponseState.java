@@ -1,6 +1,6 @@
 package ch.idsia.adaptive.backend.persistence.responses;
 
-import ch.idsia.adaptive.backend.persistence.model.Status;
+import ch.idsia.adaptive.backend.persistence.model.State;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -23,11 +23,11 @@ public class ResponseState {
 	public LocalDateTime creationTime = LocalDateTime.now();
 	public Integer totalAnswers = 0;
 
-	public ResponseState(Status status) {
-		skillDistribution = status.getState();
-		skillCompleted = status.getSkillCompleted();
-		questionsPerSkill = status.getQuestionsPerSkill();
-		creationTime = status.getCreation();
-		totalAnswers = status.getTotalAnswers();
+	public ResponseState(State state) {
+		skillDistribution = state.getState();
+		skillCompleted = state.getSkillCompleted();
+		questionsPerSkill = state.getQuestionsPerSkill();
+		creationTime = state.getCreation();
+		totalAnswers = state.getTotalAnswers();
 	}
 }

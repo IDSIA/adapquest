@@ -45,7 +45,7 @@ public abstract class AbstractSurvey {
 		this.inference = new BeliefPropagation<>(network);
 	}
 
-	public Status getState() {
+	public State getState() {
 		// TODO: add missing parameters: skillCompleted, ...
 
 		Map<String, double[]> state = survey.getSkills()
@@ -63,7 +63,7 @@ public abstract class AbstractSurvey {
 				Collectors.counting()
 		));
 
-		return new Status()
+		return new State()
 				.setState(state)
 				.setQuestionsPerSkill(qps)
 				.setTotalAnswers(questionsDone.size());

@@ -14,6 +14,7 @@ import ch.idsia.adaptive.backend.services.SurveyManagerService;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.BeforeEach;
@@ -195,10 +196,10 @@ class TestSurveyNonAdaptiveFlow {
 				.andExpect(status().isOk())
 				.andReturn();
 
-		ResponseState status1 = om.readValue(result.getResponse().getContentAsString(), ResponseState.class);
+		ResponseState state1 = om.readValue(result.getResponse().getContentAsString(), ResponseState.class);
 
-		assertNotNull(status1.skillDistribution, "Skill distribution is null!");
-		assertFalse(status1.skillDistribution.isEmpty(), "Skill distribution is empty");
+		assertNotNull(state1.skillDistribution, "Skill distribution is null!");
+		assertFalse(state1.skillDistribution.isEmpty(), "Skill distribution is empty");
 
 		// get next question
 		result = mvc
@@ -222,7 +223,7 @@ class TestSurveyNonAdaptiveFlow {
 						.param("answer", "" + question.answers.get(2).id)
 				).andExpect(status().isOk());
 
-		// get last status1
+		// get last state
 		result = mvc
 				.perform(get("/survey/state")
 						.param("token", data.token)
@@ -230,12 +231,25 @@ class TestSurveyNonAdaptiveFlow {
 				.andExpect(status().isOk())
 				.andReturn();
 
-		ResponseState status2 = om.readValue(result.getResponse().getContentAsString(), ResponseState.class);
+		ResponseState state2 = om.readValue(result.getResponse().getContentAsString(), ResponseState.class);
 
-		assertEquals(1, status2.totalAnswers);
-		assertEquals(1, status2.questionsPerSkill.get("A"));
-		assertNotEquals(status1.skillDistribution.get("A")[0], status2.skillDistribution.get("A")[0]);
-		assertNotEquals(status1.skillDistribution.get("A")[1], status2.skillDistribution.get("A")[1]);
+		assertEquals(1, state2.totalAnswers);
+		assertEquals(1, state2.questionsPerSkill.get("A"));
+		assertNotEquals(state1.skillDistribution.get("A")[0], state2.skillDistribution.get("A")[0]);
+		assertNotEquals(state1.skillDistribution.get("A")[1], state2.skillDistribution.get("A")[1]);
+
+		// check number of states
+		result = mvc
+				.perform(get("/survey/states")
+						.param("token", data.token)
+				).andExpect(status().isOk())
+				.andReturn();
+
+		TypeReference<List<ResponseState>> t = new TypeReference<>() {
+		};
+		List<ResponseState> states = om.readValue(result.getResponse().getContentAsString(), t);
+
+		assertEquals(2, states.size());
 
 		// TODO: check for values saved on database
 	}

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -55,24 +56,51 @@ public class SurveyController {
 	}
 
 	/**
-	 * Return the current state for each skill of the {@link Survey} for the session related to the given token.
+	 * Return the current {@link State} of the {@link Survey} for the session related to the given token.
 	 *
 	 * @param token identifier of the session generate after an init call
-	 * @return a map where for each {@link Skill} name there is associated a probability distribution
+	 * @return a {@link State} that describe the last situation of the survey
 	 */
 	@GetMapping("/state")
 	@ResponseBody
-	public ResponseEntity<ResponseState> getCurrentState(@RequestParam("token") String token) {
+	public ResponseEntity<ResponseState> getLastStateForToken(@RequestParam("token") String token) {
 		logger.info("Request status for accessCode={}", token);
 
 		try {
 			Session session = sessionService.getSession(token);
-			Status status = statusRepository.findFirstBySessionOrderByCreationDesc(session);
+			State state = statusRepository.findFirstBySessionOrderByCreationDesc(session);
 
-			if (status == null)
+			if (state == null)
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-			return new ResponseEntity<>(new ResponseState(status), HttpStatus.OK);
+			return new ResponseEntity<>(new ResponseState(state), HttpStatus.OK);
+		} catch (SessionException e) {
+			logger.warn("Session not found for token={}", token);
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
+	}
+
+	/**
+	 * Return all teh {@link State}es of the {@link Survey} for the session related to the given token.
+	 *
+	 * @param token identifier of the session generate after an init call
+	 * @return list of {@link ResponseState}
+	 */
+	@GetMapping("/states")
+	@ResponseBody
+	public ResponseEntity<List<ResponseState>> getAllStatesForToken(@RequestParam("token") String token) {
+		logger.info("Request all stateses for accessCode={}", token);
+
+		try {
+			Session session = sessionService.getSession(token);
+			List<State> states = statusRepository.findAllBySessionOrderByCreationDesc(session);
+
+			if (states == null)
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+			List<ResponseState> res = states.stream().map(ResponseState::new).collect(Collectors.toList());
+
+			return new ResponseEntity<>(res, HttpStatus.OK);
 		} catch (SessionException e) {
 			logger.warn("Session not found for token={}", token);
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
@@ -106,8 +134,7 @@ public class SurveyController {
 
 			modelService.init(data);
 
-			Status s = modelService.getState(data)
-					// TODO: add missing parameters: questionsTotal, skillCompleted, ...
+			State s = modelService.getState(data)
 					.setSession(session);
 			statusRepository.save(s);
 
@@ -175,7 +202,7 @@ public class SurveyController {
 
 			modelService.checkAnswer(data, answer);
 
-			Status s = modelService.getState(data)
+			State s = modelService.getState(data)
 					// TODO: add missing parameters: questionsTotal, skillCompleted, ...
 					.setSession(session);
 			statusRepository.save(s);

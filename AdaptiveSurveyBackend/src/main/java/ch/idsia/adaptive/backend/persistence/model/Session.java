@@ -64,7 +64,7 @@ public class Session {
 	 */
 	@OneToMany
 	@OrderBy("creation asc")
-	private List<Status> statuses = new ArrayList<>();
+	private List<State> states = new ArrayList<>();
 
 	/**
 	 * Answers given during this session.

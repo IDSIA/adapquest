@@ -1,9 +1,11 @@
 package ch.idsia.adaptive.backend.persistence.dao;
 
 import ch.idsia.adaptive.backend.persistence.model.Session;
-import ch.idsia.adaptive.backend.persistence.model.Status;
+import ch.idsia.adaptive.backend.persistence.model.State;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -11,8 +13,9 @@ import org.springframework.stereotype.Repository;
  * Date:    24.11.2020 17:43
  */
 @Repository
-public interface StatusRepository extends CrudRepository<Status, Long> {
+public interface StatusRepository extends CrudRepository<State, Long> {
 
-	Status findFirstBySessionOrderByCreationDesc(Session s);
+	State findFirstBySessionOrderByCreationDesc(Session s);
 
+	List<State> findAllBySessionOrderByCreationDesc(Session s);
 }

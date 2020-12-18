@@ -19,7 +19,7 @@ import java.util.Set;
 @Entity
 @Data
 @Accessors(chain = true)
-public class Status {
+public class State {
 
 	@Id
 	@GeneratedValue

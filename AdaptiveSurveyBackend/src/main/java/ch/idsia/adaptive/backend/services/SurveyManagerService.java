@@ -64,7 +64,7 @@ public class SurveyManagerService {
 				.orElseThrow(() -> new IllegalArgumentException("Cannot load status: no model for token=" + token));
 	}
 
-	public Status getState(SurveyData data) {
+	public State getState(SurveyData data) {
 		return getSurvey(data).getState();
 	}
 
