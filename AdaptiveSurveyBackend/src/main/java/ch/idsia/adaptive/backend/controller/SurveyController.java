@@ -3,6 +3,7 @@ package ch.idsia.adaptive.backend.controller;
 import ch.idsia.adaptive.backend.persistence.dao.AnswerRepository;
 import ch.idsia.adaptive.backend.persistence.dao.QuestionAnswerRepository;
 import ch.idsia.adaptive.backend.persistence.dao.StatusRepository;
+import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,26 +35,38 @@ import java.util.stream.Collectors;
 public class SurveyController {
 	private static final Logger logger = LogManager.getLogger(SurveyController.class);
 
-	final SessionService sessionService;
-	final SurveyManagerService modelService;
+	final SessionService sessions;
+	final SurveyManagerService manager;
 
-	final StatusRepository statusRepository;
-	final QuestionAnswerRepository questionAnswerRepository;
-	final AnswerRepository answerRepository;
+	final SurveyRepository surveys;
+	final StatusRepository statuses;
+	final QuestionAnswerRepository questions;
+	final AnswerRepository answers;
 
 	@Autowired
 	public SurveyController(
-			SessionService sessionService,
-			SurveyManagerService modelService,
-			StatusRepository statusRepository,
-			QuestionAnswerRepository questionAnswerRepository,
-			AnswerRepository answerRepository
+			SessionService sessions,
+			SurveyManagerService manager,
+			SurveyRepository surveys,
+			StatusRepository statuses,
+			QuestionAnswerRepository questions,
+			AnswerRepository answers
 	) {
-		this.sessionService = sessionService;
-		this.modelService = modelService;
-		this.statusRepository = statusRepository;
-		this.questionAnswerRepository = questionAnswerRepository;
-		this.answerRepository = answerRepository;
+		this.sessions = sessions;
+		this.manager = manager;
+		this.surveys = surveys;
+		this.statuses = statuses;
+		this.questions = questions;
+		this.answers = answers;
+	}
+
+	@GetMapping("/codes")
+	public ResponseEntity<Collection<String>> getListOfAvailableAccessTokens(HttpServletRequest request) {
+		logger.info("Request list of available access tokens from ip={}", request.getRemoteAddr());
+
+		Collection<String> codes = surveys.findAllAccessCodes();
+
+		return new ResponseEntity<>(codes, HttpStatus.OK);
 	}
 
 	/**
@@ -67,8 +81,8 @@ public class SurveyController {
 		logger.info("Request status for accessCode={}", token);
 
 		try {
-			Session session = sessionService.getSession(token);
-			State state = statusRepository.findFirstBySessionOrderByCreationDesc(session);
+			Session session = sessions.getSession(token);
+			State state = statuses.findFirstBySessionOrderByCreationDesc(session);
 
 			if (state == null)
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -92,8 +106,8 @@ public class SurveyController {
 		logger.info("Request all stateses for accessCode={}", token);
 
 		try {
-			Session session = sessionService.getSession(token);
-			List<State> states = statusRepository.findAllBySessionOrderByCreationDesc(session);
+			Session session = sessions.getSession(token);
+			List<State> states = statuses.findAllBySessionOrderByCreationDesc(session);
 
 			if (states == null)
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -112,12 +126,12 @@ public class SurveyController {
 	 *
 	 * @param accessCode code to access a survey
 	 * @param request    servlet request component
-	 * @return the token for this session
+	 * @return 403 if there is an internal error or the input accessCode is not valid, otherwise 200 and the token for this session
 	 */
 	@GetMapping("/init")
 	@ResponseBody
 	public ResponseEntity<ResponseData> initTest(@RequestParam("accessCode") String accessCode, HttpServletRequest request) {
-		logger.info("Request test initialization with accessCode=" + accessCode);
+		logger.info("Request test initialization with accessCode={}", accessCode);
 
 		try {
 			SurveyData data = new SurveyData()
@@ -126,20 +140,23 @@ public class SurveyController {
 					.setRemoteAddress(request.getRemoteAddr());
 
 			// update data and assign session token
-			Session session = sessionService.registerNewSession(data);
+			Session session = sessions.registerNewSession(data);
 
 			logger.info("New initialization for accessCode=" + accessCode + " received token=" + session.getToken());
 
 			// TODO: initialize a timer or timeout for the time-limit achieved when someone abandons the survey
 
-			modelService.init(data);
+			manager.init(data);
 
-			State s = modelService.getState(data)
+			State s = manager.getState(data)
 					.setSession(session);
-			statusRepository.save(s);
+			statuses.save(s);
 
 			return new ResponseEntity<>(new ResponseData(data), HttpStatus.OK);
 		} catch (SessionException e) {
+			logger.warn("Request test initialization with an invalid accessCode={} from ip={}", accessCode, request.getRemoteAddr());
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
 			logger.error(e);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -150,7 +167,7 @@ public class SurveyController {
 	public List<Answer> getAnswers(String accessCode) {
 		logger.info("Request all answers for accessCode={}", accessCode);
 
-		return answerRepository.findAllBySessionTokenOrderByCreationAsc(accessCode);
+		return answers.findAllBySessionTokenOrderByCreationAsc(accessCode);
 	}
 
 	// TODO: getActiveTests?
@@ -158,11 +175,11 @@ public class SurveyController {
 	/**
 	 * Update the adaptive model for the given user based on its answer.
 	 *
-	 * @param token
-	 * @param questionId
-	 * @param answerId
-	 * @param request
-	 * @return
+	 * @param token      unique session token id
+	 * @param questionId question the user answer
+	 * @param answerId   answer given by the user
+	 * @param request    servlet request component
+	 * @return 500 if there is an internal error, otherwise 200
 	 */
 	@PostMapping("/answer")
 	public ResponseEntity<SurveyData> checkAnswer(@RequestParam("token") String token,
@@ -172,7 +189,7 @@ public class SurveyController {
 		logger.info("User with token={} gave answer={}", token, answerId);
 
 		try {
-			Session session = sessionService.getSession(token);
+			Session session = sessions.getSession(token);
 			SurveyData data = new SurveyData()
 					.setFromSession(session)
 					.setUserAgent(request.getHeader("User-Agent"))
@@ -185,7 +202,7 @@ public class SurveyController {
 			if (answerId == null)
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-			QuestionAnswer qa = questionAnswerRepository.findByIdAndQuestionId(answerId, questionId);
+			QuestionAnswer qa = questions.findByIdAndQuestionId(answerId, questionId);
 
 			if (qa == null)
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -196,14 +213,14 @@ public class SurveyController {
 					.setIsCorrect(qa.getIsCorrect())
 					.setQuestion(qa.getQuestion());
 
-			answerRepository.save(answer);
+			answers.save(answer);
 
-			modelService.checkAnswer(data, answer);
+			manager.checkAnswer(data, answer);
 
-			State s = modelService.getState(data)
+			State s = manager.getState(data)
 					// TODO: add missing parameters: questionsTotal, skillCompleted, ...
 					.setSession(session);
-			statusRepository.save(s);
+			statuses.save(s);
 
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (SessionException e) {
@@ -215,32 +232,37 @@ public class SurveyController {
 	/**
 	 * Request the service to return the complete exercise that the interface will display to the user.
 	 *
-	 * @param token
-	 * @param request
-	 * @return
+	 * @param token   unique session token id
+	 * @param request servlet request component
+	 * @return 500 if there is an internal error, 204 if the survey has ended, otherwise 200 with the data of the
+	 * question to pose
 	 */
 	@GetMapping("/question")
 	public ResponseEntity<ResponseQuestion> nextQuestion(@RequestParam("token") String token, HttpServletRequest request) {
+		logger.info("User with token={} request a new question", token);
+
 		try {
-			Session session = sessionService.getSession(token);
+			Session session = sessions.getSession(token);
 			SurveyData data = new SurveyData()
 					.setFromSession(session)
 					.setUserAgent(request.getHeader("User-Agent"))
 					.setRemoteAddress(request.getRemoteAddr());
 
 			// check for end time
-			if (sessionService.getRemainingTime(data) <= 0) {
+			if (sessions.getRemainingTime(data) <= 0) {
+				logger.info("User with token={} has ended with no remaining time", token);
 				// TODO: the survey is over
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
-			if (modelService.isFinished(data)) {
+			if (manager.isFinished(data)) {
+				logger.info("User with token={} has ended with a finished survey", token);
 				// TODO: the survey is over
-				modelService.complete(data);
+				manager.complete(data);
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
-			Question q = modelService.nextQuestion(data);
+			Question q = manager.nextQuestion(data);
 			return new ResponseEntity<>(new ResponseQuestion(q), HttpStatus.OK);
 		} catch (SessionException e) {
 			logger.error(e);
@@ -250,6 +272,7 @@ public class SurveyController {
 
 	@GetMapping("/results")
 	public Result surveyResults(String token) {
+		logger.info("User with token={} request the results", token);
 		// TODO
 		throw new NotImplementedException();
 	}

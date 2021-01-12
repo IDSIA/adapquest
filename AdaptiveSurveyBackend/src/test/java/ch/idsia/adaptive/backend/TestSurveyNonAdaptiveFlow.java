@@ -16,7 +16,6 @@ import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -152,8 +151,6 @@ class TestSurveyNonAdaptiveFlow {
 				.setIsAdaptive(false);
 
 		surveys.save(survey);
-
-		System.out.println(survey);
 	}
 
 	@Test
@@ -239,15 +236,30 @@ class TestSurveyNonAdaptiveFlow {
 	}
 
 	@Test
-	void wrongAccessCode() {
-		// TODO
-		throw new NotImplementedException();
+	void wrongAccessCode() throws Exception {
+		MvcResult result = mvc
+				.perform(get("/survey/init")
+						.param("accessCode", "Wr0ngAcc3ssC0d3!")
+				)
+				.andExpect(status().isNotFound())
+				.andReturn();
+
+		assertEquals("", result.getResponse().getContentAsString(), "Response is not empty");
 	}
 
 	@Test
-	void wrongSessionToken() {
-		// TODO
-		throw new NotImplementedException();
+	void wrongSessionToken() throws Exception {
+		MvcResult result;
+
+		// get current state of the skills
+		result = mvc
+				.perform(get("/survey/state")
+						.param("token", "this token should not exist")
+				)
+				.andExpect(status().isForbidden())
+				.andReturn();
+
+		assertEquals("", result.getResponse().getContentAsString(), "Response is not empty");
 	}
 
 }

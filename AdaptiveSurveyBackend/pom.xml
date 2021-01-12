@@ -104,6 +104,7 @@
 			<artifactId>spring-boot-devtools</artifactId>
 			<version>${spring.version}</version>
 			<optional>true</optional>
+			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>

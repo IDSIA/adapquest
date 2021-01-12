@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="layout">
-    <link rel="shortcut icon" th:href="@{/img/favicon.png}" type="image/png"/>
+    <link rel="shortcut icon" th:href="@{/img/favicon.ico}" type="image/ico"/>
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.5.3/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/jquery/3.5.1/jquery.min.js}"/>
 
     <script th:fragment="paths" th:inline="javascript" type="text/javascript">
         const context = /*[[@{/}]]*/ '';
