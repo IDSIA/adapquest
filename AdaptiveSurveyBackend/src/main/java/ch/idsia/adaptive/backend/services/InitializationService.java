@@ -124,6 +124,10 @@ public class InitializationService {
 				.setMixedSkillOrder(false)
 				.setIsAdaptive(false);
 
+		q1.setSurvey(survey);
+		q2.setSurvey(survey);
+		q3.setSurvey(survey);
+
 		surveys.save(survey);
 	}
 

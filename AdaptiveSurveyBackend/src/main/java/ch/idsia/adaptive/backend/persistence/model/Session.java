@@ -1,6 +1,7 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -19,10 +20,12 @@ import java.util.Set;
 @Entity
 @Data
 @Accessors(chain = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Session {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@EqualsAndHashCode.Include
 	private Long id;
 
 	/**
@@ -74,7 +77,7 @@ public class Session {
 	/**
 	 * Answers given during this session.
 	 */
-	@OneToMany(mappedBy = "session")
+	@OneToMany(mappedBy = "session", fetch = FetchType.EAGER)
 	@OrderBy("creation asc")
 	private Set<Answer> answers = new HashSet<>();
 

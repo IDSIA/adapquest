@@ -2,6 +2,7 @@ package ch.idsia.adaptive.backend.persistence.model;
 
 import ch.idsia.adaptive.backend.persistence.utils.ListStringConverter;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
@@ -16,10 +17,12 @@ import java.util.Set;
 @Entity
 @Data
 @Accessors(chain = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Survey {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@EqualsAndHashCode.Include
 	private Long id;
 
 	/**
@@ -48,8 +51,8 @@ public class Survey {
 	 * Order of the skill in the model skill-chain.
 	 */
 	// TODO: maybe this is model fixed?
-	@Transient
 	@Convert(converter = ListStringConverter.class)
+	@Column(name = "skillOrder")
 	private List<String> skillOrder;
 
 	/**
@@ -113,14 +116,14 @@ public class Survey {
 	// TODO: maybe consider
 	//  (1) a pool of questions shared between surveys?
 	//  (2) group of questions instead of a single question?
-	@OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@OrderBy("id ASC")
 	private List<Question> questions;
 
 	/**
 	 * Survey Sessions open for this Survey.
 	 */
-	@OneToMany(mappedBy = "survey", fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "survey", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
 	private Set<Session> sessions;
 
 }

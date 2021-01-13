@@ -4,6 +4,7 @@ import ch.idsia.adaptive.backend.persistence.utils.MapStringDoubleArrayConverter
 import ch.idsia.adaptive.backend.persistence.utils.MapStringLongConverter;
 import ch.idsia.adaptive.backend.persistence.utils.SetStringConverter;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
@@ -19,39 +20,38 @@ import java.util.Set;
 @Entity
 @Data
 @Accessors(chain = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class State {
 
-	@Id
-	@GeneratedValue
-	private Long id;
+	/**
+	 * If a skill is completed (no more questions) its name should be saved there there.
+	 */
+	// TODO
+	@Convert(converter = SetStringConverter.class)
+	@Column(name = "skillCompleted")
+	public Set<String> skillCompleted;
 
 	/**
 	 * Encoded Status saved.
 	 */
 	// TODO: save to file? Is this model dependent?
 	private String status;
-
-	/**
-	 * If a skill is completed (no more questions) its name should be saved there there.
-	 */
-	// TODO
-	@Transient
-	@Convert(converter = SetStringConverter.class)
-	public Set<String> skillCompleted;
-
-	/**
-	 * Total answers given for each skill, mapped by skill name.
-	 */
-	@Transient
-	@Convert(converter = MapStringLongConverter.class)
-	private Map<String, Long> questionsPerSkill;
-
 	/**
 	 * Mapping skill name to distribution.
 	 */
-	@Transient
 	@Convert(converter = MapStringDoubleArrayConverter.class)
+	@Column(name = "state")
 	public Map<String, double[]> state;
+	@Id
+	@GeneratedValue
+	@EqualsAndHashCode.Include
+	private Long id;
+	/**
+	 * Total answers given for each skill, mapped by skill name.
+	 */
+	@Convert(converter = MapStringLongConverter.class)
+	@Column(name = "questionsPerSkill")
+	private Map<String, Long> questionsPerSkill;
 
 	/**
 	 * Moment in time when this Status was created.

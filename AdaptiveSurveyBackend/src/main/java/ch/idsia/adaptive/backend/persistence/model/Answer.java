@@ -1,6 +1,7 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
@@ -14,10 +15,12 @@ import java.time.LocalDateTime;
 @Entity
 @Data
 @Accessors(chain = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Answer {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@EqualsAndHashCode.Include
 	private Long id;
 
 	/**
@@ -47,7 +50,7 @@ public class Answer {
 	/**
 	 * Session associated with this answer.
 	 */
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "fk_session")
 	private Session session;
 

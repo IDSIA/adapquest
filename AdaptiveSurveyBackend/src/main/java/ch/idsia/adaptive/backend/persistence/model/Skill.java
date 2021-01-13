@@ -2,6 +2,7 @@ package ch.idsia.adaptive.backend.persistence.model;
 
 import ch.idsia.adaptive.backend.persistence.utils.ListSkillLevelConverter;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
@@ -18,10 +19,12 @@ import java.util.List;
 @Entity
 @Data
 @Accessors(chain = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = false)
 public class Skill implements Comparable<Skill> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@EqualsAndHashCode.Include
 	private Long id;
 
 	/**
@@ -32,8 +35,8 @@ public class Skill implements Comparable<Skill> {
 	/**
 	 * Level grades of this skill. They are equals to the states of the variable in the model.
 	 */
-	@Transient
 	@Convert(converter = ListSkillLevelConverter.class)
+	@Column(name = "levels")
 	private List<SkillLevel> levels;
 
 	/**

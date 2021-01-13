@@ -14,30 +14,40 @@
         <p th:text="'Error:'+${error}"></p>
     </div>
 
-    <form action="" method="post">
+    <form method="post" th:action="''">
+        <input th:name="questionId" th:value="${question.id}" type="hidden">
         <div class="jumbotron">
-            <p th:text="${token}"></p>
-
             <h1 th:text="'Question' + ${question.id}"></h1>
             <p th:text="${question.explanation}"></p>
             <p th:text="${question.question}"></p>
 
             <ul>
-                <li th:each="answer : ${question.answers}" th:with="aid='q'+${question.id}+'a'+${answer.id}">
-                    <input name="answer" th:id="${aid}" th:value="${aid}" type="radio"/>
-                    <label th:for="${aid}" th:text="${answer.text}"></label>
+                <li th:each="answer : ${question.answers}">
+                    <input th:id="'a'+${answer.id}" th:name="answerId" th:value="${answer.id}" type="radio"/>
+                    <label th:for="'a'+${answer.id}" th:text="${answer.text}"></label>
                 </li>
             </ul>
 
-            <ul th:if="${state != null}">
-                <li th:text="${state.creationTime}"></li>
-                <li th:text="${state.totalAnswers}"></li>
+            <p th:if="${state != null}">
+            <h3>State</h3>
+            <ul>
+                <li th:text="'Created: ' + ${state.creationTime}"></li>
+                <li th:text="'Answers: ' + ${state.totalAnswers}"></li>
                 <!--<li th:each="skill : ${state.skillCompleted}" th:text="${skill}"></li>-->
                 <li th:each="key : ${state.skillDistribution.keySet()}">
-                    <p th:text="${state.skillDistribution.get(key)}"></p>
-                    <p th:text="${state.questionsPerSkill.get(key)}"></p>
+                    <p>
+                        <span th:text="'Skill: ' + ${key}"></span>
+                        <br/>
+                        Distribution: <span th:each="d : ${state.skillDistribution.get(key)}"
+                                            th:text="${#numbers.formatDecimal(d, 1,2)}+' '"></span>
+                        <br/>
+                        <span th:if="${state.questionsPerSkill.containsKey(key)}"
+                              th:text="'Questions: ' + ${state.questionsPerSkill.get(key)}"></span>
+                    </p>
                 </li>
             </ul>
+            </p>
+            <input th:value="'▶'" type="submit"/>
         </div>
     </form>
 

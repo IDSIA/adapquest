@@ -1,6 +1,7 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
@@ -17,10 +18,12 @@ import java.util.stream.Collectors;
 @Entity
 @Data
 @Accessors(chain = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Question {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@EqualsAndHashCode.Include
 	private Long id;
 
 	/**
@@ -58,27 +61,27 @@ public class Question {
 	/**
 	 * Given answers to this question.
 	 */
-	@OneToMany(mappedBy = "question", fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "question", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private Set<Answer> answers;
 
 	/**
 	 * Skill associated with this question.
 	 */
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "fk_skill")
 	private Skill skill;
 
 	/**
 	 * Difficulty associated with this question.
 	 */
-	@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "fk_level")
 	private QuestionLevel level;
 
 	/**
 	 * Survey that include this question.
 	 */
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "fk_survey")
 	private Survey survey;
 
