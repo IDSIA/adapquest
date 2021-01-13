@@ -51,32 +51,35 @@ public class Question {
 	/**
 	 * Available answers for this multiple choice question.
 	 */
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "question", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@OrderBy("id ASC")
 	private List<QuestionAnswer> answersAvailable;
 
 	/**
 	 * Given answers to this question.
 	 */
-	@OneToMany(fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "question", fetch = FetchType.EAGER)
 	private Set<Answer> answers;
 
 	/**
 	 * Skill associated with this question.
 	 */
 	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "fk_skill")
 	private Skill skill;
 
 	/**
 	 * Difficulty associated with this question.
 	 */
 	@ManyToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "fk_level")
 	private QuestionLevel level;
 
 	/**
 	 * Survey that include this question.
 	 */
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne
+	@JoinColumn(name = "fk_survey")
 	private Survey survey;
 
 	public Question addAnswersAvailable(QuestionAnswer... answersAvailable) {

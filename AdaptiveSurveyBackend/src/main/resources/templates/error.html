@@ -9,13 +9,10 @@
     <div th:replace="fragments/layout :: header"></div>
 
     <div class="jumbotron">
-        <p>Adaptive Surveys available</p>
-
-        <ul>
-            <li th:each="code : ${codes}">
-                <a th:href="@{/demo/start/}+${code}" th:text="${code}"></a>
-            </li>
-        </ul>
+        <p>Error</p>
+        <p th:text="${code}"></p>
+        <p th:text="${error}"></p>
+        <p></p>
     </div>
 
     <div th:replace="fragments/layout :: footer"></div>

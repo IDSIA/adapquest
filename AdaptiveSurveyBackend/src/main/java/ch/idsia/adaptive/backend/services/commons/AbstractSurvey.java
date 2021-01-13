@@ -31,6 +31,11 @@ public abstract class AbstractSurvey {
 	protected TIntIntMap observations = new TIntIntHashMap();
 
 	@Getter
+	protected boolean answered = false;
+	@Getter
+	protected Question currentQuestion = null;
+
+	@Getter
 	protected QuestionLevel nextQuestionLevel = null;
 	@Getter
 	protected Skill nextSkill = null;
@@ -48,8 +53,7 @@ public abstract class AbstractSurvey {
 	public State getState() {
 		// TODO: add missing parameters: skillCompleted, ...
 
-		Map<String, double[]> state = survey.getSkills()
-				.stream()
+		Map<String, double[]> state = survey.getSkills().stream()
 				.collect(Collectors.toMap(
 						Skill::getName,
 						s -> {
@@ -58,10 +62,12 @@ public abstract class AbstractSurvey {
 						}
 				));
 
-		Map<String, Long> qps = questionsDone.stream().map(Question::getSkill).collect(Collectors.groupingBy(
-				Skill::getName,
-				Collectors.counting()
-		));
+		Map<String, Long> qps = questionsDone.stream()
+				.map(Question::getSkill)
+				.collect(Collectors.groupingBy(
+						Skill::getName,
+						Collectors.counting()
+				));
 
 		return new State()
 				.setState(state)
@@ -77,8 +83,9 @@ public abstract class AbstractSurvey {
 
 	public void check(Answer answer) {
 		Integer variable = answer.getQuestion().getLevel().getVariable();
-		Integer state = answer.getAnswerGiven().getState();
+		Integer state = answer.getQuestionAnswer().getState();
 		observations.put(variable, state);
+		answered = true;
 	}
 
 	public abstract Question next();

@@ -16,16 +16,18 @@ public class NonAdaptiveSurvey extends AbstractSurvey {
 
 	@Override
 	public Question next() {
-		Question q;
+		if (!answered && currentQuestion != null)
+			return currentQuestion;
+
 		if (survey.getQuestionsAreRandom()) {
 			int i = random.nextInt(questions.size());
-			q = questions.remove(i);
+			currentQuestion = questions.remove(i);
 		} else {
-			q = questions.poll();
+			currentQuestion = questions.poll();
 		}
-		questionsDone.add(q);
+		questionsDone.add(currentQuestion);
 
-		return q;
+		return currentQuestion;
 	}
 
 	@Override

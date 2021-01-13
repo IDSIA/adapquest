@@ -52,9 +52,10 @@ public class SessionService {
 
 			session = new Session()
 					.setUserAgent(data.getUserAgent())
+					.setAccessCode(data.getAccessCode())
 					.setRemoteAddr(data.getRemoteAddress())
 					.setSurvey(survey)
-					.setToken(SurveyToken.create(data));
+					.setToken(SurveyToken.GUID());
 
 			repository.save(session);
 			data.setFromSession(session);

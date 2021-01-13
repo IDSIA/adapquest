@@ -37,10 +37,11 @@ public class QuestionAnswer {
 	 */
 	private Integer state;
 
-	@OneToMany(fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "questionAnswer", fetch = FetchType.EAGER)
 	private List<Answer> answers;
 
 	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinColumn(name = "fk_question")
 	private Question question;
 
 	public QuestionAnswer(String text) {

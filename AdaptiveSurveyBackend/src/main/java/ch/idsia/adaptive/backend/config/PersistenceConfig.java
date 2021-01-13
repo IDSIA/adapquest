@@ -65,6 +65,7 @@ public class PersistenceConfig {
 		properties.put("hibernate.hbm2ddl.auto", env.getProperty("spring.jpa.hibernate.ddl-auto", ""));
 		properties.put("hibernate.dialect", env.getProperty("spring.jpa.database-platform", ""));
 		properties.put("hibernate.show_sql", env.getProperty("spring.jpa.show-sql", "false"));
+		properties.put("hibernate.globally_quoted_identifiers", env.getProperty("spring.jpa.hibernate.globally_quoted_identifiers", "false"));
 		return properties;
 	}
 

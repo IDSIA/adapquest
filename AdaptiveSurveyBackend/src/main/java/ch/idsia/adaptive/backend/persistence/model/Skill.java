@@ -44,7 +44,7 @@ public class Skill implements Comparable<Skill> {
 	/**
 	 * Questions assigned to this skill.
 	 */
-	@OneToMany
+	@OneToMany(mappedBy = "skill")
 	@OrderBy("id ASC")
 	private List<Question> questions;
 

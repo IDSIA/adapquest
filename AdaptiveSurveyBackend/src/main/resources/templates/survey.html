@@ -8,16 +8,41 @@
 <div class="container">
     <div th:replace="fragments/layout :: header"></div>
 
-    <div class="jumbotron">
-        <p>Example</p>
+    <div class="jumbotron" th:if="${error != null}">
+        <p>Error</p>
+        <p th:text="'Code:'+${code}"></p>
+        <p th:text="'Error:'+${error}"></p>
     </div>
+
+    <form action="" method="post">
+        <div class="jumbotron">
+            <p th:text="${token}"></p>
+
+            <h1 th:text="'Question' + ${question.id}"></h1>
+            <p th:text="${question.explanation}"></p>
+            <p th:text="${question.question}"></p>
+
+            <ul>
+                <li th:each="answer : ${question.answers}" th:with="aid='q'+${question.id}+'a'+${answer.id}">
+                    <input name="answer" th:id="${aid}" th:value="${aid}" type="radio"/>
+                    <label th:for="${aid}" th:text="${answer.text}"></label>
+                </li>
+            </ul>
+
+            <ul th:if="${state != null}">
+                <li th:text="${state.creationTime}"></li>
+                <li th:text="${state.totalAnswers}"></li>
+                <!--<li th:each="skill : ${state.skillCompleted}" th:text="${skill}"></li>-->
+                <li th:each="key : ${state.skillDistribution.keySet()}">
+                    <p th:text="${state.skillDistribution.get(key)}"></p>
+                    <p th:text="${state.questionsPerSkill.get(key)}"></p>
+                </li>
+            </ul>
+        </div>
+    </form>
 
     <div th:replace="fragments/layout :: footer"></div>
 </div>
-
-<script>
-
-</script>
 
 </body>
 </html>

@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -144,7 +145,7 @@ class TestSurveyNonAdaptiveFlow {
 				.setDescription("This is just a description")
 				.setDuration(3600L)
 				.setQuestions(List.of(q1, q2, q3))
-				.setSkills(List.of(skill))
+				.setSkills(Set.of(skill))
 				.setSkillOrder(List.of(skill.getName()))
 				.setModelData(String.join("\n", modelData))
 				.setMixedSkillOrder(false)

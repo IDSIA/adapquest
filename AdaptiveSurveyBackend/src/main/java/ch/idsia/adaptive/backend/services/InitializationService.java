@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -116,20 +117,23 @@ public class InitializationService {
 						new QuestionAnswer().setText("***").setState(2)
 				);
 
-		questions.saveAll(List.of(q1, q2, q3));
-
 		// create new survey
 		Survey survey = new Survey()
 				.setAccessCode(ACCESS_CODE)
 				.setDescription("This is just a description")
 				.setDuration(3600L)
 				.setQuestions(List.of(q1, q2, q3))
-				.setSkills(List.of(skill))
+				.setSkills(Set.of(skill))
 				.setSkillOrder(List.of(skill.getName()))
 				.setModelData(String.join("\n", modelData))
 				.setMixedSkillOrder(false)
 				.setIsAdaptive(false);
 
+		q1.setSurvey(survey);
+		q2.setSurvey(survey);
+		q3.setSurvey(survey);
+
+		questions.saveAll(List.of(q1, q2, q3));
 		surveys.save(survey);
 	}
 

@@ -78,7 +78,7 @@ public class SurveyController {
 	@GetMapping("/state")
 	@ResponseBody
 	public ResponseEntity<ResponseState> getLastStateForToken(@RequestParam("token") String token) {
-		logger.info("Request status for accessCode={}", token);
+		logger.info("Request status for token={}", token);
 
 		try {
 			Session session = sessions.getSession(token);
@@ -209,7 +209,7 @@ public class SurveyController {
 
 			Answer answer = new Answer()
 					.setSession(session)
-					.setAnswerGiven(qa)
+					.setQuestionAnswer(qa)
 					.setIsCorrect(qa.getIsCorrect())
 					.setQuestion(qa.getQuestion());
 

@@ -11,8 +11,8 @@ import java.util.UUID;
  */
 public class SurveyToken {
 
-	public static UUID GUID() {
-		return UUID.randomUUID();
+	public static String GUID() {
+		return UUID.randomUUID().toString();
 	}
 
 	public static String create(SurveyData data) {

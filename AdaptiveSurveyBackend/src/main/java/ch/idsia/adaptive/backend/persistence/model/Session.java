@@ -28,7 +28,7 @@ public class Session {
 	/**
 	 * Code used to generate this session and access to a survey.
 	 */
-	@Column(nullable = false)
+	@Column(nullable = false, length = 1024)
 	private String token;
 
 	/**
@@ -40,6 +40,11 @@ public class Session {
 	 * User agent of the user.
 	 */
 	private String userAgent;
+
+	/**
+	 * Access Code used to start the survey.
+	 */
+	private String accessCode;
 
 	/**
 	 * When this session started. This is also used as a seed for the randomness.
@@ -62,14 +67,14 @@ public class Session {
 	/**
 	 * Statuses created during this session.
 	 */
-	@OneToMany
+	@OneToMany(mappedBy = "session")
 	@OrderBy("creation asc")
 	private List<State> states = new ArrayList<>();
 
 	/**
 	 * Answers given during this session.
 	 */
-	@OneToMany
+	@OneToMany(mappedBy = "session")
 	@OrderBy("creation asc")
 	private Set<Answer> answers = new HashSet<>();
 
@@ -77,6 +82,7 @@ public class Session {
 	 * Survey done in this session.
 	 */
 	@ManyToOne
+	@JoinColumn(name = "fk_survey")
 	private Survey survey;
 
 	/**

@@ -47,8 +47,8 @@ public class Survey {
 	/**
 	 * Skills used in the survey.
 	 */
-	@OneToMany
-	private List<Skill> skills;
+	@OneToMany(fetch = FetchType.EAGER)
+	private Set<Skill> skills;
 
 	/**
 	 * Order of the skill in the model skill-chain.
@@ -119,14 +119,14 @@ public class Survey {
 	// TODO: maybe consider
 	//  (1) a pool of questions shared between surveys?
 	//  (2) group of questions instead of a single question?
-	@OneToMany
+	@OneToMany(mappedBy = "survey", fetch = FetchType.EAGER)
 	@OrderBy("id ASC")
 	private List<Question> questions;
 
 	/**
 	 * Survey Sessions open for this Survey.
 	 */
-	@OneToMany(fetch = FetchType.LAZY)
+	@OneToMany(fetch = FetchType.EAGER)
 	private Set<Session> sessions;
 
 }

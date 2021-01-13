@@ -37,7 +37,7 @@ public class QuestionLevel implements Comparable<QuestionLevel> {
 	 */
 	private Integer variable;
 
-	@OneToMany(fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "level")
 	private List<Question> question;
 
 	public QuestionLevel(String name, Double points) {

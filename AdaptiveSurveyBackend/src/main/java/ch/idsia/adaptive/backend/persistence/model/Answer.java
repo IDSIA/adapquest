@@ -33,19 +33,22 @@ public class Answer {
 	/**
 	 * The answer given.
 	 */
-	@ManyToOne
-	private QuestionAnswer answerGiven;
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "fk_questionAnswer")
+	private QuestionAnswer questionAnswer;
 
 	/**
 	 * Question of which this answer is for.
 	 */
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "fk_question")
 	private Question question;
 
 	/**
 	 * Session associated with this answer.
 	 */
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "fk_session")
 	private Session session;
 
 	public Long getQuestionId() {

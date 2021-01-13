@@ -6,6 +6,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -87,6 +88,18 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 
 	@Override
 	public Question next() {
+		if (!answered && currentQuestion != null)
+			return currentQuestion;
+
+		List<Skill> skills = survey.getSkills().stream()
+				.filter(this::isSkillValid)
+				.map(skill -> {
+					// TODO
+					return skill;
+				})
+				.collect(Collectors.toList());
+
+
 		// TODO: Consider conditional entropy of skill
 		// TODO: register which question has been chose
 		throw new NotImplementedException();

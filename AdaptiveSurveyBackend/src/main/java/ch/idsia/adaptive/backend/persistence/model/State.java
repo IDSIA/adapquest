@@ -66,7 +66,8 @@ public class State {
 	/**
 	 * Session associated with this Status.
 	 */
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "fk_session")
 	private Session session;
 
 }
