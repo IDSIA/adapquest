@@ -41,16 +41,6 @@ public class Skill implements Comparable<Skill> {
 	 */
 	private Integer variable;
 
-	/**
-	 * Questions assigned to this skill.
-	 */
-	@OneToMany(mappedBy = "skill")
-	@OrderBy("id ASC")
-	private List<Question> questions;
-
-	@OneToMany
-	private List<Survey> surveys;
-
 	@Override
 	public String toString() {
 		return "Skill{" +

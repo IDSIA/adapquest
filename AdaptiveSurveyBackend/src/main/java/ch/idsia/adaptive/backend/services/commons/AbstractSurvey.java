@@ -22,6 +22,7 @@ public abstract class AbstractSurvey {
 	protected final Survey survey;
 	protected final Random random;
 
+	protected Set<Skill> skills = new HashSet<>();
 	protected LinkedList<Question> questions = new LinkedList<>();
 	protected List<Question> questionsDone = new ArrayList<>();
 
@@ -53,7 +54,7 @@ public abstract class AbstractSurvey {
 	public State getState() {
 		// TODO: add missing parameters: skillCompleted, ...
 
-		Map<String, double[]> state = survey.getSkills().stream()
+		Map<String, double[]> state = skills.stream()
 				.collect(Collectors.toMap(
 						Skill::getName,
 						s -> {
@@ -77,6 +78,7 @@ public abstract class AbstractSurvey {
 
 	public void addQuestions(List<Question> questions) {
 		this.questions.addAll(questions);
+		this.skills.addAll(questions.stream().map(Question::getSkill).collect(Collectors.toList()));
 	}
 
 	public abstract boolean isFinished();

@@ -45,12 +45,6 @@ public class Survey {
 	private String modelData;
 
 	/**
-	 * Skills used in the survey.
-	 */
-	@OneToMany(fetch = FetchType.EAGER)
-	private Set<Skill> skills;
-
-	/**
 	 * Order of the skill in the model skill-chain.
 	 */
 	// TODO: maybe this is model fixed?
@@ -119,14 +113,14 @@ public class Survey {
 	// TODO: maybe consider
 	//  (1) a pool of questions shared between surveys?
 	//  (2) group of questions instead of a single question?
-	@OneToMany(mappedBy = "survey", fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@OrderBy("id ASC")
 	private List<Question> questions;
 
 	/**
 	 * Survey Sessions open for this Survey.
 	 */
-	@OneToMany(fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "survey", fetch = FetchType.EAGER)
 	private Set<Session> sessions;
 
 }

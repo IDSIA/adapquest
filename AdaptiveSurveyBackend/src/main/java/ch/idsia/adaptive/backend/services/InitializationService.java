@@ -1,6 +1,5 @@
 package ch.idsia.adaptive.backend.services;
 
-import ch.idsia.adaptive.backend.persistence.dao.QuestionRepository;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -26,13 +24,11 @@ public class InitializationService {
 	private static final String ACCESS_CODE = "AdaptiveSurvey-Example";
 
 	private final SurveyRepository surveys;
-	private final QuestionRepository questions;
 
 
 	@Autowired
-	public InitializationService(SurveyRepository surveys, QuestionRepository questions) {
+	public InitializationService(SurveyRepository surveys) {
 		this.surveys = surveys;
-		this.questions = questions;
 	}
 
 	public void init() {
@@ -123,17 +119,11 @@ public class InitializationService {
 				.setDescription("This is just a description")
 				.setDuration(3600L)
 				.setQuestions(List.of(q1, q2, q3))
-				.setSkills(Set.of(skill))
 				.setSkillOrder(List.of(skill.getName()))
 				.setModelData(String.join("\n", modelData))
 				.setMixedSkillOrder(false)
 				.setIsAdaptive(false);
 
-		q1.setSurvey(survey);
-		q2.setSurvey(survey);
-		q3.setSurvey(survey);
-
-		questions.saveAll(List.of(q1, q2, q3));
 		surveys.save(survey);
 	}
 

@@ -85,12 +85,6 @@ public class Session {
 	@JoinColumn(name = "fk_survey")
 	private Survey survey;
 
-	/**
-	 * User that is associated with this session.
-	 */
-	@ManyToOne
-	private User user;
-
 	public Result getResult() {
 		// TODO
 		throw new NotImplementedException();
