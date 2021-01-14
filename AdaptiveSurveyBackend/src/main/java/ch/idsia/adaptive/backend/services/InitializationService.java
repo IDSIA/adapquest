@@ -76,41 +76,46 @@ public class InitializationService {
 				.setName("A")
 				.setVariable(A)
 				.setLevels(List.of(
+						// same as number of states of A
 						new SkillLevel("low", 0.0),
 						new SkillLevel("high", 1.0)
 				));
 
-		// question levels
-		QuestionLevel low = new QuestionLevel().setName("Low interest").setVariable(L);
-		QuestionLevel medium = new QuestionLevel().setName("Medium interest").setVariable(M);
-		QuestionLevel high = new QuestionLevel().setName("High interest").setVariable(H);
-
 		// 3 questions
 		Question q1 = new Question()
 				.setQuestion("Question 1")
-				.setExplanation("Blah blah blah blah")
+				.setExplanation("Question of low interest")
 				.setSkill(skill)
-				.setLevel(low)
+				.setLevel(
+						new QuestionLevel().setName("Low interest").setVariable(L)
+				)
 				.addAnswersAvailable(
+						// same as number of states of L
 						new QuestionAnswer().setText("a").setState(0),
 						new QuestionAnswer().setText("b").setState(1),
 						new QuestionAnswer().setText("c").setState(2)
 				);
 		Question q2 = new Question()
 				.setQuestion("Question 2")
-				.setExplanation("Blah blah blah blah")
+				.setExplanation("Question of medium interest")
 				.setSkill(skill)
-				.setLevel(medium)
+				.setLevel(
+						new QuestionLevel().setName("Medium interest").setVariable(M)
+				)
 				.addAnswersAvailable(
+						// same as number of states of M
 						new QuestionAnswer().setText("1").setState(0),
 						new QuestionAnswer().setText("2").setState(1)
 				);
 		Question q3 = new Question()
 				.setQuestion("Question 3")
-				.setExplanation("Blah blah blah blah")
+				.setExplanation("Question of high interest")
 				.setSkill(skill)
-				.setLevel(high)
+				.setLevel(
+						new QuestionLevel().setName("High interest").setVariable(H)
+				)
 				.addAnswersAvailable(
+						// same as number of states of H
 						new QuestionAnswer().setText("*").setState(0),
 						new QuestionAnswer().setText("**").setState(1),
 						new QuestionAnswer().setText("***").setState(2)

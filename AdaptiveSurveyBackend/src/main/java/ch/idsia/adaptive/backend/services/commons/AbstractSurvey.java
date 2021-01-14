@@ -23,6 +23,8 @@ public abstract class AbstractSurvey {
 	protected final Random random;
 
 	protected Set<Skill> skills = new HashSet<>();
+	protected Map<Skill, Set<QuestionLevel>> levels = new HashMap<>();
+
 	protected LinkedList<Question> questions = new LinkedList<>();
 	protected List<Question> questionsDone = new ArrayList<>();
 
@@ -77,8 +79,13 @@ public abstract class AbstractSurvey {
 	}
 
 	public void addQuestions(List<Question> questions) {
-		this.questions.addAll(questions);
-		this.skills.addAll(questions.stream().map(Question::getSkill).collect(Collectors.toList()));
+		questions.forEach(q -> {
+			Skill skill = q.getSkill();
+
+			this.questions.add(q);
+			this.skills.add(skill);
+			this.levels.computeIfAbsent(skill, i -> new HashSet<>()).add(q.getLevel());
+		});
 	}
 
 	public abstract boolean isFinished();

@@ -1,7 +1,10 @@
 package ch.idsia.adaptive.backend.services.commons;
 
 import ch.idsia.adaptive.backend.persistence.model.*;
-import org.apache.commons.lang3.NotImplementedException;
+import ch.idsia.crema.entropy.BayesianEntropy;
+import ch.idsia.crema.factor.bayesian.BayesianFactor;
+import gnu.trove.map.TIntIntMap;
+import gnu.trove.map.hash.TIntIntHashMap;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -26,13 +29,20 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 
 	@Override
 	public void addQuestions(List<Question> questions) {
-		for (Question q : questions) {
-			Skill s = q.getSkill();
-			nameToSkill.putIfAbsent(s.getName(), s);
-			questionsDonePerSkill.putIfAbsent(s, 0);
-			availableQuestionLevels.computeIfAbsent(s, x -> new TreeSet<>()).add(q.getLevel());
-			availableQuestions.computeIfAbsent(new ImmutablePair<>(s, q.getLevel()), x -> new LinkedList<>()).add(q);
-		}
+		questions.forEach(q -> {
+			Skill skill = q.getSkill();
+
+			// for AbstractSurvey class
+			this.questions.add(q);
+			this.skills.add(skill);
+			this.levels.computeIfAbsent(skill, i -> new HashSet<>()).add(q.getLevel());
+
+			// for this class
+			this.nameToSkill.putIfAbsent(skill.getName(), skill);
+			this.questionsDonePerSkill.putIfAbsent(skill, 0);
+			this.availableQuestionLevels.computeIfAbsent(skill, x -> new TreeSet<>()).add(q.getLevel());
+			this.availableQuestions.computeIfAbsent(new ImmutablePair<>(skill, q.getLevel()), x -> new LinkedList<>()).add(q);
+		});
 	}
 
 	/**
@@ -90,8 +100,50 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 		if (!answered && currentQuestion != null)
 			return currentQuestion;
 
-		// TODO: Consider conditional entropy of skill
-		// TODO: register which question has been chose
-		throw new NotImplementedException();
+		Skill nextSkill = null;
+		QuestionLevel nextLevel = null;
+		double minH = Double.MAX_VALUE;
+
+		for (Skill skill : skills) {
+			Integer S = skill.getVariable();
+
+			// TODO: refactor since we will have questions in the model instead of question levels
+
+			for (QuestionLevel level : levels.get(skill)) {
+				Integer L = level.getVariable();
+
+				int size = network.getSize(L);
+
+				double h = 0;
+
+				for (int i = 0; i < size; i++) {
+					inference.clearEvidence();
+					TIntIntMap obs = new TIntIntHashMap();
+					obs.put(L, i);
+					inference.setEvidence(obs);
+
+					BayesianFactor pS = inference.query(S);
+					h += BayesianEntropy.H(pS);
+				}
+
+				if (h < minH) {
+					nextSkill = skill;
+					nextLevel = level;
+					minH = h;
+				}
+			}
+		}
+
+		LinkedList<Question> questions = availableQuestions.get(new ImmutablePair<>(nextSkill, nextLevel));
+
+		// TODO:
+		//  - add checks for nextSkill and nextLevel!
+		//  - Consider conditional entropy of skill
+		//  - register which question has been chose
+		//  - check if enough questions
+		//  - random choice of question
+		//  - call other uncalled methods...
+
+		return questions.get(0);
 	}
 }

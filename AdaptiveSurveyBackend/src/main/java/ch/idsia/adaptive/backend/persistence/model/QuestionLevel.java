@@ -40,6 +40,8 @@ public class QuestionLevel implements Comparable<QuestionLevel> {
 	 */
 	private Integer variable;
 
+	// TODO: this can be aggregated inside Question, since we have put all the questions inside the network from start!
+
 	@OneToMany(mappedBy = "level")
 	private List<Question> question;
 
