@@ -11,7 +11,6 @@ import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import ch.idsia.adaptive.backend.services.SessionException;
 import ch.idsia.adaptive.backend.services.SessionService;
 import ch.idsia.adaptive.backend.services.SurveyManagerService;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +102,7 @@ public class SurveyController {
 	@GetMapping("/states")
 	@ResponseBody
 	public ResponseEntity<List<ResponseState>> getAllStatesForToken(@RequestParam("token") String token) {
-		logger.info("Request all stateses for accessCode={}", token);
+		logger.info("Request all states for accessCode={}", token);
 
 		try {
 			Session session = sessions.getSession(token);
@@ -162,7 +161,6 @@ public class SurveyController {
 		}
 	}
 
-	// TODO: remove or move to another controller
 	@GetMapping("/answers")
 	public List<Answer> getAnswers(String accessCode) {
 		logger.info("Request all answers for accessCode={}", accessCode);
@@ -182,10 +180,12 @@ public class SurveyController {
 	 * @return 500 if there is an internal error, otherwise 200
 	 */
 	@PostMapping("/answer")
-	public ResponseEntity<SurveyData> checkAnswer(@RequestParam("token") String token,
-	                                              @RequestParam("question") Long questionId,
-	                                              @RequestParam("answer") Long answerId,
-	                                              HttpServletRequest request) {
+	public ResponseEntity<SurveyData> checkAnswer(
+			@RequestParam("token") String token,
+			@RequestParam("question") Long questionId,
+			@RequestParam("answer") Long answerId,
+			HttpServletRequest request
+	) {
 		logger.info("User with token={} gave answer={}", token, answerId);
 
 		try {
@@ -213,13 +213,13 @@ public class SurveyController {
 					.setIsCorrect(qa.getIsCorrect())
 					.setQuestion(qa.getQuestion());
 
-			answers.save(answer);
-
+			answer = answers.save(answer);
 			manager.checkAnswer(data, answer);
 
-			State s = manager.getState(data)
-					// TODO: add missing parameters: questionsTotal, skillCompleted, ...
-					.setSession(session);
+			sessions.setLastAnswer(session, answer);
+
+			State s = manager.getState(data).setSession(session);
+
 			statuses.save(s);
 
 			return new ResponseEntity<>(HttpStatus.OK);
@@ -251,14 +251,15 @@ public class SurveyController {
 			// check for end time
 			if (sessions.getRemainingTime(data) <= 0) {
 				logger.info("User with token={} has ended with no remaining time", token);
-				// TODO: the survey is over
+				manager.complete(data);
+				sessions.endSurvey(session);
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
 			if (manager.isFinished(data)) {
 				logger.info("User with token={} has ended with a finished survey", token);
-				// TODO: the survey is over
 				manager.complete(data);
+				sessions.endSurvey(session);
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
@@ -271,10 +272,26 @@ public class SurveyController {
 	}
 
 	@GetMapping("/results")
-	public Result surveyResults(String token) {
+	public ResponseEntity<ResponseResult> surveyResults(String token) {
 		logger.info("User with token={} request the results", token);
-		// TODO
-		throw new NotImplementedException();
+		try {
+			Session session = sessions.getSession(token);
+			State state = statuses.findFirstBySessionOrderByCreationDesc(session);
+
+			if (state == null)
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+			ResponseResult r = new ResponseResult()
+					.setAnswers(session.getAnswers().size())
+					.setSeconds(session.getElapsedSeconds())
+					.setEnded(session.getEndTime() != null)
+					.setState(new ResponseState(state));
+
+			return new ResponseEntity<>(r, HttpStatus.OK);
+		} catch (SessionException e) {
+			logger.warn("Session not found for token={}", token);
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
 	}
 
 }

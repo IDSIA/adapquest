@@ -1,6 +1,8 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
+import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -8,12 +10,13 @@ import lombok.Data;
  * Date:    25.11.2020 11:50
  */
 @Data
-public class Result {
+@Accessors(chain = true)
+public class ResponseResult {
 
 	/**
 	 * Number of answers given.
 	 */
-	private Integer answer;
+	private Integer answers;
 
 	/**
 	 * Total seconds.
@@ -24,4 +27,14 @@ public class Result {
 	 * Extra data.
 	 */
 	private String data;
+
+	/**
+	 * Has ended;
+	 */
+	private Boolean ended;
+
+	/**
+	 * Last state of the survey.
+	 */
+	private ResponseState state;
 }

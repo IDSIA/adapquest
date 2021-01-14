@@ -21,7 +21,7 @@ import java.util.List;
 public class InitializationService {
 	private static final Logger logger = LogManager.getLogger(InitializationService.class);
 
-	private static final String ACCESS_CODE = "AdaptiveSurvey-Example";
+	private static final String ACCESS_CODE = "NonAdaptiveSurvey-Example";
 
 	private final SurveyRepository surveys;
 
@@ -88,6 +88,7 @@ public class InitializationService {
 		// 3 questions
 		Question q1 = new Question()
 				.setQuestion("Question 1")
+				.setExplanation("Blah blah blah blah")
 				.setSkill(skill)
 				.setLevel(low)
 				.addAnswersAvailable(
@@ -97,6 +98,7 @@ public class InitializationService {
 				);
 		Question q2 = new Question()
 				.setQuestion("Question 2")
+				.setExplanation("Blah blah blah blah")
 				.setSkill(skill)
 				.setLevel(medium)
 				.addAnswersAvailable(
@@ -105,6 +107,7 @@ public class InitializationService {
 				);
 		Question q3 = new Question()
 				.setQuestion("Question 3")
+				.setExplanation("Blah blah blah blah")
 				.setSkill(skill)
 				.setLevel(high)
 				.addAnswersAvailable(

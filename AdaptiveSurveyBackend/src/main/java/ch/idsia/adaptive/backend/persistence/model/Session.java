@@ -3,10 +3,10 @@ package ch.idsia.adaptive.backend.persistence.model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.apache.commons.lang3.NotImplementedException;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -88,8 +88,18 @@ public class Session {
 	@JoinColumn(name = "fk_survey")
 	private Survey survey;
 
-	public Result getResult() {
-		// TODO
-		throw new NotImplementedException();
+	/**
+	 * @return return the length in seconds of the survey if the {@link #endTime} i set, otherwise the number of seconds
+	 * until the current date.
+	 */
+	public Long getElapsedSeconds() {
+		LocalDateTime start = this.startTime;
+		LocalDateTime end = this.endTime;
+
+		if (this.endTime == null) {
+			end = LocalDateTime.now();
+		}
+
+		return start.until(end, ChronoUnit.SECONDS);
 	}
 }

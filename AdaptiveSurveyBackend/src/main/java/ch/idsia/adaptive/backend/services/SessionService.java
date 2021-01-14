@@ -19,8 +19,6 @@ import java.time.temporal.ChronoUnit;
 public class SessionService {
 	private static final Logger logger = LogManager.getLogger(SessionService.class);
 
-	// TODO: session can be not returned: this service will operate on the database without exposing the current session
-
 	final SessionRepository repository;
 	final SurveyRepository surveys;
 
@@ -57,7 +55,7 @@ public class SessionService {
 					.setSurvey(survey)
 					.setToken(SurveyToken.GUID());
 
-			repository.save(session);
+			session = repository.save(session);
 			data.setFromSession(session);
 
 			return session;
@@ -90,24 +88,22 @@ public class SessionService {
 	/**
 	 * Set the end time for when the session ended.
 	 *
-	 * @param token session token
-	 * @throws SessionException is the session does not exists
+	 * @param session a valid session
 	 */
-	public void endSurvey(String token) throws SessionException {
-		Session session = getSession(token);
-		session.setEndTime(LocalDateTime.now());
-		repository.save(session);
+	public void endSurvey(Session session) {
+		if (session.getEndTime() == null) {
+			session.setEndTime(LocalDateTime.now());
+			repository.save(session);
+		}
 	}
 
 	/**
 	 * Set the last given answer to the session identified by token.
 	 *
-	 * @param token  session token
-	 * @param answer answer to save
-	 * @throws SessionException is the session does not exists
+	 * @param session a valid session
+	 * @param answer  answer to save
 	 */
-	public void setLastAnswer(String token, Answer answer) throws SessionException {
-		Session session = getSession(token);
+	public void setLastAnswer(Session session, Answer answer) {
 		session.getAnswers().add(answer);
 		session.setLastAnswerTime(LocalDateTime.now());
 		repository.save(session);

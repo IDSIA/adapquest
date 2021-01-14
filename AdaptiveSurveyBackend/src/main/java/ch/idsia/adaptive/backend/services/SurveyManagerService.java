@@ -5,7 +5,6 @@ import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.services.commons.AbstractSurvey;
 import ch.idsia.adaptive.backend.services.commons.AdaptiveSurvey;
 import ch.idsia.adaptive.backend.services.commons.NonAdaptiveSurvey;
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -77,14 +76,11 @@ public class SurveyManagerService {
 	}
 
 	public Question nextQuestion(SurveyData data) {
-		// TODO: check for answer before get new question
 		return getSurvey(data).next();
 	}
 
 	public void complete(SurveyData data) {
-		// TODO:
-		//  - remove inference and model from map
-		//  - collect results
-		throw new NotImplementedException();
+		activeSurveys.remove(data.getToken());
+		// TODO: collect results
 	}
 }
