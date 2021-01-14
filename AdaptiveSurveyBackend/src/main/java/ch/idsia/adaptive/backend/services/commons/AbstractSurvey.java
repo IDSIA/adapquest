@@ -1,6 +1,7 @@
 package ch.idsia.adaptive.backend.services.commons;
 
 import ch.idsia.adaptive.backend.persistence.model.*;
+import ch.idsia.crema.entropy.BayesianEntropy;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import ch.idsia.crema.inference.bp.BeliefPropagation;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
@@ -48,16 +49,23 @@ public abstract class AbstractSurvey {
 	}
 
 	public State getState() {
-		inference.clearEvidence();
 
-		Map<String, double[]> state = skills.stream()
-				.collect(Collectors.toMap(
-						Skill::getName,
-						s -> {
-							inference.setEvidence(observations);
-							return inference.query(s.getVariable()).getData();
-						}
-				));
+		Map<String, double[]> state = new HashMap<>();
+		Map<String, Double> entropy = new HashMap<>();
+
+		inference.clearEvidence();
+		inference.setEvidence(observations);
+
+		for (Skill skill : skills) {
+			String s = skill.getName();
+
+			BayesianFactor f = inference.query(skill.getVariable());
+			double[] distr = f.getData();
+			double h = BayesianEntropy.H(f);
+
+			state.put(s, distr);
+			entropy.put(s, h);
+		}
 
 		Map<String, Long> qps = questionsDone.stream()
 				.map(Question::getSkill)
@@ -73,6 +81,7 @@ public abstract class AbstractSurvey {
 
 		return new State()
 				.setState(state)
+				.setEntropy(entropy)
 				.setQuestionsPerSkill(qps)
 				.setSkillCompleted(skillCompleted)
 				.setTotalAnswers(questionsDone.size());

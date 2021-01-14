@@ -1,6 +1,7 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
 import ch.idsia.adaptive.backend.persistence.utils.MapStringDoubleArrayConverter;
+import ch.idsia.adaptive.backend.persistence.utils.MapStringDoubleConverter;
 import ch.idsia.adaptive.backend.persistence.utils.MapStringLongConverter;
 import ch.idsia.adaptive.backend.persistence.utils.SetStringConverter;
 import lombok.Data;
@@ -24,6 +25,13 @@ import java.util.Set;
 public class State {
 
 	/**
+	 * Mapping skill name to entropy.
+	 */
+	@Convert(converter = MapStringDoubleConverter.class)
+	@Column(name = "entropy", length = 1023)
+	public Map<String, Double> entropy;
+
+	/**
 	 * If a skill is completed (no more questions) its name should be saved there there.
 	 */
 	@Convert(converter = SetStringConverter.class)
@@ -35,6 +43,7 @@ public class State {
 	 */
 	// TODO: save to file? Is this model dependent?
 	private String status;
+
 	/**
 	 * Mapping skill name to distribution.
 	 */
@@ -45,14 +54,17 @@ public class State {
 	@GeneratedValue
 	@EqualsAndHashCode.Include
 	private Long id;
+
 	/**
 	 * Moment in time when this Status was created.
 	 */
 	private LocalDateTime creation = LocalDateTime.now();
+
 	/**
 	 * Total answers given.
 	 */
 	private Integer totalAnswers;
+
 	/**
 	 * Total answers given for each skill, mapped by skill name.
 	 */

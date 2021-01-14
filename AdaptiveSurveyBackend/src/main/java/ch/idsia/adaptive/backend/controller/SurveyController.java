@@ -7,6 +7,7 @@ import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
+import ch.idsia.adaptive.backend.persistence.responses.ResponseResult;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import ch.idsia.adaptive.backend.services.SessionException;
 import ch.idsia.adaptive.backend.services.SessionService;
@@ -285,11 +286,7 @@ public class SurveyController {
 			if (state == null)
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-			ResponseResult r = new ResponseResult()
-					.setAnswers(session.getAnswers().size())
-					.setSeconds(session.getElapsedSeconds())
-					.setEnded(session.getEndTime() != null)
-					.setState(new ResponseState(state));
+			ResponseResult r = new ResponseResult(session, state);
 
 			return new ResponseEntity<>(r, HttpStatus.OK);
 		} catch (SessionException e) {

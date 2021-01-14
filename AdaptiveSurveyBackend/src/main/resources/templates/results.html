@@ -1,23 +1,45 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:include="fragments/layout :: layout">
-    <title id="pageTitle">Adaptive Survey</title>
+    <title id="pageTitle">Adaptive Survey - Results</title>
 </head>
 <body>
 
 <div class="container">
     <div th:replace="fragments/layout :: header"></div>
 
+    <div class="jumbotron" th:if="${error != null}">
+        <p>Error</p>
+        <p th:text="'Code:'+${code}"></p>
+        <p th:text="'Error:'+${error}"></p>
+    </div>
+
     <div class="jumbotron">
-        <p>Results</p>
+        <div>
+            <ul>
+                <li>Started: <span th:text="${result.data}"></span></li>
+                <li>Duration: <span th:text="${result.seconds}"></span></li>
+                <li>Ended: <span th:text="${result.ended ? 'Yes' : 'No'}"></span></li>
+                <li>Answers: <span th:text="${result.state.totalAnswers}"></span></li>
+                <li th:each="key : ${result.state.skills}">
+                    Skill: <span th:text="${key}"></span>
+                    <br/>
+                    Distribution: <span th:each="d : ${result.state.skillDistribution.get(key)}"
+                                        th:text="${#numbers.formatDecimal(d, 1,2)}+' '"></span>
+                    <br/>
+                    Questions: <span th:if="${result.state.questionsPerSkill.containsKey(key)}"
+                                     th:text="${result.state.questionsPerSkill.get(key)}"></span>
+                    <br/>
+                    Completed: <span th:text="${result.state.skillCompleted.contains(key)} ? 'Yes' : 'No'"></span>
+                    <br/>
+                    Entropy: <span th:text="${result.state.entropyDistribution.get(key)}"></span>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <div th:replace="fragments/layout :: footer"></div>
 </div>
-
-<script>
-
-</script>
 
 </body>
 </html>

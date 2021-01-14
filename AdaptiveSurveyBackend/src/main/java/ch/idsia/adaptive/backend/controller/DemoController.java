@@ -1,10 +1,10 @@
 package ch.idsia.adaptive.backend.controller;
 
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
-import ch.idsia.adaptive.backend.persistence.model.ResponseResult;
 import ch.idsia.adaptive.backend.persistence.model.SurveyData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
+import ch.idsia.adaptive.backend.persistence.responses.ResponseResult;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,7 +60,7 @@ public class DemoController {
 		}
 
 		ResponseResult r = resResult.getBody();
-		model.addAttribute("question", r);
+		model.addAttribute("result", r);
 
 		return "results";
 	}
