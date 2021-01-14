@@ -9,6 +9,7 @@ import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
+import ch.idsia.adaptive.backend.services.InitializationService;
 import ch.idsia.adaptive.backend.services.SessionService;
 import ch.idsia.adaptive.backend.services.SurveyManagerService;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
@@ -47,6 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		SurveyController.class,
 		SessionService.class,
 		SurveyManagerService.class,
+		InitializationService.class,
 })
 @Transactional
 class TestSurveyNonAdaptiveFlow {
@@ -99,20 +101,16 @@ class TestSurveyNonAdaptiveFlow {
 				.setName("A")
 				.setVariable(A)
 				.setLevels(List.of(
-						new SkillLevel("low", 0.0),
-						new SkillLevel("high", 1.0)
+						new SkillLevel("low", 0),
+						new SkillLevel("high", 1)
 				));
-
-		// question levels
-		QuestionLevel low = new QuestionLevel().setName("Low interest").setVariable(L);
-		QuestionLevel medium = new QuestionLevel().setName("Medium interest").setVariable(M);
-		QuestionLevel high = new QuestionLevel().setName("High interest").setVariable(H);
 
 		// 3 questions
 		q1 = new Question()
 				.setQuestion("Question 1")
 				.setSkill(skill)
-				.setLevel(low)
+				.setLevel("Low interest")
+				.setVariable(L)
 				.addAnswersAvailable(
 						new QuestionAnswer().setText("a").setState(0),
 						new QuestionAnswer().setText("b").setState(1),
@@ -121,7 +119,8 @@ class TestSurveyNonAdaptiveFlow {
 		q2 = new Question()
 				.setQuestion("Question 2")
 				.setSkill(skill)
-				.setLevel(medium)
+				.setLevel("Medium interest")
+				.setVariable(M)
 				.addAnswersAvailable(
 						new QuestionAnswer().setText("1").setState(0),
 						new QuestionAnswer().setText("2").setState(1)
@@ -129,7 +128,8 @@ class TestSurveyNonAdaptiveFlow {
 		q3 = new Question()
 				.setQuestion("Question 3")
 				.setSkill(skill)
-				.setLevel(high)
+				.setLevel("High interest")
+				.setVariable(H)
 				.addAnswersAvailable(
 						new QuestionAnswer().setText("*").setState(0),
 						new QuestionAnswer().setText("**").setState(1),

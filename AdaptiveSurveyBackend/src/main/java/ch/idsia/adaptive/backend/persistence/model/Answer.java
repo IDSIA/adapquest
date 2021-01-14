@@ -62,12 +62,8 @@ public class Answer {
 		return question.getSkill();
 	}
 
-	public QuestionLevel getQuestionLevel() {
-		return question.getLevel();
-	}
-
 	@Override
 	public String toString() {
-		return String.format("Answer to Question %d %s %s: %s", getQuestionId(), getSkill(), getQuestionLevel(), isCorrect);
+		return String.format("Answer to Question %d %s %s: %s", getQuestionId(), getSkill(), getQuestion().getLevel(), isCorrect);
 	}
 }

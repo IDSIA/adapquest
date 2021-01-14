@@ -1,6 +1,7 @@
 package ch.idsia.adaptive.backend.controller;
 
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
+import ch.idsia.adaptive.backend.persistence.model.ResponseResult;
 import ch.idsia.adaptive.backend.persistence.model.SurveyData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
@@ -47,8 +48,20 @@ public class DemoController {
 	}
 
 	@GetMapping("/results/{token}")
-	public String results(@PathVariable String token) {
-		// TODO
+	public String results(@PathVariable String token, Model model) {
+		ResponseEntity<ResponseResult> resResult = this.controller.surveyResults(token);
+		HttpStatus statusCode = resResult.getStatusCode();
+
+		if (statusCode.is4xxClientError()) {
+			model.addAttribute("code", statusCode);
+			model.addAttribute("error", "Cannot load results");
+			logger.error("Error loading results for token={}, status={}", token, statusCode);
+			return "error";
+		}
+
+		ResponseResult r = resResult.getBody();
+		model.addAttribute("question", r);
+
 		return "results";
 	}
 
@@ -129,7 +142,6 @@ public class DemoController {
 
 		if (resQuestion.getStatusCode() == HttpStatus.NO_CONTENT) {
 			// this happens when the survey ends
-			// TODO: complete survey
 			return "redirect:/demo/results/" + token;
 		}
 

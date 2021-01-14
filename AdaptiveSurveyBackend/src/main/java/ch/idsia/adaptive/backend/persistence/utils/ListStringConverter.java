@@ -14,8 +14,6 @@ import java.util.List;
  */
 public class ListStringConverter implements AttributeConverter<List<String>, String> {
 
-	// TODO: test that this is working as intended
-
 	private static final ObjectMapper om = new ObjectMapper();
 
 	@Override

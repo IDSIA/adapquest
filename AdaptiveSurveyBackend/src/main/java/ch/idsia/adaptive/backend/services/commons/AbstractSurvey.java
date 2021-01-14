@@ -23,7 +23,6 @@ public abstract class AbstractSurvey {
 	protected final Random random;
 
 	protected Set<Skill> skills = new HashSet<>();
-	protected Map<Skill, Set<QuestionLevel>> levels = new HashMap<>();
 
 	protected LinkedList<Question> questions = new LinkedList<>();
 	protected List<Question> questionsDone = new ArrayList<>();
@@ -38,11 +37,6 @@ public abstract class AbstractSurvey {
 	@Getter
 	protected Question currentQuestion = null;
 
-	@Getter
-	protected QuestionLevel nextQuestionLevel = null;
-	@Getter
-	protected Skill nextSkill = null;
-
 	public AbstractSurvey(Survey survey, Long seed) {
 		this.survey = survey;
 		this.random = new Random(seed);
@@ -54,7 +48,7 @@ public abstract class AbstractSurvey {
 	}
 
 	public State getState() {
-		// TODO: add missing parameters: skillCompleted, ...
+		inference.clearEvidence();
 
 		Map<String, double[]> state = skills.stream()
 				.collect(Collectors.toMap(
@@ -72,9 +66,15 @@ public abstract class AbstractSurvey {
 						Collectors.counting()
 				));
 
+		Set<String> skillCompleted = qps.entrySet().stream()
+				.filter(x -> x.getValue() > survey.getQuestionPerSkillMax())
+				.map(Map.Entry::getKey)
+				.collect(Collectors.toSet());
+
 		return new State()
 				.setState(state)
 				.setQuestionsPerSkill(qps)
+				.setSkillCompleted(skillCompleted)
 				.setTotalAnswers(questionsDone.size());
 	}
 
@@ -84,18 +84,17 @@ public abstract class AbstractSurvey {
 
 			this.questions.add(q);
 			this.skills.add(skill);
-			this.levels.computeIfAbsent(skill, i -> new HashSet<>()).add(q.getLevel());
 		});
 	}
 
 	public abstract boolean isFinished();
 
 	public void check(Answer answer) {
-		Integer variable = answer.getQuestion().getLevel().getVariable();
+		Integer variable = answer.getQuestion().getVariable();
 		Integer state = answer.getQuestionAnswer().getState();
 		observations.put(variable, state);
 		answered = true;
 	}
 
-	public abstract Question next();
+	public abstract Question next() throws SurveyException;
 }

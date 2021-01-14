@@ -15,7 +15,7 @@ public class NonAdaptiveSurvey extends AbstractSurvey {
 	}
 
 	@Override
-	public Question next() {
+	public Question next() throws SurveyException {
 		if (!answered && currentQuestion != null)
 			return currentQuestion;
 

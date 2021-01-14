@@ -4,10 +4,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 /**
  * Author:  Claudio "Dna" Bonesana
  * Project: AdaptiveSurvey
@@ -18,28 +14,25 @@ import javax.persistence.Id;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class SkillLevel implements Comparable<SkillLevel> {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@EqualsAndHashCode.Include
-	private Long id;
-
 	/**
 	 * Human readable name of this level.
 	 */
+	@EqualsAndHashCode.Include
 	private String name;
 
 	/**
 	 * Numeric value of this level. Used for sorting from lower to high.
 	 */
-	private Double level;
+	@EqualsAndHashCode.Include
+	private Integer level;
 
-	public SkillLevel(String name, Double level) {
+	public SkillLevel(String name, Integer level) {
 		this.name = name;
 		this.level = level;
 	}
 
 	@Override
 	public int compareTo(SkillLevel other) {
-		return Double.compare(this.level, other.level);
+		return Integer.compare(this.level, other.level);
 	}
 }

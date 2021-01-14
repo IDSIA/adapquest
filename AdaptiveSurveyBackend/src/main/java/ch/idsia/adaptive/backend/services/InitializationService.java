@@ -77,8 +77,8 @@ public class InitializationService {
 				.setVariable(A)
 				.setLevels(List.of(
 						// same as number of states of A
-						new SkillLevel("low", 0.0),
-						new SkillLevel("high", 1.0)
+						new SkillLevel("low", 0),
+						new SkillLevel("high", 1)
 				));
 
 		// 3 questions
@@ -86,9 +86,8 @@ public class InitializationService {
 				.setQuestion("Question 1")
 				.setExplanation("Question of low interest")
 				.setSkill(skill)
-				.setLevel(
-						new QuestionLevel().setName("Low interest").setVariable(L)
-				)
+				.setLevel("Low interest")
+				.setVariable(L)
 				.addAnswersAvailable(
 						// same as number of states of L
 						new QuestionAnswer().setText("a").setState(0),
@@ -99,9 +98,8 @@ public class InitializationService {
 				.setQuestion("Question 2")
 				.setExplanation("Question of medium interest")
 				.setSkill(skill)
-				.setLevel(
-						new QuestionLevel().setName("Medium interest").setVariable(M)
-				)
+				.setLevel("Medium interest")
+				.setVariable(M)
 				.addAnswersAvailable(
 						// same as number of states of M
 						new QuestionAnswer().setText("1").setState(0),
@@ -111,9 +109,8 @@ public class InitializationService {
 				.setQuestion("Question 3")
 				.setExplanation("Question of high interest")
 				.setSkill(skill)
-				.setLevel(
-						new QuestionLevel().setName("High interest").setVariable(H)
-				)
+				.setLevel("High interest")
+				.setVariable(H)
 				.addAnswersAvailable(
 						// same as number of states of H
 						new QuestionAnswer().setText("*").setState(0),

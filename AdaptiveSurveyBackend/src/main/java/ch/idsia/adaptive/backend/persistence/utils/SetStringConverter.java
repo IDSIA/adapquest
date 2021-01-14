@@ -14,8 +14,6 @@ import java.util.Set;
  */
 public class SetStringConverter implements AttributeConverter<Set<String>, String> {
 
-	// TODO: test that this is working as intended
-
 	private static final ObjectMapper om = new ObjectMapper();
 
 	@Override

@@ -14,8 +14,6 @@ import java.util.Map;
  */
 public class MapLongIntegerConverter implements AttributeConverter<Map<Long, Integer>, String> {
 
-	// TODO: test that this is working as intended
-
 	private static final ObjectMapper om = new ObjectMapper();
 
 	@Override

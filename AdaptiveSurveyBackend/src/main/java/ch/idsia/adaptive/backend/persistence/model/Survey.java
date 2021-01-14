@@ -50,9 +50,8 @@ public class Survey {
 	/**
 	 * Order of the skill in the model skill-chain.
 	 */
-	// TODO: maybe this is model fixed?
 	@Convert(converter = ListStringConverter.class)
-	@Column(name = "skillOrder")
+	@Column(name = "skillOrder", length = 1023)
 	private List<String> skillOrder;
 
 	/**
@@ -93,7 +92,7 @@ public class Survey {
 	/**
 	 * Entropy threshold for early stop.
 	 */
-	private Double entropyMin;
+	private Double entropyMin = 0.0;
 
 	/**
 	 * Minimum number of question to start check for the validity of a skill.

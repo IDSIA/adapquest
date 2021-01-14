@@ -16,8 +16,6 @@ import java.util.List;
  */
 public class ListSkillLevelConverter implements AttributeConverter<List<SkillLevel>, String> {
 
-	// TODO: test that this is working as intended
-
 	private static final ObjectMapper om = new ObjectMapper();
 
 	@Override

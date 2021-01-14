@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Data
 @Accessors(chain = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Question {
+public class Question implements Comparable<Question> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,9 +37,19 @@ public class Question {
 	private String question = "";
 
 	/**
-	 * Weight of this question in points.
+	 * Name of the variable controlled by this question.
 	 */
-	private Double weight = 1.0;
+	private String level = "";
+
+	/**
+	 * Refers to the state of the the model associated with this answer.
+	 */
+	private Integer variable;
+
+	/**
+	 * Weight of this question in points.  Used for sorting from lower to high.
+	 */
+	private Double weight = 1.;
 
 	/**
 	 * If true this question will be shown as an example question that cannot be answered.
@@ -72,13 +82,6 @@ public class Question {
 	private Skill skill;
 
 	/**
-	 * Difficulty associated with this question.
-	 */
-	@ManyToOne(cascade = CascadeType.PERSIST)
-	@JoinColumn(name = "fk_level")
-	private QuestionLevel level;
-
-	/**
 	 * Survey that include this question.
 	 */
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -93,11 +96,17 @@ public class Question {
 	}
 
 	@Override
+	public int compareTo(Question other) {
+		return Double.compare(this.weight, other.weight);
+	}
+
+	@Override
 	public String toString() {
 		return "Question{" +
 				"id=" + id +
-				", question=" + question +
 				", skill=" + skill +
+				", level=" + level +
+				", weight=" + weight +
 				'}';
 	}
 }

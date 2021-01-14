@@ -26,9 +26,8 @@ public class State {
 	/**
 	 * If a skill is completed (no more questions) its name should be saved there there.
 	 */
-	// TODO
 	@Convert(converter = SetStringConverter.class)
-	@Column(name = "skillCompleted")
+	@Column(name = "skillCompleted", length = 1023)
 	public Set<String> skillCompleted;
 
 	/**
@@ -40,28 +39,26 @@ public class State {
 	 * Mapping skill name to distribution.
 	 */
 	@Convert(converter = MapStringDoubleArrayConverter.class)
-	@Column(name = "state")
+	@Column(name = "state", length = 1023)
 	public Map<String, double[]> state;
 	@Id
 	@GeneratedValue
 	@EqualsAndHashCode.Include
 	private Long id;
 	/**
-	 * Total answers given for each skill, mapped by skill name.
-	 */
-	@Convert(converter = MapStringLongConverter.class)
-	@Column(name = "questionsPerSkill")
-	private Map<String, Long> questionsPerSkill;
-
-	/**
 	 * Moment in time when this Status was created.
 	 */
 	private LocalDateTime creation = LocalDateTime.now();
-
 	/**
 	 * Total answers given.
 	 */
 	private Integer totalAnswers;
+	/**
+	 * Total answers given for each skill, mapped by skill name.
+	 */
+	@Convert(converter = MapStringLongConverter.class)
+	@Column(name = "questionsPerSkill", length = 1023)
+	private Map<String, Long> questionsPerSkill;
 
 	/**
 	 * Session associated with this Status.

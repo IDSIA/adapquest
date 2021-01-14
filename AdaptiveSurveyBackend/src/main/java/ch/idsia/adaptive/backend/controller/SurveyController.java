@@ -11,6 +11,7 @@ import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import ch.idsia.adaptive.backend.services.SessionException;
 import ch.idsia.adaptive.backend.services.SessionService;
 import ch.idsia.adaptive.backend.services.SurveyManagerService;
+import ch.idsia.adaptive.backend.services.commons.SurveyException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -268,6 +269,9 @@ public class SurveyController {
 		} catch (SessionException e) {
 			logger.error(e);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (SurveyException e) {
+			logger.error(e);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
 

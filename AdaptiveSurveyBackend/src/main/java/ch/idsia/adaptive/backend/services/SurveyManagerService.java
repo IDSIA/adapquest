@@ -5,6 +5,7 @@ import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.services.commons.AbstractSurvey;
 import ch.idsia.adaptive.backend.services.commons.AdaptiveSurvey;
 import ch.idsia.adaptive.backend.services.commons.NonAdaptiveSurvey;
+import ch.idsia.adaptive.backend.services.commons.SurveyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -75,7 +76,7 @@ public class SurveyManagerService {
 		getSurvey(data).check(answer);
 	}
 
-	public Question nextQuestion(SurveyData data) {
+	public Question nextQuestion(SurveyData data) throws SurveyException {
 		return getSurvey(data).next();
 	}
 
