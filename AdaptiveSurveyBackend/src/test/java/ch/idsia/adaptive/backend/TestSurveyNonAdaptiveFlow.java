@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -40,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Date:    24.11.2020 17:54
  */
 @RunWith(SpringRunner.class)
+@ContextConfiguration(classes = AdaptiveSurveyBackend.class)
 @WebMvcTest({
 		WebConfig.class,
 		PersistenceConfig.class,
@@ -100,7 +102,7 @@ class TestSurveyNonAdaptiveFlow {
 		Skill skill = new Skill()
 				.setName("A")
 				.setVariable(A)
-				.setLevels(List.of(
+				.setStates(List.of(
 						new SkillLevel("low", 0),
 						new SkillLevel("high", 1)
 				));

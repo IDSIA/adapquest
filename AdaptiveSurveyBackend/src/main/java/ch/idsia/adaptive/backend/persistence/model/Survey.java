@@ -26,6 +26,11 @@ public class Survey {
 	private Long id;
 
 	/**
+	 * Language code of this survey.
+	 */
+	private String language;
+
+	/**
 	 * Textual description of a survey.
 	 */
 	private String description;
@@ -45,6 +50,7 @@ public class Survey {
 	/**
 	 * Model to load from disk.
 	 */
+	@Column(length = 1048575) // 1MB
 	private String modelData;
 
 	/**

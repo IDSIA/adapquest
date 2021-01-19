@@ -37,7 +37,7 @@ public class Skill implements Comparable<Skill> {
 	 */
 	@Convert(converter = ListSkillLevelConverter.class)
 	@Column(name = "levels", length = 1023)
-	private List<SkillLevel> levels;
+	private List<SkillLevel> states;
 
 	/**
 	 * Index of the variable in the model.

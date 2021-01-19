@@ -1,0 +1,142 @@
+{
+  "survey": {
+    "language": "en",
+    "accessCode": "NonAdaptiveSurvey-Example",
+    "description": "This is just a description",
+    "duration": 3600,
+    "skillOrder": [
+      "A"
+    ],
+    "mixedSkillOrder": false,
+    "adaptive": false
+  },
+  "skills": [
+    {
+      "name": "A",
+      "states": [
+        {
+          "name": "low",
+          "value": 0
+        },
+        {
+          "name": "high",
+          "value": 1
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "skill": "A",
+      "question": "Question 1",
+      "explanation": "Question of low interest",
+      "name": "Low interest",
+      "variable": "L",
+      "answers": [
+        {
+          "text": "a",
+          "state": 0
+        },
+        {
+          "text": "b",
+          "state": 1
+        },
+        {
+          "text": "c",
+          "state": 2
+        }
+      ]
+    },
+    {
+      "skill": "A",
+      "question": "Question 2",
+      "explanation": "Question of medium interest",
+      "name": "Medium interest",
+      "variable": "M",
+      "answers": [
+        {
+          "text": "1",
+          "state": 0
+        },
+        {
+          "text": "2",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "A",
+      "question": "Question 3",
+      "explanation": "Question of high interest",
+      "name": "High interest",
+      "variable": "H",
+      "answers": [
+        {
+          "text": "*",
+          "state": 0
+        },
+        {
+          "text": "**",
+          "state": 1
+        },
+        {
+          "text": "***",
+          "state": 2
+        }
+      ]
+    }
+  ],
+  "model": [
+    {
+      "name": "A",
+      "states": 2,
+      "data": [
+        0.4,
+        0.6
+      ]
+    },
+    {
+      "name": "L",
+      "states": 3,
+      "parents": [
+        "A"
+      ],
+      "data": [
+        0.2,
+        0.4,
+        0.7,
+        0.8,
+        0.6,
+        0.3
+      ]
+    },
+    {
+      "name": "M",
+      "states": 2,
+      "parents": [
+        "A"
+      ],
+      "data": [
+        0.4,
+        0.6,
+        0.6,
+        0.4
+      ]
+    },
+    {
+      "name": "H",
+      "states": 3,
+      "parents": [
+        "A"
+      ],
+      "data": [
+        0.8,
+        0.6,
+        0.3,
+        0.2,
+        0.4,
+        0.7
+      ]
+    }
+  ]
+}

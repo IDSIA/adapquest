@@ -31,7 +31,7 @@ public class Session {
 	/**
 	 * Code used to generate this session and access to a survey.
 	 */
-	@Column(nullable = false, length = 1024)
+	@Column(nullable = false, length = 1023)
 	private String token;
 
 	/**
