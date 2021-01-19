@@ -8,6 +8,8 @@ import ch.idsia.crema.entropy.BayesianEntropy;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -17,6 +19,7 @@ import java.util.*;
  * Date:    14.12.2020 17:17
  */
 public class AdaptiveSurvey extends NonAdaptiveSurvey {
+	private static final Logger logger = LogManager.getLogger(AdaptiveSurvey.class);
 
 	protected Map<Skill, Integer> questionsDonePerSkill = new HashMap<>();
 	protected Map<Skill, LinkedList<Question>> availableQuestionsPerSkill = new HashMap<>();
@@ -54,16 +57,24 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 	public boolean isSkillValid(Skill skill) {
 		Integer questionsDone = questionsDonePerSkill.get(skill);
 
-		if (!availableQuestionsPerSkill.get(skill).isEmpty())
+		if (availableQuestionsPerSkill.get(skill).isEmpty()) {
 			// the skill has no questions available
+			logger.info("skill={} has no questions available", skill.getName());
 			return false;
+		}
 
-		if (questionsDone <= survey.getQuestionPerSkillMin())
+		if (questionsDone <= survey.getQuestionPerSkillMin()) {
 			// we need to make more questions for this skill
 			return true;
+		}
 
 		// we can make more questions if we are below the maximum amount
-		return questionsDone <= survey.getQuestionPerSkillMax();
+		final boolean b = questionsDone <= survey.getQuestionPerSkillMax();
+
+		if (b)
+			logger.info("skill={} reached max questions per skill (done= {}, max={})", skill.getName(), questionsDone, survey.getQuestionPerSkillMax());
+
+		return b;
 	}
 
 	/**
@@ -77,20 +88,30 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 
 	@Override
 	public boolean isFinished() {
-		if (questions.isEmpty())
+		if (questions.isEmpty()) {
 			// we don't have any more question
+			logger.info("survey finished with no more questions");
 			return true;
+		}
 
-		if (questionsDone.size() > survey.getQuestionTotalMax())
+		if (questionsDone.size() > survey.getQuestionTotalMax()) {
 			// we made too many questions
+			logger.info("survey finished with too many questions (done={}, max={})", questionsDone.size(), survey.getQuestionTotalMax());
 			return true;
+		}
 
-		if (questionsDone.size() < survey.getQuestionTotalMin() && skills.stream().anyMatch(this::isSkillValid))
+		if (questionsDone.size() < survey.getQuestionTotalMin() && skills.stream().anyMatch(this::isSkillValid)) {
 			// we need to make more questions and there still are skills that are valid
 			return false;
+		}
 
 		// all skills are depleted?
-		return availableQuestionsPerSkill.values().stream().allMatch(Collection::isEmpty);
+		final boolean b = availableQuestionsPerSkill.values().stream().allMatch(Collection::isEmpty);
+
+		if (b)
+			logger.info("survey finished with no more valid skills");
+
+		return b;
 	}
 
 	@Override
@@ -105,8 +126,10 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 		for (Skill skill : skills) {
 			Integer S = skill.getVariable();
 
-			if (!isSkillValid(skill))
+			if (!isSkillValid(skill)) {
+				logger.info("skill={} is not not valid", skill.getName());
 				continue;
+			}
 
 			for (Question question : availableQuestionsPerSkill.get(skill)) {
 				Integer L = question.getVariable();
@@ -140,6 +163,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 			throw new SurveyException("No valid question found!");
 
 		// register the chosen question as nextQuestion and maps
+		logger.info("next question is skill={} level={} with entropy={}", nextSkill.getName(), nextQuestion.getLevel(), minH);
 		register(nextQuestion);
 
 		if (minH > survey.getEntropyUpperThreshold() || minH < survey.getEntropyLowerThreshold()) {

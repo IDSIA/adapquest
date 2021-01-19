@@ -30,8 +30,6 @@ import java.util.stream.Stream;
 public class InitializationService {
 	private static final Logger logger = LogManager.getLogger(InitializationService.class);
 
-	private static final String ACCESS_CODE = "NonAdaptiveSurvey-Example";
-
 	private final SurveyRepository surveys;
 
 	private final ObjectMapper om = new ObjectMapper();
@@ -51,7 +49,7 @@ public class InitializationService {
 
 		readDataFolder();
 
-		logger.info("Data initialization  with {} survey(s)", surveys.count());
+		logger.info("Data initialization completed with {} survey(s)", surveys.count());
 	}
 
 	void readDataFolder() {
@@ -150,6 +148,7 @@ public class InitializationService {
 					.setQuestionPerSkillMax(structure.survey.questionPerSkillMax)
 					.setEntropyUpperThreshold(structure.survey.entropyUpperThreshold)
 					.setEntropyLowerThreshold(structure.survey.entropyLowerThreshold)
+					.setEntropyMin(structure.survey.entropyMin)
 					.setQuestionValidityCheckMin(structure.survey.questionValidityCheckMin)
 					.setQuestionTotalMin(structure.survey.questionTotalMin)
 					.setQuestionTotalMax(structure.survey.questionTotalMax);

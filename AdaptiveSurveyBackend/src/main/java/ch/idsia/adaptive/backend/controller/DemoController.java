@@ -102,6 +102,8 @@ public class DemoController {
 			Model model,
 			HttpServletRequest request
 	) {
+		model.addAttribute("token", token);
+
 		// check answer
 		if (questionId != null && answerId != null) {
 			// we have an answer of a question: check it

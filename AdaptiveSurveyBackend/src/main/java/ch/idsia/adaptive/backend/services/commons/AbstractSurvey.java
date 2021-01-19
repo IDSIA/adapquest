@@ -56,6 +56,8 @@ public abstract class AbstractSurvey {
 		inference.clearEvidence();
 		inference.setEvidence(observations);
 
+		Map<String, Skill> sks = new HashMap<>();
+
 		for (Skill skill : skills) {
 			String s = skill.getName();
 
@@ -63,6 +65,7 @@ public abstract class AbstractSurvey {
 			double[] distr = f.getData();
 			double h = BayesianEntropy.H(f);
 
+			sks.put(skill.getName(), skill);
 			state.put(s, distr);
 			entropy.put(s, h);
 		}
@@ -80,6 +83,7 @@ public abstract class AbstractSurvey {
 				.collect(Collectors.toSet());
 
 		return new State()
+				.setSkills(sks)
 				.setState(state)
 				.setEntropy(entropy)
 				.setQuestionsPerSkill(qps)

@@ -38,15 +38,15 @@
                     <li th:each="key : ${state.skills}">
                         <span th:text="'Skill: ' + ${key}"></span>
                         <br/>
-                        Distribution: <span th:each="d : ${state.skillDistribution.get(key)}"
-                                            th:text="${#numbers.formatDecimal(d, 1,2)} + ' '"></span>
-                        <br/>
                         Questions: <span th:if="${state.questionsPerSkill.containsKey(key)}"
                                          th:text="${state.questionsPerSkill.get(key)}"></span>
                         <br/>
                         Completed: <span th:text="${state.skillCompleted.contains(key)} ? 'Yes' : 'No'"></span>
                         <br/>
                         Entropy: <span th:text="${state.entropyDistribution.get(key)}"></span>
+                    </li>
+                    <li>
+                        <img alt="state" th:src="@{/survey/state/image/(token=${token})}"/>
                     </li>
                 </ul>
             </div>

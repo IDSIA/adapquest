@@ -34,6 +34,9 @@
                     <br/>
                     Entropy: <span th:text="${result.state.entropyDistribution.get(key)}"></span>
                 </li>
+                <li>
+                    <img alt="state" th:src="@{/survey/state/image/(token=${token})}"/>
+                </li>
             </ul>
         </div>
     </div>

@@ -13,15 +13,26 @@ import ch.idsia.adaptive.backend.services.SessionException;
 import ch.idsia.adaptive.backend.services.SessionService;
 import ch.idsia.adaptive.backend.services.SurveyManagerService;
 import ch.idsia.adaptive.backend.services.commons.SurveyException;
+import ch.idsia.adaptive.backend.utils.ChartStyles;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -92,6 +103,51 @@ public class SurveyController {
 		} catch (SessionException e) {
 			logger.warn("Session not found for token={}", token);
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		}
+	}
+
+	@GetMapping("/state/image/")
+	@ResponseBody
+	public ResponseEntity<byte[]> getStateImageForToken(@RequestParam("token") String token) {
+		logger.info("Request status for token={}", token);
+
+		try {
+			Session session = sessions.getSession(token);
+			State state = statuses.findFirstBySessionOrderByCreationDesc(session);
+
+			if (state == null)
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+			DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+			state.getState().forEach((skill, data) -> {
+				for (int i = 0; i < data.length; i++) {
+					dataset.addValue(data[i], "" + i, skill);
+				}
+			});
+
+			final JFreeChart chart = ChartFactory.createStackedBarChart(
+					"", "", "", dataset, PlotOrientation.HORIZONTAL, false, false, false
+			);
+
+			ChartStyles.applyStandard(chart);
+
+			final BufferedImage bi = chart.createBufferedImage(320, 160);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(bi, "png", baos);
+			final byte[] bytes = baos.toByteArray();
+
+			HttpHeaders headers = new HttpHeaders();
+			headers.setCacheControl(CacheControl.noCache().getHeaderValue());
+
+			return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+		} catch (SessionException e) {
+			logger.warn("Session not found for token={}", token);
+			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+		} catch (IOException e) {
+			logger.error("Could not generate state image for token={}", token);
+			logger.error(e);
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 

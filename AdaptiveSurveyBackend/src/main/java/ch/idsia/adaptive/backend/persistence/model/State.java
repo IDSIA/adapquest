@@ -1,9 +1,6 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
-import ch.idsia.adaptive.backend.persistence.utils.MapStringDoubleArrayConverter;
-import ch.idsia.adaptive.backend.persistence.utils.MapStringDoubleConverter;
-import ch.idsia.adaptive.backend.persistence.utils.MapStringLongConverter;
-import ch.idsia.adaptive.backend.persistence.utils.SetStringConverter;
+import ch.idsia.adaptive.backend.persistence.utils.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -23,6 +20,13 @@ import java.util.Set;
 @Accessors(chain = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class State {
+
+	/**
+	 * Mapping of skills.
+	 */
+	@Convert(converter = MapStringSkillConverter.class)
+	@Column(name = "skills", length = 1023)
+	public Map<String, Skill> skills;
 
 	/**
 	 * Mapping skill name to entropy.
