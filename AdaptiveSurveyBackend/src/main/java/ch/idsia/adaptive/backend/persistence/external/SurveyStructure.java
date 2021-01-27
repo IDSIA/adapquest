@@ -22,7 +22,6 @@ public class SurveyStructure {
 	public Integer questionPerSkillMax = Integer.MAX_VALUE;
 	public Double entropyUpperThreshold = 1.;
 	public Double entropyLowerThreshold = 0.;
-	public Double entropyMin = .0;
 	public Integer questionValidityCheckMin = 0;
 	public Integer questionTotalMin = 0;
 	public Integer questionTotalMax = Integer.MAX_VALUE;

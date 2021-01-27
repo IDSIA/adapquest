@@ -148,7 +148,6 @@ public class InitializationService {
 					.setQuestionPerSkillMax(structure.survey.questionPerSkillMax)
 					.setEntropyUpperThreshold(structure.survey.entropyUpperThreshold)
 					.setEntropyLowerThreshold(structure.survey.entropyLowerThreshold)
-					.setEntropyMin(structure.survey.entropyMin)
 					.setQuestionValidityCheckMin(structure.survey.questionValidityCheckMin)
 					.setQuestionTotalMin(structure.survey.questionTotalMin)
 					.setQuestionTotalMax(structure.survey.questionTotalMax);

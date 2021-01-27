@@ -1,13 +1,11 @@
 package ch.idsia.adaptive.backend.persistence.responses;
 
+import ch.idsia.adaptive.backend.persistence.model.Skill;
 import ch.idsia.adaptive.backend.persistence.model.State;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -18,9 +16,9 @@ import java.util.Set;
 public class ResponseState {
 
 	/**
-	 * Set of available skills.
+	 * List of available skills.
 	 */
-	public Set<String> skills = new HashSet<>();
+	public List<Skill> skills = new ArrayList<>();
 
 	/**
 	 * Distribution for each skill.
@@ -59,6 +57,7 @@ public class ResponseState {
 		questionsPerSkill = state.getQuestionsPerSkill();
 		creationTime = state.getCreation();
 		totalAnswers = state.getTotalAnswers();
-		skills.addAll(skillDistribution.keySet());
+		skills.addAll(state.skills.values());
+		skills.sort(Comparator.comparingInt(Skill::getVariable));
 	}
 }

@@ -86,19 +86,14 @@ public class Survey {
 	private Integer questionPerSkillMax = Integer.MAX_VALUE;
 
 	/**
-	 * Stop the skill query when the entropy of the model is above this threshold.
+	 * Stop the skill query when the entropy of the node is above this threshold.
 	 */
 	private Double entropyUpperThreshold = 1.0;
 
 	/**
-	 * Stop the skill query when the entropy of the model is below this threshold.
+	 * Stop the skill query when the entropy of the node is below this threshold.
 	 */
 	private Double entropyLowerThreshold = 0.0;
-
-	/**
-	 * Entropy threshold for early stop.
-	 */
-	private Double entropyMin = 0.0;
 
 	/**
 	 * Minimum number of question to start check for the validity of a skill.
