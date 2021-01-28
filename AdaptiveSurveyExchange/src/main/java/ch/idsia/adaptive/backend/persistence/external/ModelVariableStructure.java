@@ -8,7 +8,7 @@ import java.util.List;
  * Project: AdaptiveSurvey
  * Date:    19.01.2021 12:05
  */
-public class ModelStructure {
+public class ModelVariableStructure {
 
 	public String name = "";
 	public Integer states = 2;

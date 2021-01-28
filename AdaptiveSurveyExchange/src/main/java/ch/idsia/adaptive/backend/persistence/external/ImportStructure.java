@@ -13,6 +13,6 @@ public class ImportStructure {
 	public SurveyStructure survey = null;
 	public List<SkillStructure> skills = new ArrayList<>();
 	public List<QuestionStructure> questions = new ArrayList<>();
-	public List<ModelStructure> model = new ArrayList<>();
+	public ModelStructure model;
 
 }
