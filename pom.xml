@@ -7,7 +7,7 @@
 	<groupId>ch.idsia.adaptive</groupId>
 	<artifactId>adaptive-survey</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0</version>
 	<modules>
 		<module>AdaptiveSurveyBackend</module>
 		<module>AdaptiveSurveyExchange</module>

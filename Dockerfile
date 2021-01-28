@@ -8,14 +8,16 @@ WORKDIR /build
 COPY pom.xml .
 COPY AdaptiveSurveyBackend/pom.xml AdaptiveSurveyBackend/
 COPY AdaptiveSurveyExchange/pom.xml AdaptiveSurveyExchange/
+COPY AdaptiveSurveyExperiments/pom.xml AdaptiveSurveyExperiments/
 
 RUN mvn clean package -Dmaven.main.skip -Dmaven.test.skip
 
 COPY AdaptiveSurveyBackend/src AdaptiveSurveyBackend/src
 COPY AdaptiveSurveyExchange/src AdaptiveSurveyExchange/src
+COPY AdaptiveSurveyExperiments/src AdaptiveSurveyExperiments/src
 
 # Build using maven
-RUN mvn clean package -pl AdaptiveSurveyBackend -Dmaven.test.skip
+RUN mvn clean install package -pl AdaptiveSurveyBackend -Dmaven.test.skip
 
 RUN ls -l /build/AdaptiveSurveyBackend/target
 
