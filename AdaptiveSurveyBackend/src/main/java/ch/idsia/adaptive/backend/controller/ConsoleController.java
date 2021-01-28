@@ -40,7 +40,7 @@ public class ConsoleController {
 
 	@PostMapping("/add/survey")
 	public ResponseEntity<String> postAddSurvey(
-			@RequestHeader("key") String key,
+			@RequestHeader("APIKey") String key,
 			@RequestParam("survey") ImportStructure surveyStructure,
 			HttpServletRequest request
 	) {
@@ -60,7 +60,7 @@ public class ConsoleController {
 
 	@PostMapping("/add/model")
 	public ResponseEntity<String> postAddModel(
-			@RequestHeader("key") String key,
+			@RequestHeader("APIKey") String key,
 			@RequestParam("accessCode") String code,
 			@RequestParam(value = "data", required = false) String data,
 			@RequestParam(value = "model", required = false) ModelStructure model,
@@ -94,7 +94,7 @@ public class ConsoleController {
 
 	@DeleteMapping("/delete/survey")
 	public ResponseEntity<String> deleteSurvey(
-			@RequestHeader("key") String key,
+			@RequestHeader("APIKey") String key,
 			@RequestParam("accessCode") String code,
 			HttpServletRequest request
 	) {
