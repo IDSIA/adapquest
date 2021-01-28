@@ -7,10 +7,12 @@ WORKDIR /build
 # Copy everything from current context to the build folder
 COPY pom.xml .
 COPY AdaptiveSurveyBackend/pom.xml AdaptiveSurveyBackend/
+COPY AdaptiveSurveyExchange/pom.xml AdaptiveSurveyExchange/
 
 RUN mvn clean package -Dmaven.main.skip -Dmaven.test.skip
 
 COPY AdaptiveSurveyBackend/src AdaptiveSurveyBackend/src
+COPY AdaptiveSurveyExchange/src AdaptiveSurveyExchange/src
 
 # Build using maven
 RUN mvn clean package -pl AdaptiveSurveyBackend -Dmaven.test.skip
