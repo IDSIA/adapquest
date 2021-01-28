@@ -1,6 +1,6 @@
 package ch.idsia.adaptive.backend.persistence.dao;
 
-import ch.idsia.adaptive.backend.persistence.model.Admin;
+import ch.idsia.adaptive.backend.persistence.model.Client;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
  * Date:    28.01.2021 09:59
  */
 @Repository
-public interface AdminRepository extends CrudRepository<Admin, Long> {
+public interface ClientRepository extends CrudRepository<Client, Long> {
 
-	Admin findByToken(String token);
+	Client findByKey(String key);
 }

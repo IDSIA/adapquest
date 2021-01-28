@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -24,6 +21,8 @@ import java.util.HashMap;
  * Author:  Claudio "Dna" Bonesana
  * Project: AdaptiveSurvey
  * Date:    28.01.2021 09:47
+ * <p>
+ * These endpoints are protected with API Keys, see {@link ch.idsia.adaptive.backend.config.SecurityConfig} for moder details.
  */
 @Controller
 @RequestMapping("/console")
@@ -41,47 +40,77 @@ public class ConsoleController {
 
 	@PostMapping("/add/survey")
 	public ResponseEntity<String> postAddSurvey(
-			@RequestHeader("token") String token,
-			@RequestParam("survey") ImportStructure survey,
+			@RequestHeader("key") String key,
+			@RequestParam("survey") ImportStructure surveyStructure,
 			HttpServletRequest request
 	) {
-		logger.info("ip={} with token={} requested new survey", request.getRemoteAddr(), token);
+		final String ip = request.getRemoteAddr();
+		logger.info("ip={} key={}: requested add new survey", ip, key);
 
-		// TODO: check if token is valid
+		final Survey survey = initService.parseSurvey(surveyStructure);
 
-		initService.parseSurvey(survey);
+		if (survey == null) {
+			logger.error("ip={} key={}: could not save survey to DB from", ip, key);
+			return new ResponseEntity<>("Could not save survey to DB", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
+		logger.warn("ip={} key={}: successfully added new survey with code={}", ip, key, survey.getAccessCode());
 		return new ResponseEntity<>("", HttpStatus.CREATED);
 	}
 
 	@PostMapping("/add/model")
 	public ResponseEntity<String> postAddModel(
-			@RequestHeader("token") String token,
+			@RequestHeader("key") String key,
 			@RequestParam("accessCode") String code,
 			@RequestParam(value = "data", required = false) String data,
 			@RequestParam(value = "model", required = false) ModelStructure model,
 			HttpServletRequest request
 	) {
-		logger.info("ip={} with token={} requested new survey", request.getRemoteAddr(), token);
+		final String ip = request.getRemoteAddr();
+		logger.info("ip={} with key={} requested add model to existing survey code={}", ip, key, code);
 
-		// TODO: check if token is valid
 		final Survey survey = surveys.findByAccessCode(code);
 
-		if (survey == null)
+		if (survey == null) {
+			logger.warn("ip={} key={}: access code={} not found", ip, key, code);
 			return new ResponseEntity<>("Access code not found", HttpStatus.NOT_FOUND);
-
-		if (model == null && data == null)
-			return new ResponseEntity<>("No model data given", HttpStatus.BAD_REQUEST);
-
-		if (data != null) {
-			survey.setModelData(data);
-		} else {
-			survey.setModelData(InitializationService.parseModelStructure(model, new HashMap<>()));
 		}
 
+		if (model == null && data == null) {
+			logger.warn("ip={} key={}: no model data or structure given", ip, key);
+			return new ResponseEntity<>("No model data given", HttpStatus.BAD_REQUEST);
+		}
+
+		if (data == null) {
+			data = InitializationService.parseModelStructure(model, new HashMap<>());
+		}
+
+		survey.setModelData(data);
 		surveys.save(survey);
 
+		logger.warn("ip={} key={}: model updated for survey with code={}", ip, key, survey.getAccessCode());
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
+	@DeleteMapping("/delete/survey")
+	public ResponseEntity<String> deleteSurvey(
+			@RequestHeader("key") String key,
+			@RequestParam("accessCode") String code,
+			HttpServletRequest request
+	) {
+		final String ip = request.getRemoteAddr();
+		logger.info("ip={} with key={} requested delete of survey by accessCode={}", ip, key, code);
+
+		final Survey survey = surveys.findByAccessCode(code);
+
+		if (survey == null) {
+			logger.warn("ip={} key={}: access code={} not found", ip, key, code);
+			return new ResponseEntity<>("Access code not found", HttpStatus.NOT_FOUND);
+		}
+
+		surveys.delete(survey);
+
+		logger.warn("ip={} key={}: survey with access code={} deleted", ip, key, code);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 }

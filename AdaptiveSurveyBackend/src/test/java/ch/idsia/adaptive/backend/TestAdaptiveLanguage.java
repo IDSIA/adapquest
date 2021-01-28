@@ -79,6 +79,7 @@ public class TestAdaptiveLanguage {
 	public static final Integer LAST_STUDENT = 10; // exclusive
 	public static final Integer CORES = Runtime.getRuntime().availableProcessors();
 	private static final Logger logger = LogManager.getLogger(TestAdaptiveLanguage.class);
+
 	@Autowired
 	ObjectMapper om;
 

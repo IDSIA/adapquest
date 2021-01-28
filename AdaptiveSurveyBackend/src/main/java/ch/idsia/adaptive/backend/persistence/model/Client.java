@@ -16,14 +16,25 @@ import javax.persistence.Id;
 @Entity
 @Data
 @Accessors(chain = true)
-public class Admin {
+public class Client {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	/**
+	 * User identifier of this client.
+	 */
 	private String username;
 
-	private String token;
+	/**
+	 * Contact information of the owner of this client.
+	 */
+	private String email;
+
+	/**
+	 * Key to use in the header of each request to the {@link ch.idsia.adaptive.backend.controller.ConsoleController} backend.
+	 */
+	private String key;
 
 }

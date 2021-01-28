@@ -109,7 +109,7 @@ public class InitializationService {
 		}
 	}
 
-	public void parseSurvey(ImportStructure structure) {
+	public Survey parseSurvey(ImportStructure structure) {
 		// build model
 		final Map<String, Integer> v = new HashMap<>();
 		String modelData = "";
@@ -174,7 +174,7 @@ public class InitializationService {
 		questions.forEach(q -> q.setSurvey(survey));
 
 		// save survey
-		surveys.save(survey);
+		return surveys.save(survey);
 	}
 
 }
