@@ -37,12 +37,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity httpSecurity) throws Exception {
-		logger.info("Current magicApiKey={}", magicApiKey); // TODO: remove this
-
 		APIKeyAuthFilter filter = new APIKeyAuthFilter("APIKey");
 		filter.setAuthenticationManager(authentication -> {
 			final String apiKey = (String) authentication.getPrincipal();
-			if (magicApiKey.equals(apiKey) || clients.findByKey(apiKey) == null) {
+			if (!magicApiKey.equals(apiKey) || clients.findByKey(apiKey) == null) {
 				logger.warn("API key={} not found or invalid", apiKey);
 				throw new BadCredentialsException("API Key not found or not valid");
 			}
