@@ -3,6 +3,7 @@ package ch.idsia.adaptive.backend.config;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +34,24 @@ import java.util.Properties;
 public class PersistenceConfig {
 	public static final Logger logger = LogManager.getLogger(PersistenceConfig.class);
 
+	@Value("${db.dbms}")
+	private String dbms;
+
+	@Value("${db.hostname}")
+	private String hostname;
+
+	@Value("${db.port}")
+	private String port;
+
+	@Value("${db.schema}")
+	private String schema;
+
+	@Value("${db.username}")
+	private String username;
+
+	@Value("${db.password}")
+	private String password;
+
 	private final Environment env;
 
 	@Autowired
@@ -42,45 +61,27 @@ public class PersistenceConfig {
 
 	private void configurePostgreSQL(DriverManagerDataSource ds) {
 		logger.info("Database platform: Postgres");
-
-		final String hostname = env.getProperty("spring.datasource.hostname", "localhost");
-		final String port = env.getProperty("spring.datasource.port", "5432");
-		final String schema = env.getProperty("spring.datasource.schema", "adaptive");
-		final String connUrl = "jdbc:postgresql://" + hostname + ":" + port + "/" + schema;
-
 		ds.setDriverClassName("org.postgresql.Driver");
-		ds.setUrl(connUrl);
+		ds.setUrl("jdbc:postgresql://" + hostname + ":" + port + "/" + schema);
 	}
 
 	private void configureMySQL(DriverManagerDataSource ds) {
 		logger.info("Database platform: MySQL");
-
-		final String hostname = env.getProperty("spring.datasource.hostname", "localhost");
-		final String port = env.getProperty("spring.datasource.port", "3306");
-		final String schema = env.getProperty("spring.datasource.schema", "adaptive");
-		final String connUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + schema;
-
 		ds.setDriverClassName("com.mysql.jdbc.Driver");
-		ds.setUrl(connUrl);
+		ds.setUrl("jdbc:mysql://" + hostname + ":" + port + "/" + schema);
 	}
 
 	private void configureMemory(DriverManagerDataSource ds) {
 		logger.info("Database platform: Memory");
-
-		final String schema = env.getProperty("spring.datasource.schema", "");
-		final String connUrl = "jdbc:h2:mem:" + schema + ";DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;";
-
 		ds.setDriverClassName("org.h2.Driver");
-		ds.setUrl(connUrl);
+		ds.setUrl("jdbc:h2:mem:" + schema + ";DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;");
 	}
 
 	@Bean
 	public DataSource dataSource() {
 		DriverManagerDataSource ds = new DriverManagerDataSource();
-		ds.setUsername(env.getProperty("spring.datasource.username", ""));
-		ds.setPassword(env.getProperty("spring.datasource.password", ""));
-
-		final String dbms = env.getProperty("spring.datasource.dbms", "");
+		ds.setUsername(username);
+		ds.setPassword(password);
 
 		switch (dbms) {
 			case "postgresql":
@@ -114,8 +115,6 @@ public class PersistenceConfig {
 	}
 
 	private Properties additionalProperties() {
-		final String dbms = env.getProperty("spring.datasource.dbms", "");
-
 		Properties properties = new Properties();
 		properties.put("hibernate.hbm2ddl.auto", env.getProperty("spring.jpa.hibernate.ddl-auto", ""));
 		properties.put("hibernate.show_sql", env.getProperty("spring.jpa.show-sql", "false"));
