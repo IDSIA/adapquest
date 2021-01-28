@@ -16,6 +16,13 @@
 
 	<name>AdaptiveSurvey</name>
 
+	<repositories>
+		<repository>
+			<id>cremaRepo</id>
+			<url>https://raw.github.com/idsia/crema/mvn-repo/</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>ch.idsia</groupId>

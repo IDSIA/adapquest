@@ -1,3 +1,5 @@
 .idea/**
 
 AdaptiveSurveyBackend/target/**
+AdaptiveSurveyExchange/target/**
+AdaptiveSurveyExperiments/target/**
