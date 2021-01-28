@@ -328,11 +328,6 @@ public class TestAdaptiveLanguage {
 		final Student student = students.get(FIRST_STUDENT);
 		final String token = init();
 
-		ResponseState state;
-
-		state = getCurrentState(token);
-		student.progress(state);
-
 		ResponseQuestion nextQuestion;
 
 		while ((nextQuestion = getNextQuestion(token)) != null) {
@@ -340,9 +335,9 @@ public class TestAdaptiveLanguage {
 					nextQuestion.id, // this is an answer to this question
 					nextQuestion.answers.get(student.get(nextQuestion.explanation)).id // 0 is always correct 1 is always wrong
 			);
-			state = getCurrentState(token);
-			student.progress(state);
 		}
+
+		ResponseState state = getCurrentState(token);
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("Total answers:").append(state.totalAnswers).append("\n");
@@ -445,18 +440,11 @@ public class TestAdaptiveLanguage {
 	 * Dummy class to identify all the answers of a student.
 	 */
 	static class Student extends HashMap<String, Integer> {
-
-		private final List<ResponseState> progress = new ArrayList<>();
-
 		ResponseState state;
 
 		public Student(String[] header, String[] answers) {
 			IntStream.range(0, header.length)
 					.forEach(i -> put(header[i], Integer.parseInt(answers[i].trim())));
-		}
-
-		private void progress(ResponseState state) {
-			progress.add(state);
 		}
 	}
 
