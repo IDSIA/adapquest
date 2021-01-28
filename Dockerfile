@@ -17,9 +17,7 @@ COPY AdaptiveSurveyExchange/src AdaptiveSurveyExchange/src
 COPY AdaptiveSurveyExperiments/src AdaptiveSurveyExperiments/src
 
 # Build using maven
-RUN mvn clean install package -pl AdaptiveSurveyBackend -Dmaven.test.skip
-
-RUN ls -l /build/AdaptiveSurveyBackend/target
+RUN mvn clean install package -Dmaven.test.skip
 
 # Package stage
 FROM openjdk:11-jre-slim
@@ -28,7 +26,8 @@ FROM openjdk:11-jre-slim
 WORKDIR /adaptive
 
 # Copy executable fat-jar
-COPY --from=build /build/AdaptiveSurveyBackend/target/adaptive-survey-backend-1.0-SNAPSHOT.jar adaptive-survey-backend.jar
+COPY --from=build /build/AdaptiveSurveyBackend/target/adaptive-survey-backend-1.0.jar adaptive-survey-backend.jar
+RUN mkdir "data"
 
 # Expose service to port
 EXPOSE 8080
