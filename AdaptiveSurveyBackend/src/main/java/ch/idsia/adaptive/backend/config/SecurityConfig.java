@@ -37,6 +37,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity httpSecurity) throws Exception {
+		logger.info("Current magicApiKey={}", magicApiKey); // TODO: remove this
+
 		APIKeyAuthFilter filter = new APIKeyAuthFilter("APIKey");
 		filter.setAuthenticationManager(authentication -> {
 			final String apiKey = (String) authentication.getPrincipal();
