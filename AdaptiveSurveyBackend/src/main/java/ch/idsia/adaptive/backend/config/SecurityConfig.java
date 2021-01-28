@@ -1,6 +1,7 @@
 package ch.idsia.adaptive.backend.config;
 
 import ch.idsia.adaptive.backend.persistence.dao.ClientRepository;
+import ch.idsia.adaptive.backend.persistence.model.Client;
 import ch.idsia.adaptive.backend.security.APIKeyAuthFilter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,7 +41,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		APIKeyAuthFilter filter = new APIKeyAuthFilter("APIKey");
 		filter.setAuthenticationManager(authentication -> {
 			final String apiKey = (String) authentication.getPrincipal();
-			if (!magicApiKey.equals(apiKey) || clients.findByKey(apiKey) == null) {
+			if (magicApiKey.equals(apiKey)) {
+				authentication.setAuthenticated(true);
+				return authentication;
+			}
+
+			final Client client = clients.findByKey(apiKey);
+			if (client == null) {
 				logger.warn("API key={} not found or invalid", apiKey);
 				throw new BadCredentialsException("API Key not found or not valid");
 			}
