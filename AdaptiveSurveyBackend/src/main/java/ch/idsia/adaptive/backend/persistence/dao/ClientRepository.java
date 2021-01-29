@@ -12,5 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ClientRepository extends CrudRepository<Client, Long> {
 
-	Client findByKey(String key);
+	Client findClientByKey(String key);
+
+	Client findClientByUsernameOrEmail(String username, String email);
 }

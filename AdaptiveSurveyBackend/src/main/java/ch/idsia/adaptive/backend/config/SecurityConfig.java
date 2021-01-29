@@ -15,6 +15,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
+import static ch.idsia.adaptive.backend.security.APIKeyGenerator.validateApiKey;
+
 /**
  * Author:  Claudio "Dna" Bonesana
  * Project: AdaptiveSurvey
@@ -46,13 +48,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				return authentication;
 			}
 
-			final Client client = clients.findByKey(apiKey);
-			if (client == null) {
-				logger.warn("API key={} not found or invalid", apiKey);
+			try {
+				final String key = validateApiKey(magicApiKey, apiKey);
+
+				final Client client = clients.findClientByKey(key);
+				if (client == null) {
+					logger.warn("One API key was not found or is invalid");
+					throw new BadCredentialsException("API Key not found or not valid");
+				}
+
+				authentication.setAuthenticated(true);
+				return authentication;
+			} catch (Exception e) {
+				logger.error("Could not validate API key", e);
 				throw new BadCredentialsException("API Key not found or not valid");
 			}
-			authentication.setAuthenticated(true);
-			return authentication;
 		});
 
 		httpSecurity.antMatcher("/console/**")
