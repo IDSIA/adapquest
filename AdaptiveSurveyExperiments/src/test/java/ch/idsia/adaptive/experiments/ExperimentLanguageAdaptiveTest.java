@@ -63,7 +63,7 @@ public class ExperimentLanguageAdaptiveTest {
 			tool.init(LanguageTestGerman.accessCode);
 			logger.info("Survey with accessCode={} available", LanguageTestGerman.accessCode);
 		} catch (Exception e) {
-			logger.info("Survey with accessCode={} NOT available", LanguageTestGerman.accessCode, e);
+			logger.info("Survey with accessCode={} NOT available", LanguageTestGerman.accessCode);
 			tool.addSurvey(survey.structure());
 			tool.init(LanguageTestGerman.accessCode);
 			logger.info("Survey with accessCode={} created", LanguageTestGerman.accessCode);
