@@ -11,7 +11,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -160,7 +159,7 @@ public class LanguageTestGerman {
 				.setSurvey(survey)
 				.setSkills(skills)
 				.setQuestions(questions)
-				.setModelData(Optional.of(modelData));
+				.setModelData(modelData);
 	}
 
 	private Q addQuestion(BayesianNetwork bn, int idx, int skill, int difficulty, double[][] data) {

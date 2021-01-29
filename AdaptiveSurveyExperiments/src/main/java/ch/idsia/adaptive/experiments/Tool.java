@@ -108,7 +108,7 @@ public class Tool {
 		logger.info("adding new survey with accessCode={}", structure.survey.accessCode);
 
 		HttpRequest get = HttpRequest.newBuilder()
-				.uri(endpoint("/survey"))
+				.uri(endpoint("/console/survey"))
 				.header("APIKey", key)
 				.header("Content-Type", "application/json")
 				.POST(HttpRequest.BodyPublishers.ofString(om.writeValueAsString(structure)))

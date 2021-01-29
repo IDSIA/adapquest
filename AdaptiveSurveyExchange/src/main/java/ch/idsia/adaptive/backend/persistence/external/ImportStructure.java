@@ -6,7 +6,6 @@ import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -21,7 +20,7 @@ public class ImportStructure {
 	public SurveyStructure survey = null;
 	public List<SkillStructure> skills = new ArrayList<>();
 	public List<QuestionStructure> questions = new ArrayList<>();
-	public Optional<ModelStructure> model = Optional.empty();
-	public Optional<String> modelData = Optional.empty(); // has priority
+	public ModelStructure model = null;
+	public String modelData = null; // has priority
 
 }
