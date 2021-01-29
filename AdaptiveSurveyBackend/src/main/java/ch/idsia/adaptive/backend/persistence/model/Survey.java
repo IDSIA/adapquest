@@ -38,6 +38,7 @@ public class Survey {
 	/**
 	 * Access code for this kind of survey.
 	 */
+	@Column(unique = true)
 	private String accessCode;
 
 	/**

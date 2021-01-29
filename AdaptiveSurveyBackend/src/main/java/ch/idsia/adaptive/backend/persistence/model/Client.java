@@ -3,10 +3,7 @@ package ch.idsia.adaptive.backend.persistence.model;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -25,16 +22,19 @@ public class Client {
 	/**
 	 * User identifier of this client.
 	 */
+	@Column(unique = true)
 	private String username;
 
 	/**
 	 * Contact information of the owner of this client.
 	 */
+	@Column(unique = true)
 	private String email;
 
 	/**
 	 * Key to use in the header of each request to the {@link ch.idsia.adaptive.backend.controller.ConsoleController} backend.
 	 */
+	@Column(unique = true)
 	private String key;
 
 }
