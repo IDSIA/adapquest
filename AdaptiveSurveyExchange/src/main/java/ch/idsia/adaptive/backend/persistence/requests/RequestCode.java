@@ -1,16 +1,13 @@
 package ch.idsia.adaptive.backend.persistence.requests;
 
-import lombok.Data;
 
 /**
  * Author:  Claudio "Dna" Bonesana
  * Project: AdaptiveSurvey
- * Date:    29.01.2021 14:38
+ * Date:    29.01.2021 14:45
  */
-@Data
-public class RequestClient {
+public class RequestCode {
 
-	public String username;
-	public String email;
+	public String accessCode;
 
 }

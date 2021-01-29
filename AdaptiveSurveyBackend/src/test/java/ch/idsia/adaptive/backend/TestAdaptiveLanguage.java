@@ -8,6 +8,7 @@ import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
+import ch.idsia.adaptive.backend.persistence.responses.ResponseSkill;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import ch.idsia.adaptive.backend.services.InitializationService;
 import ch.idsia.adaptive.backend.services.SessionService;
@@ -337,11 +338,11 @@ public class TestAdaptiveLanguage {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("Total answers:").append(state.totalAnswers).append("\n");
-		for (Skill skill : state.skills) {
-			final String s = skill.getName();
+		for (ResponseSkill skill : state.skills) {
+			final String s = skill.name;
 			sb.append("Skill: ").append(s).append("\n")
 					.append("\tQuestions: ").append(state.questionsPerSkill.get(s)).append("\n")
-					.append("\tLevel:     ").append(skill.getStates().get(argmax(state.skillDistribution.get(s))).getName()).append("\n")
+					.append("\tLevel:     ").append(skill.states.get(argmax(state.skillDistribution.get(s))).name).append("\n")
 					.append("\tEntropy:   ").append(state.entropyDistribution.get(s)).append("\n")
 			;
 		}
@@ -388,12 +389,12 @@ public class TestAdaptiveLanguage {
 				return;
 
 			if (lines.isEmpty()) {
-				final List<String> header = state.skills.stream().map(Skill::getName).collect(Collectors.toList());
+				final List<String> header = state.skills.stream().map(x -> x.name).collect(Collectors.toList());
 				lines.add(String.join("\t", header));
 			}
 
 			final List<String> line = state.skills.stream()
-					.map(skill -> skill.getStates().get(argmax(state.skillDistribution.get(skill.getName()))).getName())
+					.map(skill -> skill.states.get(argmax(state.skillDistribution.get(skill.name))).name)
 					.collect(Collectors.toList());
 			lines.add(String.join("\t", line));
 		});

@@ -60,8 +60,8 @@ public class ConsoleController {
 			@RequestBody RequestClient client,
 			HttpServletRequest request
 	) {
-		final String username = client.getUsername();
-		final String email = client.getEmail();
+		final String username = client.username;
+		final String email = client.email;
 		final String ip = request.getRemoteAddr();
 		logger.info("ip={} key={}: requested add new key for username={} email={}", ip, key, username, email);
 
@@ -95,7 +95,7 @@ public class ConsoleController {
 			@RequestBody RequestKey keyToDelete,
 			HttpServletRequest request
 	) {
-		final String k = keyToDelete.getKey();
+		final String k = keyToDelete.key;
 		final String ip = request.getRemoteAddr();
 		logger.info("ip={} key={}: requested deletion of key={}", ip, key, k);
 
@@ -193,7 +193,7 @@ public class ConsoleController {
 			@RequestParam RequestCode accessCode,
 			HttpServletRequest request
 	) {
-		final String code = accessCode.getAccessCode();
+		final String code = accessCode.accessCode;
 		final String ip = request.getRemoteAddr();
 		logger.info("ip={} with key={} requested delete of survey by accessCode={}", ip, key, code);
 

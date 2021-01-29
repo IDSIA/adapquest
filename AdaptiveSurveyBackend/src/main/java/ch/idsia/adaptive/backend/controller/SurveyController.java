@@ -15,6 +15,7 @@ import ch.idsia.adaptive.backend.services.SessionService;
 import ch.idsia.adaptive.backend.services.SurveyManagerService;
 import ch.idsia.adaptive.backend.services.commons.SurveyException;
 import ch.idsia.adaptive.backend.utils.ChartStyles;
+import ch.idsia.adaptive.backend.utils.Convert;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jfree.chart.ChartFactory;
@@ -96,7 +97,7 @@ public class SurveyController {
 			if (state == null)
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-			return new ResponseEntity<>(new ResponseState(state), HttpStatus.OK);
+			return new ResponseEntity<>(Convert.toResponse(state), HttpStatus.OK);
 		} catch (SessionException e) {
 			logger.warn("Session not found for token={}", token);
 			return new ResponseEntity<>(HttpStatus.FORBIDDEN);
@@ -164,7 +165,7 @@ public class SurveyController {
 			if (states == null)
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-			List<ResponseState> res = states.stream().map(ResponseState::new).collect(Collectors.toList());
+			List<ResponseState> res = states.stream().map(Convert::toResponse).collect(Collectors.toList());
 
 			return new ResponseEntity<>(res, HttpStatus.OK);
 		} catch (SessionException e) {
@@ -203,7 +204,7 @@ public class SurveyController {
 					.setSession(session);
 			statuses.save(s);
 
-			return new ResponseEntity<>(new ResponseData(data), HttpStatus.OK);
+			return new ResponseEntity<>(Convert.toResponse(data), HttpStatus.OK);
 		} catch (SessionException e) {
 			logger.warn("Request test initialization with an invalid accessCode={} from ip={}", accessCode, request.getRemoteAddr());
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -236,8 +237,8 @@ public class SurveyController {
 			@RequestBody RequestAnswer answer,
 			HttpServletRequest request
 	) {
-		final Long questionId = answer.getQuestion();
-		final Long answerId = answer.getAnswer();
+		final Long questionId = answer.question;
+		final Long answerId = answer.answer;
 		return checkAnswer(token, questionId, answerId, request);
 	}
 
@@ -335,7 +336,7 @@ public class SurveyController {
 			}
 
 			Question q = manager.nextQuestion(data);
-			return new ResponseEntity<>(new ResponseQuestion(q), HttpStatus.OK);
+			return new ResponseEntity<>(Convert.toResponse(q), HttpStatus.OK);
 		} catch (SessionException e) {
 			logger.error(e);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -355,7 +356,7 @@ public class SurveyController {
 			if (state == null)
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
-			ResponseResult r = new ResponseResult(session, state);
+			ResponseResult r = Convert.toResponse(session, state);
 
 			return new ResponseEntity<>(r, HttpStatus.OK);
 		} catch (SessionException e) {

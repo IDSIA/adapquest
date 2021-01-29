@@ -1,9 +1,5 @@
 package ch.idsia.adaptive.backend.persistence.responses;
 
-import ch.idsia.adaptive.backend.persistence.model.Skill;
-import ch.idsia.adaptive.backend.persistence.model.State;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -12,13 +8,12 @@ import java.util.*;
  * Project: AdaptiveSurvey
  * Date:    11.12.2020 09:29
  */
-@NoArgsConstructor
 public class ResponseState {
 
 	/**
 	 * List of available skills.
 	 */
-	public List<Skill> skills = new ArrayList<>();
+	public List<ResponseSkill> skills = new ArrayList<>();
 
 	/**
 	 * Distribution for each skill.
@@ -50,14 +45,5 @@ public class ResponseState {
 	 */
 	public Integer totalAnswers = 0;
 
-	public ResponseState(State state) {
-		skillDistribution = state.getState();
-		entropyDistribution = state.getEntropy();
-		skillCompleted = state.getSkillCompleted();
-		questionsPerSkill = state.getQuestionsPerSkill();
-		creationTime = state.getCreation();
-		totalAnswers = state.getTotalAnswers();
-		skills.addAll(state.skills.values());
-		skills.sort(Comparator.comparingInt(Skill::getVariable));
-	}
+
 }
