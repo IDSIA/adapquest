@@ -24,6 +24,7 @@
 	</repositories>
 
 	<dependencies>
+		<!-- https://github.com/IDSIA/crema -->
 		<dependency>
 			<groupId>ch.idsia</groupId>
 			<artifactId>crema</artifactId>
@@ -37,6 +38,13 @@
 			<artifactId>junit-jupiter-api</artifactId>
 			<version>5.7.0</version>
 			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.12.1</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
