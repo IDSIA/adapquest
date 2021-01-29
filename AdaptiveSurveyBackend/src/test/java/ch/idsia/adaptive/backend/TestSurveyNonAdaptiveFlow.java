@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -159,9 +160,7 @@ class TestSurveyNonAdaptiveFlow {
 		// use access code to register, init a survey, and get personal the access token
 		MvcResult result;
 		result = mvc
-				.perform(get("/survey/init")
-						.param("accessCode", this.accessCode)
-				)
+				.perform(get("/survey/init/" + accessCode))
 				.andExpect(status().isOk())
 				.andReturn();
 
@@ -172,9 +171,7 @@ class TestSurveyNonAdaptiveFlow {
 
 		// get current state of the skills
 		result = mvc
-				.perform(get("/survey/state")
-						.param("token", data.token)
-				)
+				.perform(get("/survey/state/" + data.token))
 				.andExpect(status().isOk())
 				.andReturn();
 
@@ -185,9 +182,7 @@ class TestSurveyNonAdaptiveFlow {
 
 		// get next question
 		result = mvc
-				.perform(get("/survey/question")
-						.param("token", data.token)
-				)
+				.perform(get("/survey/question/" + data.token))
 				.andExpect(status().isOk())
 				.andReturn();
 
@@ -199,17 +194,15 @@ class TestSurveyNonAdaptiveFlow {
 
 		// post answer
 		mvc
-				.perform(post("/survey/answer")
-						.param("token", data.token)
+				.perform(post("/survey/answer/" + data.token)
+						.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 						.param("question", "" + question.id)
 						.param("answer", "" + question.answers.get(2).id)
 				).andExpect(status().isOk());
 
 		// get last state
 		result = mvc
-				.perform(get("/survey/state")
-						.param("token", data.token)
-				)
+				.perform(get("/survey/state/" + data.token))
 				.andExpect(status().isOk())
 				.andReturn();
 
@@ -222,9 +215,8 @@ class TestSurveyNonAdaptiveFlow {
 
 		// check number of states
 		result = mvc
-				.perform(get("/survey/states")
-						.param("token", data.token)
-				).andExpect(status().isOk())
+				.perform(get("/survey/states/" + data.token))
+				.andExpect(status().isOk())
 				.andReturn();
 
 		TypeReference<List<ResponseState>> t = new TypeReference<>() {
@@ -239,9 +231,7 @@ class TestSurveyNonAdaptiveFlow {
 	@Test
 	void wrongAccessCode() throws Exception {
 		MvcResult result = mvc
-				.perform(get("/survey/init")
-						.param("accessCode", "Wr0ngAcc3ssC0d3!")
-				)
+				.perform(get("/survey/init/" + "Wr0ngAcc3ssC0d3!"))
 				.andExpect(status().isNotFound())
 				.andReturn();
 
@@ -254,9 +244,7 @@ class TestSurveyNonAdaptiveFlow {
 
 		// get current state of the skills
 		result = mvc
-				.perform(get("/survey/state")
-						.param("token", "this token should not exist")
-				)
+				.perform(get("/survey/state/" + "this token should not exist"))
 				.andExpect(status().isForbidden())
 				.andReturn();
 

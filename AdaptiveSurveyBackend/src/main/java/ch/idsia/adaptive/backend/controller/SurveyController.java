@@ -5,6 +5,7 @@ import ch.idsia.adaptive.backend.persistence.dao.QuestionAnswerRepository;
 import ch.idsia.adaptive.backend.persistence.dao.StatusRepository;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
+import ch.idsia.adaptive.backend.persistence.requests.RequestAnswer;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseResult;
@@ -21,10 +22,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.CacheControl;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,7 +41,7 @@ import java.util.stream.Collectors;
  * Date:    24.11.2020 16:43
  */
 @Controller
-@RequestMapping("/survey")
+@RequestMapping(value = "/survey", consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class SurveyController {
 	private static final Logger logger = LogManager.getLogger(SurveyController.class);
 
@@ -87,9 +85,8 @@ public class SurveyController {
 	 * @param token identifier of the session generate after an init call
 	 * @return a {@link State} that describe the last situation of the survey
 	 */
-	@GetMapping("/state")
-	@ResponseBody
-	public ResponseEntity<ResponseState> getLastStateForToken(@RequestParam("token") String token) {
+	@GetMapping("/state/{token}")
+	public ResponseEntity<ResponseState> getLastStateForToken(@PathVariable("token") String token) {
 		logger.info("Request status for token={}", token);
 
 		try {
@@ -106,9 +103,8 @@ public class SurveyController {
 		}
 	}
 
-	@GetMapping("/state/image/")
-	@ResponseBody
-	public ResponseEntity<byte[]> getStateImageForToken(@RequestParam("token") String token) {
+	@GetMapping("/state/image/{token}")
+	public ResponseEntity<byte[]> getStateImageForToken(@PathVariable("token") String token) {
 		logger.info("Request status for token={}", token);
 
 		try {
@@ -157,9 +153,8 @@ public class SurveyController {
 	 * @param token identifier of the session generate after an init call
 	 * @return list of {@link ResponseState}
 	 */
-	@GetMapping("/states")
-	@ResponseBody
-	public ResponseEntity<List<ResponseState>> getAllStatesForToken(@RequestParam("token") String token) {
+	@GetMapping("/states/{token}")
+	public ResponseEntity<List<ResponseState>> getAllStatesForToken(@PathVariable("token") String token) {
 		logger.info("Request all states for accessCode={}", token);
 
 		try {
@@ -185,9 +180,8 @@ public class SurveyController {
 	 * @param request    servlet request component
 	 * @return 403 if there is an internal error or the input accessCode is not valid, otherwise 200 and the token for this session
 	 */
-	@GetMapping("/init")
-	@ResponseBody
-	public ResponseEntity<ResponseData> initTest(@RequestParam("accessCode") String accessCode, HttpServletRequest request) {
+	@GetMapping("/init/{code}")
+	public ResponseEntity<ResponseData> initTest(@PathVariable("code") String accessCode, HttpServletRequest request) {
 		logger.info("Request test initialization with accessCode={}", accessCode);
 
 		try {
@@ -219,14 +213,33 @@ public class SurveyController {
 		}
 	}
 
-	@GetMapping("/answers")
-	public List<Answer> getAnswers(String accessCode) {
-		logger.info("Request all answers for accessCode={}", accessCode);
+	@GetMapping("/answers/{code}")
+	public List<Answer> getAnswers(@PathVariable("code") String code) {
+		logger.info("Request all answers for accessCode={}", code);
 
-		return answers.findAllBySessionTokenOrderByCreationAsc(accessCode);
+		return answers.findAllBySessionTokenOrderByCreationAsc(code);
 	}
 
 	// TODO: getActiveTests?
+
+	/**
+	 * Update the adaptive model for the given user based on its answer.
+	 *
+	 * @param token   unique session token id
+	 * @param answer  answer in JSON format
+	 * @param request servlet request component
+	 * @return 500 if there is an internal error, otherwise 200
+	 */
+	@PostMapping(value = "/answer/{token}", consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<SurveyData> checkAnswer(
+			@PathVariable("token") String token,
+			@RequestBody RequestAnswer answer,
+			HttpServletRequest request
+	) {
+		final Long questionId = answer.getQuestion();
+		final Long answerId = answer.getAnswer();
+		return checkAnswer(token, questionId, answerId, request);
+	}
 
 	/**
 	 * Update the adaptive model for the given user based on its answer.
@@ -237,9 +250,9 @@ public class SurveyController {
 	 * @param request    servlet request component
 	 * @return 500 if there is an internal error, otherwise 200
 	 */
-	@PostMapping("/answer")
+	@PostMapping(value = "/answer/{token}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public ResponseEntity<SurveyData> checkAnswer(
-			@RequestParam("token") String token,
+			@PathVariable("token") String token,
 			@RequestParam("question") Long questionId,
 			@RequestParam("answer") Long answerId,
 			HttpServletRequest request
@@ -295,8 +308,8 @@ public class SurveyController {
 	 * @return 500 if there is an internal error, 204 if the survey has ended, otherwise 200 with the data of the
 	 * question to pose
 	 */
-	@GetMapping("/question")
-	public ResponseEntity<ResponseQuestion> nextQuestion(@RequestParam("token") String token, HttpServletRequest request) {
+	@GetMapping("/question/{token}")
+	public ResponseEntity<ResponseQuestion> nextQuestion(@PathVariable("token") String token, HttpServletRequest request) {
 		logger.info("User with token={} request a new question", token);
 
 		try {
@@ -332,8 +345,8 @@ public class SurveyController {
 		}
 	}
 
-	@GetMapping("/results")
-	public ResponseEntity<ResponseResult> surveyResults(String token) {
+	@GetMapping("/results/{token}")
+	public ResponseEntity<ResponseResult> surveyResults(@PathVariable("token") String token) {
 		logger.info("User with token={} request the results", token);
 		try {
 			Session session = sessions.getSession(token);

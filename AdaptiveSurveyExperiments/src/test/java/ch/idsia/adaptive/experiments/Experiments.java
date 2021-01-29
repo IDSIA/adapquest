@@ -14,7 +14,18 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -29,7 +40,7 @@ public class Experiments {
 	static final String APIKey = "QWRhcHRpdmUgU3VydmV5";
 
 	@Test
-	void testConnectionUsingApiKey() throws Exception {
+	void generateNewApiKey() throws Exception {
 		HttpPost post = new HttpPost(new URI("http://" + host + ":" + port + "/console/key"));
 		List<NameValuePair> params = List.of(
 				new BasicNameValuePair("username", "cb"),
@@ -41,7 +52,49 @@ public class Experiments {
 		try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 			final CloseableHttpResponse response = httpClient.execute(post);
 
-			System.out.println(EntityUtils.toString(response.getEntity()));
+			String key = EntityUtils.toString(response.getEntity());
+
+			logger.info("Key={}", key);
+
+			Files.write(Paths.get(".apikey"), key.getBytes());
 		}
+	}
+
+	@Test
+	void deleteApyKey() throws Exception {
+		final String key = new String(Files.readAllBytes(Paths.get(".apikey")));
+
+		logger.info("Deleting key={}", key);
+
+		Map<String, String> data = new HashMap<>();
+		data.put("key", key);
+
+		HttpRequest delete = HttpRequest.newBuilder()
+				.uri(new URI("http", null, host, port, "/console/key", null, null))
+				.header("APIKey", APIKey)
+				.header("Content-Type", "multipart/form-data")
+				.method("DELETE", buildBodyFromMap(data))
+				.build();
+
+		HttpClient httpClient = HttpClient.newBuilder().build();
+
+		final HttpResponse<String> response = httpClient.send(delete, HttpResponse.BodyHandlers.ofString());
+
+		logger.info("response status code: {}", response.statusCode());
+		logger.info("content:\n{}", response.body());
+	}
+
+	private HttpRequest.BodyPublisher buildBodyFromMap(Map<?, ?> data) {
+		final Charset charset = StandardCharsets.UTF_8;
+		final String content = data.entrySet().stream()
+				.collect(Collectors.toMap(
+						entry -> URLEncoder.encode(entry.getKey().toString(), charset),
+						entry -> URLEncoder.encode(entry.getValue().toString(), charset)
+				))
+				.entrySet().stream()
+				.map(entry -> entry.getKey() + "=" + entry.getValue())
+				.collect(Collectors.joining("&"));
+
+		return HttpRequest.BodyPublishers.ofString(content, charset);
 	}
 }

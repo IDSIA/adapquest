@@ -26,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -131,9 +132,7 @@ public class TestAdaptiveLanguage {
 		logger.info("initialization new survey");
 		MvcResult result;
 		result = mvc
-				.perform(get("/survey/init")
-						.param("accessCode", ACCESS_CODE)
-				)
+				.perform(get("/survey/init/" + ACCESS_CODE))
 				.andExpect(status().isOk())
 				.andReturn();
 
@@ -146,9 +145,7 @@ public class TestAdaptiveLanguage {
 	private ResponseQuestion getNextQuestion(String token) throws Exception {
 		// get next question
 		MvcResult result = mvc
-				.perform(get("/survey/question")
-						.param("token", token)
-				)
+				.perform(get("/survey/question/" + token))
 				.andExpect(status().is2xxSuccessful())
 				.andReturn();
 
@@ -165,8 +162,8 @@ public class TestAdaptiveLanguage {
 	private void postAnswer(String token, Long questionId, Long answerId) throws Exception {
 		logger.info("answering with token={} questionId={} answerId={}", token, questionId, answerId);
 		mvc
-				.perform(post("/survey/answer")
-						.param("token", token)
+				.perform(post("/survey/answer/" + token)
+						.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 						.param("question", "" + questionId)
 						.param("answer", "" + answerId)
 				).andExpect(status().isOk());
@@ -174,9 +171,7 @@ public class TestAdaptiveLanguage {
 
 	private ResponseState getCurrentState(String token) throws Exception {
 		MvcResult result = mvc
-				.perform(get("/survey/state")
-						.param("token", token)
-				)
+				.perform(get("/survey/state/" + token))
 				.andExpect(status().isOk())
 				.andReturn();
 
