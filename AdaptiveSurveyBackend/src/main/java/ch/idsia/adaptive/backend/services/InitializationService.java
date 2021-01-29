@@ -114,8 +114,11 @@ public class InitializationService {
 		final Map<String, Integer> v = new HashMap<>();
 		String modelData = "";
 
-		if (structure.model != null) {
-			modelData = parseModelStructure(structure.model, v);
+		if (structure.modelData.isPresent()) {
+			modelData = structure.modelData.get();
+			structure.skills.forEach(skill -> v.put(skill.name, skill.variable));
+		} else if (structure.model.isPresent()) {
+			modelData = parseModelStructure(structure.model.get(), v);
 		}
 
 		// build skills
