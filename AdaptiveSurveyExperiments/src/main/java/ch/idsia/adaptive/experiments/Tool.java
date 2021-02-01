@@ -122,7 +122,7 @@ public class Tool {
 			logger.error("Could not add new survey with accessCode={}", structure.survey.accessCode);
 			logger.error("Status code: {}", response.statusCode());
 			logger.error("Message:     {}", response.body());
-			throw new Exception("Could add new survey.");
+			throw new Exception("Could not add new survey.");
 		}
 
 		logger.info("New survey added with accessCode={}", structure.survey.accessCode);
@@ -132,7 +132,8 @@ public class Tool {
 		logger.info("checking if survey with accessCode={} exists", accessCode);
 
 		HttpRequest get = HttpRequest.newBuilder()
-				.uri(endpoint("/survey/" + accessCode))
+				.uri(endpoint("/console/survey/" + accessCode))
+				.header("APIKey", key)
 				.GET()
 				.build();
 

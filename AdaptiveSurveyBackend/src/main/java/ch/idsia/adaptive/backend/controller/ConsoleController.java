@@ -210,7 +210,7 @@ public class ConsoleController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@GetMapping("/survey/{code}")
+	@GetMapping(value = "/survey/{code}", consumes = MediaType.ALL_VALUE)
 	public ResponseEntity<String> checkSurvey(
 			@RequestHeader("APIKey") String key,
 			@PathVariable("code") String code,

@@ -93,9 +93,12 @@ public class ExperimentLanguageAdaptiveTest {
 		ResponseQuestion nextQuestion;
 
 		while ((nextQuestion = tool.nextQuestion(token)) != null) {
+			final Long qid = nextQuestion.id;
+			final Long aid = nextQuestion.answers.get(student.get(nextQuestion.explanation)).id;
+			logger.info("Answering to questionId={} with answerId={}", qid, aid);
 			tool.answer(token,
-					nextQuestion.id, // this is an answer to this question
-					nextQuestion.answers.get(student.get(nextQuestion.explanation)).id // 0 is always correct 1 is always wrong
+					qid, // this is an answer to this question
+					aid // 0 is always correct 1 is always wrong
 			);
 		}
 
