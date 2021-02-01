@@ -39,7 +39,7 @@ public class Question implements Comparable<Question> {
 	/**
 	 * Name of the variable controlled by this question.
 	 */
-	private String level = "";
+	private String name = "";
 
 	/**
 	 * Refers to the state of the the model associated with this answer.
@@ -105,7 +105,7 @@ public class Question implements Comparable<Question> {
 		return "Question{" +
 				"id=" + id +
 				", skill=" + skill +
-				", level=" + level +
+				", level=" + name +
 				", weight=" + weight +
 				'}';
 	}

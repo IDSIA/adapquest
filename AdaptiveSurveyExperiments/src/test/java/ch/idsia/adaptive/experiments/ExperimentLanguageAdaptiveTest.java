@@ -94,7 +94,7 @@ public class ExperimentLanguageAdaptiveTest {
 
 		while ((nextQuestion = tool.nextQuestion(token)) != null) {
 			final Long qid = nextQuestion.id;
-			final Long aid = nextQuestion.answers.get(student.get(nextQuestion.explanation)).id;
+			final Long aid = nextQuestion.answers.get(student.get(nextQuestion.name)).id;
 			logger.info("Answering to questionId={} with answerId={}", qid, aid);
 			tool.answer(token,
 					qid, // this is an answer to this question

@@ -149,6 +149,7 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 				.map(q -> new QuestionStructure()
 						.setSkill(skillVarToInt.get(q.skill))
 						.setQuestion(q.toString())
+						.setExplanation(q.idx)
 						.setName(q.idx)
 						.setVariable(q.q)
 						.setAnswers(List.of(

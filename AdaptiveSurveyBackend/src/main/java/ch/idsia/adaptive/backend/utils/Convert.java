@@ -19,6 +19,7 @@ public class Convert {
 		rq.id = question.getId();
 		rq.explanation = question.getExplanation();
 		rq.question = question.getQuestion();
+		rq.name = question.getName();
 
 		rq.isExample = question.getIsExample();
 		rq.randomAnswers = question.getRandomAnswers();

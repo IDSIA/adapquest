@@ -11,6 +11,7 @@ import java.util.List;
 public class ResponseQuestion {
 
 	public Long id;
+	public String name = "";
 	public String explanation = "";
 	public String question = "";
 	public List<ResponseAnswer> answers = new ArrayList<>();
