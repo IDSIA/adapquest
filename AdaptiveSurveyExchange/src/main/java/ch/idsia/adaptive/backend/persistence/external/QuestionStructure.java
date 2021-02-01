@@ -20,8 +20,8 @@ public class QuestionStructure {
 	public String skill = "";
 	public String question = "";
 	public String explanation = "";
-	public String name = ""; // level
-	public String variable = "";
+	public String name = "";
+	public Integer variable = -1;
 	public Double weight = 1.;
 	public Boolean example = false;
 	public Boolean randomAnswers = false;

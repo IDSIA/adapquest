@@ -37,7 +37,7 @@ public class ExperimentLanguageAdaptiveTest {
 	public Integer FIRST_STUDENT = 0; // inclusive, 0-based
 	public Integer LAST_STUDENT = 10; // exclusive
 
-	static final String host = "artemis.idsia.ch";
+	static final String host = "artemis.idsia.ch"; // "localhost";
 	static final Integer port = 8080;
 	static final String MAGIC = "QWRhcHRpdmUgU3VydmV5";
 
@@ -59,13 +59,8 @@ public class ExperimentLanguageAdaptiveTest {
 		students = getStudents();
 		logger.info("found {} students", students.size());
 
-		try {
-			tool.init(LanguageTestGerman.accessCode);
-			logger.info("Survey with accessCode={} available", LanguageTestGerman.accessCode);
-		} catch (Exception e) {
-			logger.info("Survey with accessCode={} NOT available", LanguageTestGerman.accessCode);
+		if (!tool.checkSurvey(LanguageTestGerman.accessCode)) {
 			tool.addSurvey(survey.structure());
-			tool.init(LanguageTestGerman.accessCode);
 			logger.info("Survey with accessCode={} created", LanguageTestGerman.accessCode);
 		}
 	}

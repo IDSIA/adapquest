@@ -209,4 +209,24 @@ public class ConsoleController {
 		logger.warn("ip={} key={}: survey with access code={} deleted", ip, key, code);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+
+	@GetMapping("/survey/{code}")
+	public ResponseEntity<String> checkSurvey(
+			@RequestHeader("APIKey") String key,
+			@PathVariable("code") String code,
+			HttpServletRequest request
+	) {
+		final String ip = request.getRemoteAddr();
+		logger.info("ip={} with key={} requested check if it exists a survey with accessCode={}", ip, key, code);
+
+		final Survey survey = surveys.findByAccessCode(code);
+
+		if (survey == null) {
+			logger.warn("ip={} key={}: access code={} not found", ip, key, code);
+			return new ResponseEntity<>("Access code not found", HttpStatus.NOT_FOUND);
+		}
+
+		logger.warn("ip={} key={}: survey with access code={} found", ip, key, code);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 }

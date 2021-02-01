@@ -128,6 +128,20 @@ public class Tool {
 		logger.info("New survey added with accessCode={}", structure.survey.accessCode);
 	}
 
+	public boolean checkSurvey(String accessCode) throws Exception {
+		logger.info("checking if survey with accessCode={} exists", accessCode);
+
+		HttpRequest get = HttpRequest.newBuilder()
+				.uri(endpoint("/survey/" + accessCode))
+				.GET()
+				.build();
+
+		final HttpResponse<String> response = httpClient.send(get, HttpResponse.BodyHandlers.ofString());
+		logger.info("response: {}", response.body());
+
+		return is2xxSuccessful(response.statusCode());
+	}
+
 	public String init(String accesCode) throws Exception {
 		logger.info("initialization new survey");
 

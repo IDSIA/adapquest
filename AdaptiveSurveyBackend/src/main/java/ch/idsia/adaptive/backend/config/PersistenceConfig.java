@@ -34,22 +34,22 @@ import java.util.Properties;
 public class PersistenceConfig {
 	public static final Logger logger = LogManager.getLogger(PersistenceConfig.class);
 
-	@Value("${db.dbms}")
+	@Value("${db.dbms:memory}")
 	private String dbms;
 
-	@Value("${db.hostname}")
+	@Value("${db.hostname:localhost}")
 	private String hostname;
 
-	@Value("${db.port}")
+	@Value("${db.port:5432}")
 	private String port;
 
-	@Value("${db.schema}")
+	@Value("${db.schema:adaptive}")
 	private String schema;
 
-	@Value("${db.username}")
+	@Value("${db.username:ada}")
 	private String username;
 
-	@Value("${db.password}")
+	@Value("${db.password:ada}")
 	private String password;
 
 	private final Environment env;

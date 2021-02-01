@@ -40,15 +40,10 @@ public abstract class AbstractAdaptiveModel {
 	}
 
 	public ImportStructure structure() {
-		// model
-		String modelData = model();
-
-		// skill definition
-		List<SkillStructure> skills = skills();
-
+		final String modelData = model();
+		final List<SkillStructure> skills = skills();
 		final List<QuestionStructure> questions = questions();
-
-		SurveyStructure survey = survey();
+		final SurveyStructure survey = survey();
 
 		logger.info("Created new survey with accessCode={}", accessCode);
 		return new ImportStructure()

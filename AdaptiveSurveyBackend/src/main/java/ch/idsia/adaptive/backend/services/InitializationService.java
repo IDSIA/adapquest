@@ -123,6 +123,7 @@ public class InitializationService {
 			logger.info("Using serialized model structure.");
 			modelData = structure.modelData;
 			structure.skills.forEach(skill -> v.put(skill.name, skill.variable));
+			structure.questions.forEach(question -> v.put(question.name, question.variable));
 		} else if (structure.model != null) {
 			modelData = parseModelStructure(structure.model, v);
 		}
@@ -147,7 +148,7 @@ public class InitializationService {
 						.setExplanation(q.explanation)
 						.setSkill(skills.get(q.skill))
 						.setLevel(q.name)
-						.setVariable(v.computeIfAbsent(q.variable, i -> -1))
+						.setVariable(v.computeIfAbsent(q.name, i -> -1))
 						.setWeight(q.weight)
 						.setIsExample(q.example)
 						.setRandomAnswers(q.randomAnswers)
