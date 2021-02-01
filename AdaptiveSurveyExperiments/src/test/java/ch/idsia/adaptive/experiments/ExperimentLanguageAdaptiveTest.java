@@ -4,6 +4,7 @@ import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseSkill;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import ch.idsia.adaptive.experiments.models.LanguageTestGerman;
+import ch.idsia.adaptive.experiments.models.Student;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
@@ -16,7 +17,6 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -39,6 +39,10 @@ public class ExperimentLanguageAdaptiveTest {
 
 	static final String host = "artemis.idsia.ch"; // "localhost";
 	static final Integer port = 8080;
+
+	static final String username = "cb";
+	static final String email = "claudio@idsia.ch";
+
 	static final String MAGIC = "QWRhcHRpdmUgU3VydmV5";
 
 	Tool tool;
@@ -50,7 +54,7 @@ public class ExperimentLanguageAdaptiveTest {
 	void setUp() throws Exception {
 		survey = new LanguageTestGerman();
 
-		tool = new Tool(host, port);
+		tool = new Tool(host, port, username, email);
 		tool.newApiKey(MAGIC);
 
 		logger.info("Key: {}", tool.getKey());
@@ -133,7 +137,7 @@ public class ExperimentLanguageAdaptiveTest {
 		final List<Callable<Void>> tasks = IntStream.range(Math.max(FIRST_STUDENT, 0), Math.min(LAST_STUDENT, students.size()))
 				.mapToObj(students::get)
 				.map(student -> (Callable<Void>) () -> {
-					final Tool tool = new Tool(host, port);
+					final Tool tool = new Tool(host, port, username, email);
 					final String token = tool.init(LanguageTestGerman.accessCode);
 
 					ResponseQuestion nextQuestion;
@@ -187,15 +191,4 @@ public class ExperimentLanguageAdaptiveTest {
 		return v;
 	}
 
-	/**
-	 * Dummy class to identify all the answers of a student.
-	 */
-	static class Student extends HashMap<String, Integer> {
-		ResponseState state;
-
-		public Student(String[] header, String[] answers) {
-			IntStream.range(0, header.length)
-					.forEach(i -> put(header[i], Integer.parseInt(answers[i].trim())));
-		}
-	}
 }

@@ -4,7 +4,6 @@ import ch.idsia.adaptive.backend.persistence.external.*;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
-import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,7 +26,7 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 
 	SkillStructure skill0, skill1, skill2, skill3;
 
-	List<Q> Qs;
+	List<Question> Qs;
 	Map<Integer, String> skillVarToInt;
 
 	public LanguageTestGerman() {
@@ -171,12 +170,12 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 				.setAdaptive(true);
 	}
 
-	private Q addQuestion(BayesianNetwork bn, int idx, int skill, int difficulty, double[][] data) {
+	private Question addQuestion(BayesianNetwork bn, int idx, int skill, int difficulty, double[][] data) {
 		logger.info("Adding to network question node={} difficulty={} for skill={}", idx, difficulty, skill);
 		int q = bn.addVariable(2);
 		bn.addParent(q, skill);
 		bn.setFactor(q, new BayesianFactor(bn.getDomain(skill, q), data[difficulty]));
-		return new Q(q, skill, difficulty, "Q" + idx);
+		return new Question(q, skill, difficulty, "Q" + idx);
 	}
 
 	private SkillStructure addSurveySkill(int variable, String name) {
@@ -190,24 +189,6 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 						new StateStructure("A3", 2),
 						new StateStructure("A4", 3)
 				));
-	}
-
-	/**
-	 * Dummy class to identify a network node for a question.
-	 */
-	@AllArgsConstructor
-	static class Q {
-		int q, skill, difficulty;
-		String idx;
-
-		@Override
-		public String toString() {
-			return "Q{" +
-					"q=" + q +
-					", skill=" + skill +
-					", difficulty=" + difficulty +
-					'}';
-		}
 	}
 
 }

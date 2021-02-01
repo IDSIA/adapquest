@@ -4,6 +4,7 @@ import ch.idsia.adaptive.backend.persistence.external.ImportStructure;
 import ch.idsia.adaptive.backend.persistence.external.QuestionStructure;
 import ch.idsia.adaptive.backend.persistence.external.SkillStructure;
 import ch.idsia.adaptive.backend.persistence.external.SurveyStructure;
+import ch.idsia.crema.model.io.uai.BayesUAIWriter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,16 +23,42 @@ public abstract class AbstractAdaptiveModel {
 
 	String accessCode;
 
+	/**
+	 * @param accessCode code used to access to this survey on the remote application.
+	 */
 	public AbstractAdaptiveModel(String accessCode) {
 		this.accessCode = accessCode;
 	}
 
+	/**
+	 * Definition of the model. Overwrite this method and define your model before serialize it in a {@link String}. Use
+	 * {@link BayesUAIWriter#serialize()} to correctly serialize the model.
+	 *
+	 * @return a serialized model saved in a {@link String} object.
+	 */
 	public abstract String model();
 
+	/**
+	 * Definition of the skills. Override this method by filling in your skills.
+	 *
+	 * @return a list of {@link SkillStructure}s.
+	 */
 	public abstract List<SkillStructure> skills();
 
+	/**
+	 * Definition of the questions. Override this method by filling it with your questions.
+	 *
+	 * @return a list of {@link QuestionStructure}s.
+	 */
 	public abstract List<QuestionStructure> questions();
 
+	/**
+	 * Definition of a survey control object. This is a minimal implementation of a valid {@link SurveyStructure}.
+	 * Ideally, when you override this method, you first call this via super to be sure that the minimal parameters are
+	 * correctly set.
+	 *
+	 * @return a valid {@link SurveyStructure}
+	 */
 	public SurveyStructure survey() {
 		return new SurveyStructure()
 				.setAccessCode(accessCode)
@@ -39,6 +66,13 @@ public abstract class AbstractAdaptiveModel {
 				.setEntropyUpperThreshold(ENTROPY_STOP_THRESHOLD_MAX);
 	}
 
+	/**
+	 * This method will build a {@link ImportStructure} by calling, in order, the methods {@link #model()},
+	 * {@link #skills()}, {@link #questions()}, and {@link #survey()}. Optimally, this method does not need to be
+	 * overwritten.
+	 *
+	 * @return a valid {@link ImportStructure} object.
+	 */
 	public ImportStructure structure() {
 		final String modelData = model();
 		final List<SkillStructure> skills = skills();
