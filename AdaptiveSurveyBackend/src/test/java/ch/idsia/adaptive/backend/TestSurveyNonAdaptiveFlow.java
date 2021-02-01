@@ -112,7 +112,7 @@ class TestSurveyNonAdaptiveFlow {
 		q1 = new Question()
 				.setQuestion("Question 1")
 				.setSkill(skill)
-				.setLevel("Low interest")
+				.setName("Low interest")
 				.setVariable(L)
 				.addAnswersAvailable(
 						new QuestionAnswer().setText("a").setState(0),
@@ -122,7 +122,7 @@ class TestSurveyNonAdaptiveFlow {
 		q2 = new Question()
 				.setQuestion("Question 2")
 				.setSkill(skill)
-				.setLevel("Medium interest")
+				.setName("Medium interest")
 				.setVariable(M)
 				.addAnswersAvailable(
 						new QuestionAnswer().setText("1").setState(0),
@@ -131,7 +131,7 @@ class TestSurveyNonAdaptiveFlow {
 		q3 = new Question()
 				.setQuestion("Question 3")
 				.setSkill(skill)
-				.setLevel("High interest")
+				.setName("High interest")
 				.setVariable(H)
 				.addAnswersAvailable(
 						new QuestionAnswer().setText("*").setState(0),

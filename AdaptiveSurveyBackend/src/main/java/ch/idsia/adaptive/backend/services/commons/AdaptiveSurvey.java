@@ -163,7 +163,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 			throw new SurveyException("No valid question found!");
 
 		// register the chosen question as nextQuestion and maps
-		logger.info("next question is skill={} level={} with entropy={}", nextSkill.getName(), nextQuestion.getLevel(), minH);
+		logger.info("next question is skill={} level={} with entropy={}", nextSkill.getName(), nextQuestion.getName(), minH);
 		register(nextQuestion);
 
 		if (minH > survey.getEntropyUpperThreshold() || minH < survey.getEntropyLowerThreshold()) {

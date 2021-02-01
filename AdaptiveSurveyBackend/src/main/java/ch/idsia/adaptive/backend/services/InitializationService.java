@@ -147,7 +147,7 @@ public class InitializationService {
 						.setQuestion(q.question)
 						.setExplanation(q.explanation)
 						.setSkill(skills.get(q.skill))
-						.setLevel(q.name)
+						.setName(q.name)
 						.setVariable(v.computeIfAbsent(q.name, i -> -1))
 						.setWeight(q.weight)
 						.setIsExample(q.example)

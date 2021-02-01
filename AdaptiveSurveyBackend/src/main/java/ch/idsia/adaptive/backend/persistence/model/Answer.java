@@ -64,6 +64,6 @@ public class Answer {
 
 	@Override
 	public String toString() {
-		return String.format("Answer to Question %d %s %s: %s", getQuestionId(), getSkill(), getQuestion().getLevel(), isCorrect);
+		return String.format("Answer to Question %d %s %s: %s", getQuestionId(), getSkill(), getQuestion().getName(), isCorrect);
 	}
 }
