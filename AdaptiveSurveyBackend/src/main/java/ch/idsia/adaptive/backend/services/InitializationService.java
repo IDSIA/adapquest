@@ -56,6 +56,7 @@ public class InitializationService {
 	}
 
 	public static String parseModelStructure(ModelStructure model, Map<String, Integer> variables) {
+		logger.info("Parsing model structure with {} variable(s).", model.variables.size());
 		final BayesianNetwork bn = new BayesianNetwork();
 		variables.putAll(model.variables.stream()
 				.collect(Collectors.toMap(
@@ -64,6 +65,7 @@ public class InitializationService {
 						k -> bn.addVariable(k.states)
 				))
 		);
+
 		model.variables.stream()
 				.peek(
 						// set parents
@@ -83,6 +85,8 @@ public class InitializationService {
 					bn.setFactor(x[0], bf);
 				});
 
+		logger.info("Model structure parsing completed.");
+
 		List<String> modelData = new BayesUAIWriter(bn, "").serialize();
 
 		return String.join("\n", modelData);
@@ -95,6 +99,7 @@ public class InitializationService {
 					.filter(Files::isRegularFile)
 					.map(path -> {
 						try {
+							logger.info("Reading file={}", path.toFile());
 							return om.readValue(path.toFile(), ImportStructure.class);
 						} catch (IOException e) {
 							logger.error("Could not import path={}", path);
@@ -115,6 +120,7 @@ public class InitializationService {
 		String modelData = "";
 
 		if (structure.modelData != null) {
+			logger.info("Using serialized model structure.");
 			modelData = structure.modelData;
 			structure.skills.forEach(skill -> v.put(skill.name, skill.variable));
 		} else if (structure.model != null) {
@@ -132,6 +138,7 @@ public class InitializationService {
 						)
 				)
 				.collect(Collectors.toMap(Skill::getName, x -> x));
+		logger.info("Found {} skill(s): {}", skills.size(), String.join(" ", skills.keySet()));
 
 		// build questions
 		final List<Question> questions = structure.questions.stream()
@@ -153,6 +160,7 @@ public class InitializationService {
 								.toArray(QuestionAnswer[]::new)
 						)
 				).collect(Collectors.toList());
+		logger.info("Found {} question(s)", questions.size());
 
 		// build survey
 		Survey survey = new Survey()
@@ -175,6 +183,8 @@ public class InitializationService {
 				.setQuestionTotalMax(structure.survey.questionTotalMax);
 
 		questions.forEach(q -> q.setSurvey(survey));
+
+		logger.info("Found survey with accessCode={}", survey.getAccessCode());
 
 		// save survey
 		return surveys.save(survey);

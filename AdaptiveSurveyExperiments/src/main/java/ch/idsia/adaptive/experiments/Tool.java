@@ -8,6 +8,7 @@ import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,7 +28,7 @@ import static ch.idsia.adaptive.experiments.StatusCodeCheck.is2xxSuccessful;
 public class Tool {
 	private static final Logger logger = LogManager.getLogger(Tool.class);
 
-	private final ObjectMapper om = new ObjectMapper();
+	private final ObjectMapper om = new ObjectMapper().registerModule(new JavaTimeModule());
 
 	private final String host;
 	private final Integer port;
