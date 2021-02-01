@@ -70,14 +70,14 @@ public class Session {
 	/**
 	 * Statuses created during this session.
 	 */
-	@OneToMany(mappedBy = "session")
+	@OneToMany(mappedBy = "session", cascade = CascadeType.ALL)
 	@OrderBy("creation asc")
 	private List<State> states = new ArrayList<>();
 
 	/**
 	 * Answers given during this session.
 	 */
-	@OneToMany(mappedBy = "session", fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "session", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@OrderBy("creation asc")
 	private Set<Answer> answers = new HashSet<>();
 

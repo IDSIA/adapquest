@@ -2,7 +2,7 @@ package ch.idsia.adaptive.backend.controller;
 
 import ch.idsia.adaptive.backend.persistence.dao.AnswerRepository;
 import ch.idsia.adaptive.backend.persistence.dao.QuestionAnswerRepository;
-import ch.idsia.adaptive.backend.persistence.dao.StatusRepository;
+import ch.idsia.adaptive.backend.persistence.dao.StatesRepository;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.persistence.requests.RequestAnswer;
@@ -50,7 +50,7 @@ public class SurveyController {
 	final SurveyManagerService manager;
 
 	final SurveyRepository surveys;
-	final StatusRepository statuses;
+	final StatesRepository statuses;
 	final QuestionAnswerRepository questions;
 	final AnswerRepository answers;
 
@@ -59,7 +59,7 @@ public class SurveyController {
 			SessionService sessions,
 			SurveyManagerService manager,
 			SurveyRepository surveys,
-			StatusRepository statuses,
+			StatesRepository statuses,
 			QuestionAnswerRepository questions,
 			AnswerRepository answers
 	) {

@@ -31,7 +31,6 @@
       "question": "Question 1",
       "explanation": "Question of low interest",
       "name": "Low interest",
-      "variable": "L",
       "answers": [
         {
           "text": "a",
@@ -52,7 +51,6 @@
       "question": "Question 2",
       "explanation": "Question of medium interest",
       "name": "Medium interest",
-      "variable": "M",
       "answers": [
         {
           "text": "1",
@@ -69,7 +67,6 @@
       "question": "Question 3",
       "explanation": "Question of high interest",
       "name": "High interest",
-      "variable": "H",
       "answers": [
         {
           "text": "*",

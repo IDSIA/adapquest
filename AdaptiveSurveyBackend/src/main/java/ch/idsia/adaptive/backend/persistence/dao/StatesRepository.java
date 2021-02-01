@@ -13,9 +13,13 @@ import java.util.List;
  * Date:    24.11.2020 17:43
  */
 @Repository
-public interface StatusRepository extends CrudRepository<State, Long> {
+public interface StatesRepository extends CrudRepository<State, Long> {
 
 	State findFirstBySessionOrderByCreationDesc(Session s);
 
 	List<State> findAllBySessionOrderByCreationDesc(Session s);
+
+	List<State> findAllBySessionIn(List<Session> sessions);
+
+	Integer deleteBySessionIn(List<Session> sessions);
 }

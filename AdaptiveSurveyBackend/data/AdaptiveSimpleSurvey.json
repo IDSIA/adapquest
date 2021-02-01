@@ -30,7 +30,6 @@
       "skill": "A",
       "question": "Question 0",
       "name": "Q0",
-      "variable": "Q0",
       "answers": [
         {
           "text": "yes",
@@ -46,7 +45,6 @@
       "skill": "A",
       "question": "Question 1",
       "name": "Q1",
-      "variable": "Q1",
       "answers": [
         {
           "text": "yes",
@@ -62,7 +60,6 @@
       "skill": "A",
       "question": "Question 2",
       "name": "Q2",
-      "variable": "Q2",
       "answers": [
         {
           "text": "yes",
@@ -78,7 +75,6 @@
       "skill": "A",
       "question": "Question 3",
       "name": "Q3",
-      "variable": "Q3",
       "answers": [
         {
           "text": "yes",
@@ -94,7 +90,6 @@
       "skill": "A",
       "question": "Question 4",
       "name": "Q4",
-      "variable": "Q4",
       "answers": [
         {
           "text": "yes",
@@ -110,7 +105,6 @@
       "skill": "A",
       "question": "Question 5",
       "name": "Q5",
-      "variable": "Q5",
       "answers": [
         {
           "text": "yes",
@@ -126,7 +120,6 @@
       "skill": "A",
       "question": "Question 6",
       "name": "Q6",
-      "variable": "Q6",
       "answers": [
         {
           "text": "yes",
@@ -142,7 +135,6 @@
       "skill": "A",
       "question": "Question 7",
       "name": "Q7",
-      "variable": "Q7",
       "answers": [
         {
           "text": "yes",
@@ -158,7 +150,6 @@
       "skill": "A",
       "question": "Question 8",
       "name": "Q8",
-      "variable": "Q8",
       "answers": [
         {
           "text": "yes",
@@ -174,7 +165,6 @@
       "skill": "A",
       "question": "Question 9",
       "name": "Q9",
-      "variable": "Q9",
       "answers": [
         {
           "text": "yes",

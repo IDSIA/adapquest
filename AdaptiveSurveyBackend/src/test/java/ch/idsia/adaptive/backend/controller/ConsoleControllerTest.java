@@ -4,6 +4,8 @@ import ch.idsia.adaptive.backend.AdaptiveSurveyBackend;
 import ch.idsia.adaptive.backend.config.PersistenceConfig;
 import ch.idsia.adaptive.backend.config.WebConfig;
 import ch.idsia.adaptive.backend.persistence.dao.ClientRepository;
+import ch.idsia.adaptive.backend.persistence.dao.SessionRepository;
+import ch.idsia.adaptive.backend.persistence.dao.StatesRepository;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.external.ImportStructure;
 import ch.idsia.adaptive.backend.persistence.external.SurveyStructure;
@@ -33,8 +35,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest({
 		WebConfig.class,
 		PersistenceConfig.class,
-		SurveyRepository.class,
 		ClientRepository.class,
+		SessionRepository.class,
+		SurveyRepository.class,
+		StatesRepository.class,
 		InitializationService.class,
 		ConsoleController.class,
 })
