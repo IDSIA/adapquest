@@ -190,7 +190,7 @@ public class ConsoleController {
 	@DeleteMapping("/survey")
 	public ResponseEntity<String> deleteSurvey(
 			@RequestHeader("APIKey") String key,
-			@RequestParam RequestCode accessCode,
+			@RequestBody RequestCode accessCode,
 			HttpServletRequest request
 	) {
 		final String code = accessCode.accessCode;

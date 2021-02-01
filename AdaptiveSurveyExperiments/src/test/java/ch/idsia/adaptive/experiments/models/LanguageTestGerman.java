@@ -42,7 +42,7 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 		// S0 -> S1 -> S2 -> S3
 		//  v     v     v     v
 		// Q0*   Q1*   Q2*   Q3*
-		S0 = bn.addVariable(4); // Horen
+		S0 = bn.addVariable(4); // Hoeren
 		S1 = bn.addVariable(4); // Lesen
 		S2 = bn.addVariable(4); // Wortschatz
 		S3 = bn.addVariable(4); // Kommunikation
@@ -79,28 +79,28 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 
 		double[][] cpt = new double[][]{
 				new double[]{ // easy
-						.6125, .3875,
-						.7625, .2375,
-						.8625, .1375,
-						.9625, .0375
+						.3875, .6125,
+						.2375, .7625,
+						.1375, .8625,
+						.0375, .9625,
 				},
 				new double[]{ // medium easy
-						.3375, .6625,
-						.6125, .3875,
-						.7625, .2375,
-						.8625, .1375
+						.6625, .3375,
+						.3875, .6125,
+						.2375, .7625,
+						.1375, .8625,
 				},
 				new double[]{ // medium hard
-						.2375, .7625,
-						.3375, .6625,
-						.6125, .3875,
 						.7625, .2375,
+						.6625, .3375,
+						.3875, .6125,
+						.2375, .7625,
 				},
 				new double[]{ // hard
-						.1875, .8125,
-						.2375, .7625,
-						.3375, .6625,
-						.6125, .3875,
+						.8125, .1875,
+						.7625, .2375,
+						.6625, .3375,
+						.3875, .6125,
 				}
 		};
 
@@ -130,7 +130,7 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 
 	@Override
 	public List<SkillStructure> skills() {
-		skill0 = addSurveySkill(S0, "S0 Horen");
+		skill0 = addSurveySkill(S0, "S0 Hoeren");
 		skill1 = addSurveySkill(S1, "S1 Lesen");
 		skill2 = addSurveySkill(S2, "S2 Wortschatz");
 		skill3 = addSurveySkill(S3, "S3 Kommunikation");
@@ -153,8 +153,8 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 						.setName(q.idx)
 						.setVariable(q.q)
 						.setAnswers(List.of(
-								new AnswerStructure().setText("0").setState(0),
-								new AnswerStructure().setText("1").setState(1)
+								new AnswerStructure("0", 0),
+								new AnswerStructure("1", 1)
 						))
 				)
 				.collect(Collectors.toList());

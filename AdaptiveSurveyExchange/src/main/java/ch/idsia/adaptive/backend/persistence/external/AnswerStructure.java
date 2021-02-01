@@ -20,4 +20,8 @@ public class AnswerStructure {
 	public Integer state = 1;
 	public Boolean correct = false;
 
+	public AnswerStructure(String text, Integer state) {
+		this.text = text;
+		this.state = state;
+	}
 }

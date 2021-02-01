@@ -67,7 +67,8 @@ public class ExperimentLanguageAdaptiveTest {
 
 	@AfterEach
 	void tearDown() throws Exception {
-		tool.deleteCurrentKey();
+		tool.removeSurvey(LanguageTestGerman.accessCode);
+		tool.removeKey();
 	}
 
 	private List<Student> getStudents() throws IOException {
@@ -84,6 +85,11 @@ public class ExperimentLanguageAdaptiveTest {
 	}
 
 	@Test
+	void dummyForSetUpAndTearDown() {
+		logger.info("Dummy");
+	}
+
+	@Test
 	void adaptiveOneStudent() throws Exception {
 		logger.info("Single students with id={}", FIRST_STUDENT);
 
@@ -93,13 +99,12 @@ public class ExperimentLanguageAdaptiveTest {
 		ResponseQuestion nextQuestion;
 
 		while ((nextQuestion = tool.nextQuestion(token)) != null) {
+			// this is an answer to this question
 			final Long qid = nextQuestion.id;
+			// 0 is wrong 1 is correct
 			final Long aid = nextQuestion.answers.get(student.get(nextQuestion.name)).id;
 			logger.info("Answering to questionId={} with answerId={}", qid, aid);
-			tool.answer(token,
-					qid, // this is an answer to this question
-					aid // 0 is always correct 1 is always wrong
-			);
+			tool.answer(token, qid, aid);
 		}
 
 		ResponseState state = tool.state(token);
@@ -120,7 +125,7 @@ public class ExperimentLanguageAdaptiveTest {
 	}
 
 	@Test
-	public void testAdaptiveMultipleStudent() throws Exception {
+	public void adaptiveMultipleStudent() throws Exception {
 		logger.info("Multiple students from {} to {} over {} core(s)", FIRST_STUDENT, LAST_STUDENT, CORES);
 
 		ExecutorService es = Executors.newFixedThreadPool(CORES);

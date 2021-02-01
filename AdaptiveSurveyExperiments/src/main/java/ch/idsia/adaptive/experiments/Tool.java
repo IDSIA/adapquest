@@ -3,6 +3,7 @@ package ch.idsia.adaptive.experiments;
 import ch.idsia.adaptive.backend.persistence.external.ImportStructure;
 import ch.idsia.adaptive.backend.persistence.requests.RequestAnswer;
 import ch.idsia.adaptive.backend.persistence.requests.RequestClient;
+import ch.idsia.adaptive.backend.persistence.requests.RequestCode;
 import ch.idsia.adaptive.backend.persistence.requests.RequestKey;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
@@ -33,9 +34,9 @@ public class Tool {
 	private final String host;
 	private final Integer port;
 
-	private String key = "";
-
 	private final HttpClient httpClient;
+
+	private String key = "";
 
 	public Tool(String host, Integer port) {
 		this.host = host;
@@ -74,7 +75,7 @@ public class Tool {
 		key = response.body();
 	}
 
-	public void deleteCurrentKey() throws Exception {
+	public void removeKey() throws Exception {
 		if (key.isEmpty()) {
 			logger.warn("No key saved.");
 			return;
@@ -90,7 +91,6 @@ public class Tool {
 						new RequestKey(key)
 				)))
 				.build();
-
 
 		final HttpResponse<String> response = httpClient.send(delete, HttpResponse.BodyHandlers.ofString());
 
@@ -128,6 +128,35 @@ public class Tool {
 		logger.info("New survey added with accessCode={}", structure.survey.accessCode);
 	}
 
+	public void removeSurvey(String accessCode) throws Exception {
+		if (key.isEmpty()) {
+			logger.warn("No key saved.");
+			return;
+		}
+
+		logger.info("Deleting survey with accessCode={}", accessCode);
+
+		HttpRequest delete = HttpRequest.newBuilder()
+				.uri(endpoint("/console/survey/"))
+				.header("APIKey", key)
+				.header("Content-Type", "application/json")
+				.method("DELETE", HttpRequest.BodyPublishers.ofString(om.writeValueAsString(
+						new RequestCode(accessCode)
+				)))
+				.build();
+
+		final HttpResponse<String> response = httpClient.send(delete, HttpResponse.BodyHandlers.ofString());
+
+		if (!is2xxSuccessful(response.statusCode())) {
+			logger.error("Could not delete survey with code={}", accessCode);
+			logger.error("Status code: {}", response.statusCode());
+			logger.error("Message:     {}", response.body());
+			throw new Exception("Could not delete survey.");
+		}
+
+		logger.info("Survey with accessCode={} deleted.", accessCode);
+	}
+
 	public boolean checkSurvey(String accessCode) throws Exception {
 		logger.info("checking if survey with accessCode={} exists", accessCode);
 
@@ -143,18 +172,18 @@ public class Tool {
 		return is2xxSuccessful(response.statusCode());
 	}
 
-	public String init(String accesCode) throws Exception {
+	public String init(String accessCode) throws Exception {
 		logger.info("initialization new survey");
 
 		HttpRequest get = HttpRequest.newBuilder()
-				.uri(endpoint("/survey/init/" + accesCode))
+				.uri(endpoint("/survey/init/" + accessCode))
 				.GET()
 				.build();
 
 		final HttpResponse<String> response = httpClient.send(get, HttpResponse.BodyHandlers.ofString());
 
 		if (!is2xxSuccessful(response.statusCode())) {
-			logger.error("Could not initialize survey with accessCode {}", accesCode);
+			logger.error("Could not initialize survey with accessCode {}", accessCode);
 			logger.error("Status code: {}", response.statusCode());
 			logger.error("Message:     {}", response.body());
 			throw new Exception("Could not initialize survey.");
@@ -185,7 +214,7 @@ public class Tool {
 		}
 
 		if (response.statusCode() == 204) {
-			logger.info("Finished surevy for token={}", token);
+			logger.info("Finished survey for token={}", token);
 			return null;
 		}
 
@@ -201,6 +230,7 @@ public class Tool {
 
 		HttpRequest get = HttpRequest.newBuilder()
 				.uri(endpoint("/survey/answer/" + token))
+				.header("Content-Type", "application/json")
 				.POST(HttpRequest.BodyPublishers.ofString(om.writeValueAsString(
 						new RequestAnswer(questionId, answerId)
 				)))
@@ -220,6 +250,7 @@ public class Tool {
 	}
 
 	public ResponseState state(String token) throws Exception {
+		logger.info("requesting current state for token={}", token);
 
 		HttpRequest get = HttpRequest.newBuilder()
 				.uri(endpoint("/survey/state/" + token))

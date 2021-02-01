@@ -127,7 +127,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 			Integer S = skill.getVariable();
 
 			if (!isSkillValid(skill)) {
-				logger.info("skill={} is not not valid", skill.getName());
+				logger.info("skill={} is valid", skill.getName());
 				continue;
 			}
 
