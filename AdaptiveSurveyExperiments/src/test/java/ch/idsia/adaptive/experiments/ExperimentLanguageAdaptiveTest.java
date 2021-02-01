@@ -35,7 +35,7 @@ public class ExperimentLanguageAdaptiveTest {
 	static final Integer CORES = Runtime.getRuntime().availableProcessors();
 
 	public Integer FIRST_STUDENT = 0; // inclusive, 0-based
-	public Integer LAST_STUDENT = 10; // exclusive
+	public Integer LAST_STUDENT = 500; // exclusive
 
 	static final String host = "artemis.idsia.ch"; // "localhost";
 	static final Integer port = 8080;

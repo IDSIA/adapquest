@@ -27,6 +27,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +45,7 @@ import static ch.idsia.adaptive.backend.security.APIKeyGenerator.validateApiKey;
  * These endpoints are protected with API Keys, see {@link ch.idsia.adaptive.backend.config.SecurityConfig} for moder details.
  */
 @Controller
+@Transactional
 @RequestMapping(value = "/console", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ConsoleController {
 	public static final Logger logger = LogManager.getLogger(ConsoleController.class);
