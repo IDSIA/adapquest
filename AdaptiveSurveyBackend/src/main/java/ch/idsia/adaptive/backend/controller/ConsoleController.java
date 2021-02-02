@@ -81,14 +81,14 @@ public class ConsoleController {
 		logger.info("ip={} key={}: requested add new key for username={} email={}", ip, key, username, email);
 
 		if (!magicApiKey.equals(key)) {
-			logger.info("ip={} key={}: invalid request for new key, key is not MAGIC", ip, key);
+			logger.warn("ip={} key={}: invalid request for new key, key is not MAGIC", ip, key);
 			return new ResponseEntity<>("Invalid MAGIC key", HttpStatus.FORBIDDEN);
 		}
 
 		Client c = clients.findClientByUsernameOrEmail(username, email);
 
 		if (c != null) {
-			logger.info("ip={} key={}: requested key for an existing username={} or email={} (existing id={})", ip, key, username, email, c.getId());
+			logger.warn("ip={} key={}: requested key for an existing username={} or email={} (existing id={})", ip, key, username, email, c.getId());
 			return new ResponseEntity<>("Username or password already exists", HttpStatus.NOT_ACCEPTABLE);
 		}
 
@@ -99,7 +99,7 @@ public class ConsoleController {
 
 			return new ResponseEntity<>(apiKey, HttpStatus.CREATED);
 		} catch (Exception e) {
-			logger.info("ip={} key={}: could not generate key for username={} and email={}", ip, key, username, email);
+			logger.warn("ip={} key={}: could not generate key for username={} and email={}", ip, key, username, email);
 			return new ResponseEntity<>("Could not generate API key", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}

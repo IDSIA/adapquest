@@ -59,7 +59,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 
 		if (availableQuestionsPerSkill.get(skill).isEmpty()) {
 			// the skill has no questions available
-			logger.info("skill={} has no questions available", skill.getName());
+			logger.debug("skill={} has no questions available", skill.getName());
 			return false;
 		}
 
@@ -71,8 +71,8 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 		// we can make more questions if we are below the maximum amount
 		final boolean b = questionsDone <= survey.getQuestionPerSkillMax();
 
-		if (b)
-			logger.info("skill={} reached max questions per skill (done= {}, max={})", skill.getName(), questionsDone, survey.getQuestionPerSkillMax());
+		if (!b)
+			logger.debug("skill={} reached max questions per skill (done= {}, max={})", skill.getName(), questionsDone, survey.getQuestionPerSkillMax());
 
 		return b;
 	}
@@ -90,13 +90,13 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 	public boolean isFinished() {
 		if (questions.isEmpty()) {
 			// we don't have any more question
-			logger.info("survey finished with no more questions");
+			logger.debug("survey finished with no more questions");
 			return true;
 		}
 
 		if (questionsDone.size() > survey.getQuestionTotalMax()) {
 			// we made too many questions
-			logger.info("survey finished with too many questions (done={}, max={})", questionsDone.size(), survey.getQuestionTotalMax());
+			logger.debug("survey finished with too many questions (done={}, max={})", questionsDone.size(), survey.getQuestionTotalMax());
 			return true;
 		}
 
@@ -109,7 +109,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 		final boolean b = availableQuestionsPerSkill.values().stream().allMatch(Collection::isEmpty);
 
 		if (b)
-			logger.info("survey finished with no more valid skills");
+			logger.debug("survey finished with no more valid skills");
 
 		return b;
 	}
@@ -119,61 +119,75 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 		if (!answered && currentQuestion != null)
 			return currentQuestion;
 
-		Skill nextSkill = null;
-		Question nextQuestion = null;
-		double minH = Double.MAX_VALUE;
+		Map<H, List<Double>> map = new HashMap<>();
 
 		for (Skill skill : skills) {
 			Integer S = skill.getVariable();
 
 			if (!isSkillValid(skill)) {
-				logger.info("skill={} is valid", skill.getName());
+				logger.debug("skill={} is not valid", skill.getName());
 				continue;
 			}
 
 			for (Question question : availableQuestionsPerSkill.get(skill)) {
-				Integer L = question.getVariable();
-
-				int size = network.getSize(L);
+				final Integer Q = question.getVariable();
+				final int size = network.getSize(Q);
 
 				double h = 0;
 
 				for (int i = 0; i < size; i++) {
-					inference.clearEvidence();
 					TIntIntMap obs = new TIntIntHashMap(observations);
-					obs.put(L, i);
-					inference.setEvidence(obs);
-
-					BayesianFactor pS = inference.query(S);
-					h += BayesianEntropy.H(pS);
+					obs.put(Q, i);
+					BayesianFactor pS = inference.query(S, obs);
+					double v = BayesianEntropy.H(pS);
+					v = Double.isNaN(v) ? 0.0 : v;
+					h += v;
 				}
 
-				// since we can have a different amount of answers per question, we use the mean
 				h /= size;
 
-				if (h < minH) {
-					nextSkill = skill;
-					nextQuestion = question;
-					minH = h;
-				}
+				H x = new H(skill, question);
+				map.computeIfAbsent(x, i -> new ArrayList<>()).add(h);
 			}
 		}
+
+		// compute skill average entropy
+		Question nextQuestion = null;
+		Skill nextSkill = null;
+		double minH = Double.MAX_VALUE;
+
+		for (Map.Entry<H, List<Double>> entry : map.entrySet()) {
+			H h = entry.getKey();
+			List<Double> vs = entry.getValue();
+			final double v = vs.stream().reduce(Double::sum).orElse(0.0) / vs.size();
+
+			logger.debug("skill={} question={} with informationGain={}", h.skill.getName(), h.question.getName(), v);
+
+			if (v < minH) {
+				nextQuestion = h.question;
+				nextSkill = h.skill;
+				minH = v;
+			}
+		}
+
 		if (nextQuestion == null)
 			// this is also valid for nextSkill == null
 			throw new SurveyException("No valid question found!");
 
 		// register the chosen question as nextQuestion and maps
-		logger.info("next question is skill={} level={} with entropy={}", nextSkill.getName(), nextQuestion.getName(), minH);
+		logger.debug("next question is skill={} level={} with entropy={}", nextSkill.getName(), nextQuestion.getName(), minH);
 		register(nextQuestion);
 
-		if (minH > survey.getEntropyUpperThreshold() || minH < survey.getEntropyLowerThreshold()) {
-			// skill entropy level achieved
-			invalidateSkill(nextSkill);
-		}
+		if (questionsDonePerSkill.get(nextSkill) > survey.getQuestionPerSkillMin() && questionsDone.size() > survey.getQuestionTotalMin()) {
+			if (minH > survey.getEntropyUpperThreshold() || minH < survey.getEntropyLowerThreshold()) {
+				// skill entropy level achieved
+				invalidateSkill(nextSkill);
+			}
 
-		if (questionsDonePerSkill.get(nextSkill) > survey.getQuestionPerSkillMax()) {
-			// too many questions per skill
-			invalidateSkill(nextSkill);
+			if (questionsDonePerSkill.get(nextSkill) > survey.getQuestionPerSkillMax()) {
+				// too many questions per skill
+				invalidateSkill(nextSkill);
+			}
 		}
 
 		return currentQuestion;

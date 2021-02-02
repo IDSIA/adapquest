@@ -1,5 +1,7 @@
 package ch.idsia.adaptive.backend.utils;
 
+import ch.idsia.adaptive.backend.persistence.external.ImportStructure;
+import ch.idsia.adaptive.backend.persistence.requests.RequestCode;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
@@ -13,8 +15,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -34,6 +35,49 @@ public class TestTool {
 		this.mvc = mvc;
 	}
 
+	public void consoleSurveyAdd(String key, ImportStructure structure) throws Exception {
+		mvc
+				.perform(post("/console/survey")
+						.header("APIKey", key)
+						.contentType(MediaType.APPLICATION_JSON_VALUE)
+						.content(om.writeValueAsString(structure))
+				).andExpect(status().isCreated());
+	}
+
+	public void consoleSurveyRemove(String key, String code) throws Exception {
+		mvc
+				.perform(delete("/console/survey")
+						.header("APIKey", key)
+						.contentType(MediaType.APPLICATION_JSON_VALUE)
+						.content(om.writeValueAsString(new RequestCode(code)))
+				).andExpect(status().isOk())
+				.andReturn();
+	}
+
+	public void consoleSurveyClean(String key, String code) throws Exception {
+		mvc
+				.perform(delete("/console/survey/clean")
+						.header("APIKey", key)
+						.contentType(MediaType.APPLICATION_JSON_VALUE)
+						.content(om.writeValueAsString(new RequestCode(code)))
+				).andExpect(status().isOk())
+				.andReturn();
+	}
+
+	public List<ResponseState> consoleStates(String key, String code) throws Exception {
+		MvcResult result = mvc
+				.perform(get("/console/survey/states/" + code)
+						.header("APIKey", key)
+						.contentType(MediaType.ALL_VALUE)
+				).andExpect(status().isOk())
+				.andReturn();
+
+		TypeReference<List<ResponseState>> t = new TypeReference<>() {
+		};
+
+		return om.readValue(result.getResponse().getContentAsString(), t);
+	}
+
 	public ResponseData init(String accessCode) throws Exception {
 		MvcResult result;
 		result = mvc
@@ -47,8 +91,13 @@ public class TestTool {
 	public ResponseQuestion next(String token) throws Exception {
 		MvcResult result = mvc
 				.perform(get("/survey/question/" + token))
-				.andExpect(status().isOk())
+				.andExpect(status().is2xxSuccessful())
 				.andReturn();
+
+		if (result.getResponse().getStatus() == 204) {
+			return null;
+		}
+
 
 		return om.readValue(result.getResponse().getContentAsString(), ResponseQuestion.class);
 	}
@@ -81,4 +130,5 @@ public class TestTool {
 		};
 		return om.readValue(result.getResponse().getContentAsString(), t);
 	}
+
 }

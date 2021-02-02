@@ -1,0 +1,198 @@
+package ch.idsia.adaptive.backend;
+
+import ch.idsia.adaptive.backend.config.PersistenceConfig;
+import ch.idsia.adaptive.backend.config.WebConfig;
+import ch.idsia.adaptive.backend.controller.ConsoleController;
+import ch.idsia.adaptive.backend.controller.SurveyController;
+import ch.idsia.adaptive.backend.persistence.dao.*;
+import ch.idsia.adaptive.backend.persistence.external.ImportStructure;
+import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
+import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
+import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
+import ch.idsia.adaptive.backend.services.InitializationService;
+import ch.idsia.adaptive.backend.services.SessionService;
+import ch.idsia.adaptive.backend.services.SurveyManagerService;
+import ch.idsia.adaptive.backend.utils.TestTool;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.IntStream;
+
+/**
+ * Author:  Claudio "Dna" Bonesana
+ * Project: AdaptiveSurvey
+ * Date:    02.02.2021 10:46
+ */
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = TestApplication.class)
+@WebMvcTest({
+		WebConfig.class,
+		PersistenceConfig.class,
+		ClientRepository.class,
+		AnswerRepository.class,
+		QuestionAnswerRepository.class,
+		SessionRepository.class,
+		SurveyRepository.class,
+		StatesRepository.class,
+		SessionService.class,
+		SurveyManagerService.class,
+		InitializationService.class,
+		ConsoleController.class,
+		SurveyController.class,
+})
+@Import(TestTool.class)
+class TestAdaptiveEngine {
+	private static final Logger logger = LogManager.getLogger(TestAdaptiveEngine.class);
+
+	@Autowired
+	TestTool tool;
+
+	final String code = "test";
+	final String key = "test";
+
+	@Test
+	public void getQuestionWithBetterEntropy() throws Exception {
+		final ImportStructure structure = SurveyStructureRepository.structure1S2Q("test");
+		tool.consoleSurveyAdd(key, structure);
+
+		ResponseData data = tool.init(code);
+		ResponseQuestion question = tool.next(data.token);
+
+		Assertions.assertEquals("Q0", question.name);
+
+		tool.consoleSurveyRemove(key, code);
+	}
+
+	@Test
+	public void getEntropyDirection() throws Exception {
+		final ImportStructure structure = SurveyStructureRepository.structure2S10Q("test");
+		tool.consoleSurveyAdd(key, structure);
+
+		ResponseQuestion question;
+		ResponseState state;
+		ResponseData data = tool.init(code);
+
+		List<String> sequence = new ArrayList<>();
+
+		logger.info("\n");
+		state = tool.state(data.token);
+		logger.info("Entropy S0: {}\t{}", state.entropyDistribution.get("S0"), state.skillDistribution.get("S0"));
+		logger.info("Entropy S1: {}\t{}\n", state.entropyDistribution.get("S1"), state.skillDistribution.get("S1"));
+
+		for (int i = 0; i < 10; i++) {
+			question = tool.next(data.token);
+			tool.answer(data.token, question.id, question.answers.get(1).id);
+			state = tool.state(data.token);
+			sequence.add(question.name);
+			logger.info("Question:   {}", question.id);
+			logger.info("Entropy S0: {}\t{}", state.entropyDistribution.get("S0"), state.skillDistribution.get("S0"));
+			logger.info("Entropy S1: {}\t{}\n", state.entropyDistribution.get("S1"), state.skillDistribution.get("S1"));
+		}
+
+		logger.info("Sequence:   {}", String.join(" ", sequence));
+
+		question = tool.next(data.token);
+		Assertions.assertNull(question);
+
+		tool.consoleSurveyRemove(key, code);
+	}
+
+	@Test
+	public void numberOfQuestionsWithDifferentEntropyThresholds() throws Exception {
+		double[] thresholds = new double[]{.5, .2, .1};
+		final ImportStructure structure = SurveyStructureRepository.structure1S20Q("test");
+
+		List<ResponseState> states = new ArrayList<>();
+		List<Integer> questionsDone = new ArrayList<>();
+		List<String> sequences = new ArrayList<>();
+
+		ResponseQuestion question;
+		ResponseData data;
+
+		final Random r = new Random(42);
+		final int[] rs = IntStream.range(0, 20).map(x -> r.nextInt(2)).toArray();
+
+		for (double th : thresholds) {
+			logger.info("Threshold: {}", th);
+
+			structure.survey.entropyLowerThreshold = th;
+			tool.consoleSurveyAdd(key, structure);
+
+			data = tool.init(code);
+
+			List<String> sequence = new ArrayList<>();
+			Integer i = 0;
+
+			while ((question = tool.next(data.token)) != null) {
+				int x = Integer.parseInt(question.name.substring(1)) - 1;
+				tool.answer(data.token, question.id, question.answers.get(rs[x]).id);
+				sequence.add(question.name);
+				i++;
+			}
+
+			states.add(tool.state(data.token));
+			sequences.add(String.join(" ", sequence));
+			questionsDone.add(i);
+
+			tool.consoleSurveyRemove(key, "test");
+			logger.info("\n");
+		}
+
+		for (int i = 0; i < thresholds.length; i++) {
+			logger.info("Threshold:      {}", thresholds[i]);
+			logger.info("Questions done: {}", questionsDone.get(i));
+			logger.info("Sequence:       {}", sequences.get(i));
+			logger.info("Entropy:        {}", states.get(i).entropyDistribution.get("S0"));
+			logger.info("Distribution:   {}", states.get(i).skillDistribution.get("S0"));
+		}
+	}
+
+	@Test
+	public void numberOfQuestionsWithDifferentMinQuestions() throws Exception {
+		final ImportStructure structure = SurveyStructureRepository.structure1S20Q("test");
+
+		ResponseQuestion question;
+		ResponseData data;
+
+		structure.survey.entropyLowerThreshold = .1;
+		structure.survey.questionPerSkillMin = 3;
+		tool.consoleSurveyAdd(key, structure);
+
+		data = tool.init(code);
+
+		int i = 0;
+		while ((question = tool.next(data.token)) != null) {
+			tool.answer(data.token, question.id, question.answers.get(0).id);
+			i++;
+		}
+
+		tool.consoleSurveyRemove(key, "test");
+
+		Assertions.assertTrue(i > 3);
+
+		structure.survey.questionPerSkillMin = 5;
+		tool.consoleSurveyAdd(key, structure);
+
+		data = tool.init(code);
+
+		i = 0;
+		while ((question = tool.next(data.token)) != null) {
+			tool.answer(data.token, question.id, question.answers.get(0).id);
+			i++;
+		}
+
+		Assertions.assertTrue(i > 5);
+		tool.consoleSurveyRemove(key, code);
+	}
+}

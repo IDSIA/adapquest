@@ -11,7 +11,8 @@ import ch.idsia.crema.model.io.uai.BayesUAIParser;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Arrays;
@@ -26,7 +27,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Date:    19.01.2021 13:12
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = {
+@ContextConfiguration(classes = TestApplication.class)
+@WebMvcTest({
 		TestApplication.class,
 		PersistenceConfig.class,
 		SurveyRepository.class,
@@ -42,10 +44,11 @@ class InitializationServiceTest {
 
 	@Test
 	public void testLoadFromDataFolder() {
+		final long count = surveys.count();
 
 		is.readDataFolder();
 
-		assertEquals(2, surveys.count());
+		assertEquals(count + 2, surveys.count());
 
 		final Survey survey = surveys.findByAccessCode("NonAdaptiveSurvey-Example");
 
@@ -66,7 +69,7 @@ class InitializationServiceTest {
 
 	@Test
 	public void testLoadFromStructureWithModelData() {
-		final ImportStructure structure = SurveyStructureRepository.structure2Q2S("test");
+		final ImportStructure structure = SurveyStructureRepository.structure2S2Q("test");
 		is.parseSurvey(structure);
 
 		final Survey survey = surveys.findByAccessCode("test");

@@ -10,18 +10,14 @@ import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.external.ImportStructure;
 import ch.idsia.adaptive.backend.persistence.external.SurveyStructure;
 import ch.idsia.adaptive.backend.services.InitializationService;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import ch.idsia.adaptive.backend.utils.TestTool;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -40,24 +36,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		InitializationService.class,
 		ConsoleController.class,
 })
+@Import(TestTool.class)
 class ConsoleControllerTest {
 
 	@Autowired
-	ObjectMapper om;
-
-	@Autowired
-	MockMvc mvc;
+	TestTool tool;
 
 	@Test
 	public void testPostNewSurveyStructure() throws Exception {
 		ImportStructure is = new ImportStructure()
 				.setSurvey(new SurveyStructure());
 
-		mvc
-				.perform(post("/console/survey")
-						.header("APIKey", "test")
-						.contentType(MediaType.APPLICATION_JSON_VALUE)
-						.content(om.writeValueAsString(is))
-				).andExpect(status().isCreated());
+		tool.consoleSurveyAdd("test", is);
 	}
 }
