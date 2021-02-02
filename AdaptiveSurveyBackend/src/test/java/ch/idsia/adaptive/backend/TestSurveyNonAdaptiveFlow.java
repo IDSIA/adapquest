@@ -12,17 +12,17 @@ import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import ch.idsia.adaptive.backend.services.InitializationService;
 import ch.idsia.adaptive.backend.services.SessionService;
 import ch.idsia.adaptive.backend.services.SurveyManagerService;
+import ch.idsia.adaptive.backend.utils.TestTool;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,7 +33,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -53,6 +52,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		SurveyManagerService.class,
 		InitializationService.class,
 })
+@Import(TestTool.class)
 @Transactional
 class TestSurveyNonAdaptiveFlow {
 
@@ -61,6 +61,9 @@ class TestSurveyNonAdaptiveFlow {
 
 	@Autowired
 	MockMvc mvc;
+
+	@Autowired
+	TestTool tool;
 
 	@Autowired
 	SurveyRepository surveys;
@@ -158,55 +161,29 @@ class TestSurveyNonAdaptiveFlow {
 	@Test
 	void defaultFlow() throws Exception {
 		// use access code to register, init a survey, and get personal the access token
-		MvcResult result;
-		result = mvc
-				.perform(get("/survey/init/" + accessCode))
-				.andExpect(status().isOk())
-				.andReturn();
-
-		ResponseData data = om.readValue(result.getResponse().getContentAsString(), ResponseData.class);
+		ResponseData data = tool.init(accessCode);
 
 		assertNotNull(data.token, "Session token is null");
 		assertEquals(accessCode, data.code, "Access codes are different");
 
 		// get current state of the skills
-		result = mvc
-				.perform(get("/survey/state/" + data.token))
-				.andExpect(status().isOk())
-				.andReturn();
-
-		ResponseState state1 = om.readValue(result.getResponse().getContentAsString(), ResponseState.class);
+		ResponseState state1 = tool.state(data.token);
 
 		assertNotNull(state1.skillDistribution, "Skill distribution is null!");
 		assertFalse(state1.skillDistribution.isEmpty(), "Skill distribution is empty");
 
 		// get next question
-		result = mvc
-				.perform(get("/survey/question/" + data.token))
-				.andExpect(status().isOk())
-				.andReturn();
-
-		ResponseQuestion question = om.readValue(result.getResponse().getContentAsString(), ResponseQuestion.class);
+		ResponseQuestion question = tool.next(data.token);
 
 		assertNotNull(question.question);
 		assertEquals(q1.getQuestion(), question.question);
 		assertEquals(3, question.answers.size());
 
 		// post answer
-		mvc
-				.perform(post("/survey/answer/" + data.token)
-						.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-						.param("question", "" + question.id)
-						.param("answer", "" + question.answers.get(2).id)
-				).andExpect(status().isOk());
+		tool.answer(data.token, question.id, question.answers.get(2).id);
 
 		// get last state
-		result = mvc
-				.perform(get("/survey/state/" + data.token))
-				.andExpect(status().isOk())
-				.andReturn();
-
-		ResponseState state2 = om.readValue(result.getResponse().getContentAsString(), ResponseState.class);
+		ResponseState state2 = tool.state(data.token);
 
 		assertEquals(1, state2.totalAnswers);
 		assertEquals(1, state2.questionsPerSkill.get("A"));
@@ -214,14 +191,7 @@ class TestSurveyNonAdaptiveFlow {
 		assertNotEquals(state1.skillDistribution.get("A")[1], state2.skillDistribution.get("A")[1]);
 
 		// check number of states
-		result = mvc
-				.perform(get("/survey/states/" + data.token))
-				.andExpect(status().isOk())
-				.andReturn();
-
-		TypeReference<List<ResponseState>> t = new TypeReference<>() {
-		};
-		List<ResponseState> states = om.readValue(result.getResponse().getContentAsString(), t);
+		List<ResponseState> states = tool.states(data.token);
 
 		assertEquals(2, states.size());
 
