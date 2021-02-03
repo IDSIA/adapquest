@@ -169,6 +169,7 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 				.setAdaptive(true) // default is false!
 				.setQuestionPerSkillMin(2) // at least 2 questions will be done for each skill
 				.setEntropyLowerThreshold(.2) // if entropy is below this threshold, then stop
+				.setQuestionTotalMax(20) // TODO: remove
 				;
 	}
 

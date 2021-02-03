@@ -351,7 +351,7 @@ public class Tool {
 	 *                   expected).
 	 */
 	public void answer(String token, Long questionId, Long answerId) throws Exception {
-		logger.info("token={} answering wto questionId={} with answerId={}", token, questionId, answerId);
+		logger.info("token={} answering to questionId={} with answerId={}", token, questionId, answerId);
 
 		HttpRequest get = HttpRequest.newBuilder()
 				.uri(endpoint("/survey/answer/" + token))

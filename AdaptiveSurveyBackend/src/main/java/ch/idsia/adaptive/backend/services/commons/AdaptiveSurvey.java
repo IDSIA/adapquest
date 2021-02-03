@@ -21,7 +21,7 @@ import java.util.*;
 public class AdaptiveSurvey extends NonAdaptiveSurvey {
 	private static final Logger logger = LogManager.getLogger(AdaptiveSurvey.class);
 
-	protected Map<Skill, Integer> questionsDonePerSkill = new HashMap<>();
+	protected Map<Skill, LinkedList<Question>> questionsDonePerSkill = new HashMap<>();
 	protected Map<Skill, LinkedList<Question>> availableQuestionsPerSkill = new HashMap<>();
 
 
@@ -39,7 +39,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 			this.skills.add(skill);
 
 			// for this class
-			this.questionsDonePerSkill.putIfAbsent(skill, 0);
+			this.questionsDonePerSkill.putIfAbsent(skill, new LinkedList<>());
 			this.availableQuestionsPerSkill.computeIfAbsent(skill, x -> new LinkedList<>()).add(q);
 		});
 	}
@@ -55,7 +55,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 	 * @return true if the skill is valid, otherwise false.
 	 */
 	public boolean isSkillValid(Skill skill) {
-		Integer questionsDone = questionsDonePerSkill.get(skill);
+		Integer questionsDone = questionsDonePerSkill.get(skill).size();
 
 		if (availableQuestionsPerSkill.get(skill).isEmpty()) {
 			// the skill has no questions available
@@ -155,6 +155,9 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 			final double HS = BayesianEntropy.H(pS); // skill entropy
 
 			for (Question question : availableQuestionsPerSkill.get(skill)) {
+				if (questionsDonePerSkill.get(skill).contains(question))
+					continue;
+
 				final Integer Q = question.getVariable();
 				final int size = network.getSize(Q);
 
@@ -173,7 +176,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 					HSQ += HSqi * pSqi; // conditional entropy
 				}
 
-				final double infoGain = HS - HSQ;
+				final double infoGain = Math.max(0, HS - HSQ);
 
 				logger.debug("skill={} question={} with average entropy={}", skill.getName(), question.getName(), infoGain);
 
@@ -193,13 +196,13 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 		logger.debug("next question is skill={} question={} with entropy={}", nextSkill.getName(), nextQuestion.getName(), maxIG);
 		register(nextQuestion);
 
-		if (questionsDonePerSkill.get(nextSkill) > survey.getQuestionPerSkillMin() && questionsDone.size() > survey.getQuestionTotalMin()) {
+		if (questionsDonePerSkill.get(nextSkill).size() > survey.getQuestionPerSkillMin() && questionsDone.size() > survey.getQuestionTotalMin()) {
 			if (maxIG > survey.getEntropyUpperThreshold() || maxIG < survey.getEntropyLowerThreshold()) {
 				// skill entropy level achieved
 				invalidateSkill(nextSkill);
 			}
 
-			if (questionsDonePerSkill.get(nextSkill) > survey.getQuestionPerSkillMax()) {
+			if (questionsDonePerSkill.get(nextSkill).size() > survey.getQuestionPerSkillMax()) {
 				// too many questions per skill
 				invalidateSkill(nextSkill);
 			}
@@ -216,7 +219,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 		questions.remove(q);
 
 		// add to done slacks
-		questionsDonePerSkill.put(s, questionsDonePerSkill.get(s) + 1);
+		questionsDonePerSkill.get(s).add(q);
 		questionsDone.add(q);
 
 		// update current question
