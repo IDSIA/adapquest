@@ -175,7 +175,7 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 				.setMixedSkillOrder(false)
 				.setAdaptive(true) // default is false!
 				.setQuestionPerSkillMin(2) // at least 2 questions will be done for each skill
-				.setEntropyLowerThreshold(.2) // if entropy is below this threshold, then stop
+				.setEntropyLowerThreshold(.01) // if entropy is below this threshold, then stop
 				;
 	}
 
@@ -213,8 +213,8 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 				.setStates(List.of(
 						new StateStructure("A1", 0),
 						new StateStructure("A2", 1),
-						new StateStructure("A3", 2),
-						new StateStructure("A4", 3)
+						new StateStructure("B1", 2),
+						new StateStructure("B2", 3)
 				));
 	}
 

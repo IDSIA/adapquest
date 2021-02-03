@@ -17,7 +17,14 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class RequestClient {
 
+	/**
+	 * Used to track who requested a key.
+	 */
 	public String username;
+
+	/**
+	 * Used to contact who requested a key.
+	 */
 	public String email;
 
 }

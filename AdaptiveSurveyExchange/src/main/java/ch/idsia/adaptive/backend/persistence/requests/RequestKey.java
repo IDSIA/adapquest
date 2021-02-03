@@ -17,6 +17,9 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class RequestKey {
 
+	/**
+	 * Client personal or MAGIC key.
+	 */
 	public String key;
 
 }

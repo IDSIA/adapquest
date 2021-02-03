@@ -17,6 +17,9 @@ import java.util.List;
 @Accessors(chain = true)
 public class ModelStructure {
 
+	/**
+	 * A model is defined as a list of variables, possibly ordered by existence.
+	 */
 	public List<ModelVariableStructure> variables = new ArrayList<>();
 
 }

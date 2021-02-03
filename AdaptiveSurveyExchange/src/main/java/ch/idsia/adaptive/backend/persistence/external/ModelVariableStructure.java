@@ -17,9 +17,24 @@ import java.util.List;
 @Accessors(chain = true)
 public class ModelVariableStructure {
 
+	/**
+	 * Name of this variable.
+	 */
 	public String name = "";
+
+	/**
+	 * Number of states of this variable.
+	 */
 	public Integer states = 2;
+
+	/**
+	 * Conditional Probability Table assigned to this variable.
+	 */
 	public double[] data = new double[]{.5, .5};
+
+	/**
+	 * Name of the parent variables (they must appear before this declaration in {@link ModelStructure#variables}.
+	 */
 	public List<String> parents = new ArrayList<>();
 
 }

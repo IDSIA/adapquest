@@ -16,7 +16,14 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class StateStructure {
 
+	/**
+	 * Name of the state.
+	 */
 	public String name = "";
+
+	/**
+	 * Index of the state in the variable.
+	 */
 	public Integer value = 0;
 
 }

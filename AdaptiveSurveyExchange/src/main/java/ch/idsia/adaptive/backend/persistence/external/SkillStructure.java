@@ -17,8 +17,19 @@ import java.util.List;
 @Accessors(chain = true)
 public class SkillStructure {
 
+	/**
+	 * Name of the skill.
+	 */
 	public String name = "";
+
+	/**
+	 * Index variable in the model.
+	 */
 	public Integer variable = -1;
+
+	/**
+	 * Ordred list of states.
+	 */
 	public List<StateStructure> states = new ArrayList<>();
 
 }

@@ -16,7 +16,14 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class RequestAnswer {
 
+	/**
+	 * Id of the question to answer to.
+	 */
 	public Long question;
+
+	/**
+	 * Id of the choosen answer.
+	 */
 	public Long answer;
 
 }

@@ -17,6 +17,9 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class RequestCode {
 
+	/**
+	 * Survey access code.
+	 */
 	public String accessCode;
 
 }

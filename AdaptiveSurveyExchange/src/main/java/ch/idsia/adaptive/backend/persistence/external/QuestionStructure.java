@@ -17,14 +17,49 @@ import java.util.List;
 @Accessors(chain = true)
 public class QuestionStructure {
 
+	/**
+	 * Name of the skill.
+	 */
 	public String skill = "";
+
+	/**
+	 * Question for the final subject.
+	 */
 	public String question = "";
+
+	/**
+	 * Explanation of the question, if needed.
+	 */
 	public String explanation = "";
+
+	/**
+	 * Name of the variable node.
+	 */
 	public String name = "";
+
+	/**
+	 * Index of the variable node in the model.
+	 */
 	public Integer variable = -1;
+
+	/**
+	 * If the question need a weight (also intended as points) for final results.
+	 */
 	public Double weight = 1.;
+
+	/**
+	 * Mark this question as an example.
+	 */
 	public Boolean example = false;
+
+	/**
+	 * If the answers need to be randomly organized.
+	 */
 	public Boolean randomAnswers = false;
+
+	/**
+	 * List of available answers.
+	 */
 	public List<AnswerStructure> answers = new ArrayList<>();
 
 }

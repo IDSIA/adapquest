@@ -16,8 +16,19 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class AnswerStructure {
 
+	/**
+	 * Text of the question.
+	 */
 	public String text = "";
+
+	/**
+	 * State index in the model associated with this answer.
+	 */
 	public Integer state = 1;
+
+	/**
+	 * If the survey is intended as a assessment test, this can be used to mark one answer as "correct".
+	 */
 	public Boolean correct = false;
 
 	public AnswerStructure(String text, Integer state) {
