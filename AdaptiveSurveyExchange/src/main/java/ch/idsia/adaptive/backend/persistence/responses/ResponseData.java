@@ -9,8 +9,19 @@ import java.time.LocalDateTime;
  */
 public class ResponseData {
 
+	/**
+	 * Access code of the survey.
+	 */
 	public String code = "";
+
+	/**
+	 * Token to use for the current session.
+	 */
 	public String token = "";
+
+	/**
+	 * When the session started.
+	 */
 	public LocalDateTime startTime = LocalDateTime.now();
 
 }

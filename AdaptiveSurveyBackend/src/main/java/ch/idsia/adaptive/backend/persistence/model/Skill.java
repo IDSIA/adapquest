@@ -1,6 +1,6 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
-import ch.idsia.adaptive.backend.persistence.utils.ListSkillLevelConverter;
+import ch.idsia.adaptive.backend.persistence.utils.ListSkillStateConverter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -33,11 +33,11 @@ public class Skill implements Comparable<Skill> {
 	private String name;
 
 	/**
-	 * Level grades of this skill. They are equals to the states of the variable in the model.
+	 * States of this skill. They are equals to the states of the variable in the model.
 	 */
-	@Convert(converter = ListSkillLevelConverter.class)
-	@Column(name = "levels", length = 1023)
-	private List<SkillLevel> states;
+	@Convert(converter = ListSkillStateConverter.class)
+	@Column(name = "states", length = 1023)
+	private List<SkillSate> states;
 
 	/**
 	 * Index of the variable in the model.

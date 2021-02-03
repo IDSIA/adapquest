@@ -57,16 +57,16 @@ public class Convert {
 		rs.name = skill.getName();
 		rs.variable = skill.getVariable();
 		rs.states = skill.getStates().stream().map(Convert::toResponse).collect(Collectors.toList());
-		rs.states.sort(Comparator.comparingInt(x -> x.level));
+		rs.states.sort(Comparator.comparingInt(x -> x.state));
 
 		return rs;
 	}
 
-	public static ResponseSkillLevel toResponse(SkillLevel level) {
-		ResponseSkillLevel rsl = new ResponseSkillLevel();
+	public static ResponseSkillState toResponse(SkillSate state) {
+		ResponseSkillState rsl = new ResponseSkillState();
 
-		rsl.name = level.getName();
-		rsl.level = level.getLevel();
+		rsl.name = state.getName();
+		rsl.state = state.getState();
 
 		return rsl;
 	}

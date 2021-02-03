@@ -105,7 +105,7 @@ public class Question implements Comparable<Question> {
 		return "Question{" +
 				"id=" + id +
 				", skill=" + skill +
-				", level=" + name +
+				", name=" + name +
 				", weight=" + weight +
 				'}';
 	}

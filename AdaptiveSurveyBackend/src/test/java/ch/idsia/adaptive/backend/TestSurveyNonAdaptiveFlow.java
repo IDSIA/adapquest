@@ -107,8 +107,8 @@ class TestSurveyNonAdaptiveFlow {
 				.setName("A")
 				.setVariable(A)
 				.setStates(List.of(
-						new SkillLevel("low", 0),
-						new SkillLevel("high", 1)
+						new SkillSate("low", 0),
+						new SkillSate("high", 1)
 				));
 
 		// 3 questions

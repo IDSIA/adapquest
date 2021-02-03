@@ -9,8 +9,19 @@ import java.util.List;
  */
 public class ResponseSkill {
 
+	/**
+	 * Name of the skill.
+	 */
 	public String name;
-	public List<ResponseSkillLevel> states;
+
+	/**
+	 * List of states of this skill.
+	 */
+	public List<ResponseSkillState> states;
+
+	/**
+	 * Index of the variable in the model.
+	 */
 	public Integer variable;
 
 }

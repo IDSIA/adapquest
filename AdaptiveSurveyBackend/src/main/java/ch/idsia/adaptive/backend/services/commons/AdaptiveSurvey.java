@@ -2,7 +2,7 @@ package ch.idsia.adaptive.backend.services.commons;
 
 import ch.idsia.adaptive.backend.persistence.model.Question;
 import ch.idsia.adaptive.backend.persistence.model.Skill;
-import ch.idsia.adaptive.backend.persistence.model.SkillLevel;
+import ch.idsia.adaptive.backend.persistence.model.SkillSate;
 import ch.idsia.adaptive.backend.persistence.model.Survey;
 import ch.idsia.crema.entropy.BayesianEntropy;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
@@ -78,7 +78,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 	}
 
 	/**
-	 * Set a {@link Skill} to be invalid by reducing the number of {@link SkillLevel} to zero.
+	 * Set a {@link Skill} to be invalid by reducing the number of {@link SkillSate} to zero.
 	 *
 	 * @param skill the skill to invalidate
 	 */
@@ -180,7 +180,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 			throw new SurveyException("No valid question found!");
 
 		// register the chosen question as nextQuestion and maps
-		logger.debug("next question is skill={} level={} with entropy={}", nextSkill.getName(), nextQuestion.getName(), minH);
+		logger.debug("next question is skill={} question={} with entropy={}", nextSkill.getName(), nextQuestion.getName(), minH);
 		register(nextQuestion);
 
 		if (questionsDonePerSkill.get(nextSkill) > survey.getQuestionPerSkillMin() && questionsDone.size() > survey.getQuestionTotalMin()) {

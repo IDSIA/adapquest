@@ -134,7 +134,7 @@ public class InitializationService {
 						.setName(s.name)
 						.setVariable(v.computeIfAbsent(s.name, i -> -1))
 						.setStates(s.states.stream()
-								.map(l -> new SkillLevel(l.name, l.value))
+								.map(l -> new SkillSate(l.name, l.value))
 								.collect(Collectors.toList())
 						)
 				)
