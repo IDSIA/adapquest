@@ -105,6 +105,25 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 			return false;
 		}
 
+		// check entropy levels
+		double h = 0;
+		for (Skill skill : skills) {
+			Integer S = skill.getVariable();
+
+			final BayesianFactor pS = inference.query(S, observations);
+			final double HS = BayesianEntropy.H(pS);
+
+			h += HS;
+		}
+
+		h /= skills.size();
+
+		if (h < survey.getGlobalMeanEntropyLowerThreshold() || h > survey.getGlobalMeanEntropyUpperThreshold()) {
+			logger.debug("survey finished because the mean global entropy threshold was reached (H={}, lower={}, upper={})",
+					h, survey.getGlobalMeanEntropyLowerThreshold(), survey.getGlobalMeanEntropyUpperThreshold());
+			return true;
+		}
+
 		// all skills are depleted?
 		final boolean b = availableQuestionsPerSkill.values().stream().allMatch(Collection::isEmpty);
 
@@ -119,7 +138,10 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 		if (!answered && currentQuestion != null)
 			return currentQuestion;
 
-		Map<H, List<Double>> map = new HashMap<>();
+		// find the question with the optimal entropy
+		Question nextQuestion = null;
+		Skill nextSkill = null;
+		double maxIG = -Double.MAX_VALUE;
 
 		for (Skill skill : skills) {
 			Integer S = skill.getVariable();
@@ -128,6 +150,9 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 				logger.debug("skill={} is not valid", skill.getName());
 				continue;
 			}
+
+			final BayesianFactor pS = inference.query(S, observations);
+			final double HS = BayesianEntropy.H(pS); // skill entropy
 
 			for (Question question : availableQuestionsPerSkill.get(skill)) {
 				final Integer Q = question.getVariable();
@@ -140,38 +165,23 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 					qi.put(Q, i);
 
 					final BayesianFactor pSq = inference.query(S, qi);
-
 					final double pSqi = pSq.getValue(i);
 
 					double HSqi = BayesianEntropy.H(pSq);
 					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
 
-					HSQ += HSqi * pSqi;
+					HSQ += HSqi * pSqi; // conditional entropy
 				}
 
-				HSQ /= size;
+				final double infoGain = HS - HSQ;
 
-				H x = new H(skill, question);
-				map.computeIfAbsent(x, i -> new ArrayList<>()).add(HSQ);
-			}
-		}
+				logger.debug("skill={} question={} with average entropy={}", skill.getName(), question.getName(), infoGain);
 
-		// compute skill average entropy
-		Question nextQuestion = null;
-		Skill nextSkill = null;
-		double minH = Double.MAX_VALUE;
-
-		for (Map.Entry<H, List<Double>> entry : map.entrySet()) {
-			H h = entry.getKey();
-			List<Double> vs = entry.getValue();
-			final double v = vs.stream().reduce(Double::sum).orElse(0.0) / vs.size();
-
-			logger.debug("skill={} question={} with informationGain={}", h.skill.getName(), h.question.getName(), v);
-
-			if (v < minH) {
-				nextQuestion = h.question;
-				nextSkill = h.skill;
-				minH = v;
+				if (infoGain > maxIG) {
+					nextQuestion = question;
+					nextSkill = skill;
+					maxIG = infoGain;
+				}
 			}
 		}
 
@@ -180,11 +190,11 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 			throw new SurveyException("No valid question found!");
 
 		// register the chosen question as nextQuestion and maps
-		logger.debug("next question is skill={} question={} with entropy={}", nextSkill.getName(), nextQuestion.getName(), minH);
+		logger.debug("next question is skill={} question={} with entropy={}", nextSkill.getName(), nextQuestion.getName(), maxIG);
 		register(nextQuestion);
 
 		if (questionsDonePerSkill.get(nextSkill) > survey.getQuestionPerSkillMin() && questionsDone.size() > survey.getQuestionTotalMin()) {
-			if (minH > survey.getEntropyUpperThreshold() || minH < survey.getEntropyLowerThreshold()) {
+			if (maxIG > survey.getEntropyUpperThreshold() || maxIG < survey.getEntropyLowerThreshold()) {
 				// skill entropy level achieved
 				invalidateSkill(nextSkill);
 			}

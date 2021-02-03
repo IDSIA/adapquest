@@ -78,6 +78,16 @@ public class SurveyStructure {
 	public Double entropyLowerThreshold = 0.;
 
 	/**
+	 * Upper threshold for mean entropy of all skills. If the value is above this threshold, the survey is considered completed.
+	 */
+	public Double globalMeanEntropyUpperThreshold = 1.;
+
+	/**
+	 * Lower threshold for mean entropy of all skills. If the value is below this threshold, the survey is considered completed.
+	 */
+	public Double globalMeanEntropyLowerThreshold = 0.;
+
+	/**
 	 * Minimum number of question to start check for the validity of a skill.
 	 */
 	public Integer questionValidityCheckMin = 0;

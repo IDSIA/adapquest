@@ -13,10 +13,12 @@ import java.util.Objects;
 final class H {
 	final Skill skill;
 	final Question question;
+	final Double entropy;
 
-	public H(Skill skill, Question question) {
+	public H(Skill skill, Question question, Double entropy) {
 		this.skill = skill;
 		this.question = question;
+		this.entropy = entropy;
 	}
 
 	@Override
@@ -24,11 +26,11 @@ final class H {
 		if (this == other) return true;
 		if (other == null || getClass() != other.getClass()) return false;
 		H h = (H) other;
-		return Objects.equals(skill, h.skill) && Objects.equals(question, h.question);
+		return Objects.equals(question, h.question);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(skill, question);
+		return Objects.hash(question);
 	}
 }

@@ -294,7 +294,7 @@ public class Tool {
 		}
 
 		ResponseData data = om.readValue(response.body(), ResponseData.class);
-		logger.info("Survey initialized with token={}", data.token);
+		logger.info("token={} survey initialized", data.token);
 
 		return data.token;
 	}
@@ -309,7 +309,7 @@ public class Tool {
 	 *                   expected), or when the returned {@link ResponseQuestion} cannot be correctly read.
 	 */
 	public ResponseQuestion nextQuestion(String token) throws Exception {
-		logger.info("Request new question for token={}", token);
+		logger.info("token={} request new question", token);
 
 		HttpRequest get = HttpRequest.newBuilder()
 				.uri(endpoint("/survey/question/" + token))
@@ -320,20 +320,20 @@ public class Tool {
 		final HttpResponse<String> response = httpClient.send(get, HttpResponse.BodyHandlers.ofString());
 
 		if (!is2xxSuccessful(response.statusCode())) {
-			logger.error("Could not get next question for token={}", token);
+			logger.error("token={} could not get next question", token);
 			logger.error("Status code: {}", response.statusCode());
 			logger.error("Message:     {}", response.body());
 			throw new Exception("Could not get next survey.");
 		}
 
 		if (response.statusCode() == 204) {
-			logger.info("Finished survey for token={}", token);
+			logger.info("token={} finished survey ", token);
 			return null;
 		}
 
 		final ResponseQuestion rq = om.readValue(response.body(), ResponseQuestion.class);
 
-		logger.info("new question for token={}: id={} difficulty={}", token, rq.id, rq.explanation);
+		logger.info("token={} new question with id={} difficulty={}", token, rq.id, rq.explanation);
 
 		return rq;
 	}
@@ -351,7 +351,7 @@ public class Tool {
 	 *                   expected).
 	 */
 	public void answer(String token, Long questionId, Long answerId) throws Exception {
-		logger.info("answering with token={} questionId={} answerId={}", token, questionId, answerId);
+		logger.info("token={} answering wto questionId={} with answerId={}", token, questionId, answerId);
 
 		HttpRequest get = HttpRequest.newBuilder()
 				.uri(endpoint("/survey/answer/" + token))
@@ -365,13 +365,13 @@ public class Tool {
 		final HttpResponse<String> response = httpClient.send(get, HttpResponse.BodyHandlers.ofString());
 
 		if (!is2xxSuccessful(response.statusCode())) {
-			logger.error("Could not check answer for token={}", token);
+			logger.error("token={} could not check answer", token);
 			logger.error("Status code: {}", response.statusCode());
 			logger.error("Message:     {}", response.body());
 			throw new Exception("Could not check answer.");
 		}
 
-		logger.info("Answer registered for token={}", token);
+		logger.info("token={} answer checked", token);
 	}
 
 	/**
@@ -386,7 +386,7 @@ public class Tool {
 	 *                   expected), or when it is not possible to parse the returned {@link ResponseState} object.
 	 */
 	public ResponseState state(String token) throws Exception {
-		logger.info("requesting current state for token={}", token);
+		logger.info("token={} requests current state", token);
 
 		HttpRequest get = HttpRequest.newBuilder()
 				.uri(endpoint("/survey/state/" + token))
@@ -396,7 +396,7 @@ public class Tool {
 		final HttpResponse<String> response = httpClient.send(get, HttpResponse.BodyHandlers.ofString());
 
 		if (!is2xxSuccessful(response.statusCode())) {
-			logger.error("Could not get current state fot token={}", token);
+			logger.error("token={} could not get current state", token);
 			logger.error("Status code: {}", response.statusCode());
 			logger.error("Message:     {}", response.body());
 			throw new Exception("Could not get next state.");

@@ -23,6 +23,7 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 	public static final String accessCode = "LanguageTestGerman";
 
 	int S0, S1, S2, S3;
+	BayesianNetwork bn;
 
 	SkillStructure skill0, skill1, skill2, skill3;
 
@@ -36,7 +37,7 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 	@Override
 	public String model() {
 		// here we define the model
-		BayesianNetwork bn = new BayesianNetwork();
+		bn = new BayesianNetwork();
 
 		// skill-chain
 		// S0 -> S1 -> S2 -> S3
@@ -80,28 +81,20 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 
 		double[][] cpt = new double[][]{
 				new double[]{ // easy
-						.3875, .6125,
-						.2375, .7625,
-						.1375, .8625,
-						.0375, .9625,
+						.3875, .2375, .1375, .0375,
+						.6125, .7625, .8625, .9625,
 				},
 				new double[]{ // medium easy
-						.6625, .3375,
-						.3875, .6125,
-						.2375, .7625,
-						.1375, .8625,
+						.6625, .3875, .2375, .1375,
+						.3375, .6125, .7625, .8625,
 				},
 				new double[]{ // medium hard
-						.7625, .2375,
-						.6625, .3375,
-						.3875, .6125,
-						.2375, .7625,
+						.7625, .6625, .3875, .2375,
+						.2375, .3375, .6125, .7625,
 				},
 				new double[]{ // hard
-						.8125, .1875,
-						.7625, .2375,
-						.6625, .3375,
-						.3875, .6125,
+						.8125, .7625, .6625, .3875,
+						.1875, .2375, .3375, .6125,
 				}
 		};
 
@@ -175,7 +168,7 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 				.setMixedSkillOrder(false)
 				.setAdaptive(true) // default is false!
 				.setQuestionPerSkillMin(2) // at least 2 questions will be done for each skill
-				.setEntropyLowerThreshold(.01) // if entropy is below this threshold, then stop
+				.setEntropyLowerThreshold(.2) // if entropy is below this threshold, then stop
 				;
 	}
 
