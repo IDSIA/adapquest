@@ -35,6 +35,7 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 
 	@Override
 	public String model() {
+		// here we define the model
 		BayesianNetwork bn = new BayesianNetwork();
 
 		// skill-chain
@@ -50,6 +51,7 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 		bn.addParent(S2, S1);
 		bn.addParent(S3, S2);
 
+		// CPT for the skills
 		bn.setFactor(S0, new BayesianFactor(bn.getDomain(S0), new double[]{
 				.15, .35, .35, .15
 		}));
@@ -73,7 +75,7 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 		}));
 
 
-		// questions
+		// CPT for questions
 		int A2 = 1, B1 = 2, B2 = 3; // there are no question of A1 difficulty...
 
 		double[][] cpt = new double[][]{
@@ -135,6 +137,8 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 		skill3 = addSurveySkill(S3, "S3 Kommunikation");
 
 		final List<SkillStructure> skills = List.of(skill0, skill1, skill2, skill3);
+
+		// mapping skill variable index in the Bayesian model to their name in the survey
 		skillVarToInt = skills.stream().collect(Collectors.toMap(
 				SkillStructure::getVariable, SkillStructure::getName
 		));
@@ -144,14 +148,16 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 
 	@Override
 	public List<QuestionStructure> questions() {
+		// converting all Questions in Question Structure
 		return Qs.stream()
 				.map(q -> new QuestionStructure()
-						.setSkill(skillVarToInt.get(q.skill))
-						.setQuestion(q.toString())
-						.setExplanation(q.idx)
-						.setName(q.idx)
-						.setVariable(q.q)
+						.setSkill(skillVarToInt.get(q.skill)) // this is the NAME of the skill
+						.setQuestion(q.toString()) // this is just a dummy
+						.setExplanation(q.idx) // this is just an hack, can be omitted
+						.setName(q.idx) // Q# where # is just an identifier, not related with the Bayesian model
+						.setVariable(q.q) // variable index of the Bayesian model
 						.setAnswers(List.of(
+								// same number of states as the question nodes in the Bayesian model
 								new AnswerStructure("0", 0),
 								new AnswerStructure("1", 1)
 						))
@@ -167,9 +173,23 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 				.setDuration(3600L)
 				.setSkillOrder(List.of(skill0.getName(), skill1.getName(), skill2.getName(), skill3.getName()))
 				.setMixedSkillOrder(false)
-				.setAdaptive(true);
+				.setAdaptive(true) // default is false!
+				.setQuestionPerSkillMin(2) // at least 2 questions will be done for each skill
+				.setEntropyLowerThreshold(.2) // if entropy is below this threshold, then stop
+				;
 	}
 
+	/**
+	 * Utility method that simplify adding a new question to the survey, both as a variable of the model and as an entry
+	 * for the {@link QuestionStructure} entry.
+	 *
+	 * @param bn         {@link BayesianNetwork} to use
+	 * @param idx        index of the question in the survey (this is *not* the variable index)
+	 * @param skill      skill associated with this question
+	 * @param difficulty index in the data argument to use as cpt
+	 * @param data       all cpt available
+	 * @return a {@link Question} that include the required values to be converted in a {@link QuestionStructure}
+	 */
 	private Question addQuestion(BayesianNetwork bn, int idx, int skill, int difficulty, double[][] data) {
 		logger.info("Adding to network question node={} difficulty={} for skill={}", idx, difficulty, skill);
 		int q = bn.addVariable(2);
@@ -178,6 +198,13 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 		return new Question(q, skill, difficulty, "Q" + idx);
 	}
 
+	/**
+	 * Utility method that simplify adding a new skill with 4 states to the survey.
+	 *
+	 * @param variable index of the variable in the model
+	 * @param name     name of this skill
+	 * @return a valid {@link SkillStructure} that can be added to the survey.
+	 */
 	private SkillStructure addSurveySkill(int variable, String name) {
 		logger.info("Adding skill {}", name);
 		return new SkillStructure()

@@ -14,11 +14,20 @@ import java.util.List;
  * Author:  Claudio "Dna" Bonesana
  * Project: AdaptiveSurvey
  * Date:    01.02.2021 09:24
+ * <p>
+ * This is just a simple abstract class that can be used to implement with code an adaptive survey compatible with the
+ * remote application.
  */
 public abstract class AbstractAdaptiveModel {
 	private static final Logger logger = LogManager.getLogger(AbstractAdaptiveModel.class);
 
-	public Double ENTROPY_STOP_THRESHOLD_MAX = .0;
+	/**
+	 * Above this threshold, stop query the skill.
+	 */
+	public Double ENTROPY_STOP_THRESHOLD_MAX = 1.;
+	/**
+	 * Below this threshold, stop query the skill.
+	 */
 	public Double ENTROPY_STOP_THRESHOLD_MIN = .25;
 
 	String accessCode;

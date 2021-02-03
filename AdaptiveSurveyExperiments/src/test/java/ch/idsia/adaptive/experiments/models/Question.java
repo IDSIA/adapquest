@@ -7,8 +7,25 @@ import lombok.AllArgsConstructor;
  */
 @AllArgsConstructor
 class Question {
-	int q, skill, difficulty;
-	String idx;
+	/**
+	 * Variable index in the {@link ch.idsia.crema.model.graphical.BayesianNetwork} model.
+	 */
+	final int q;
+
+	/**
+	 * Variable index of the skill variable in the {@link ch.idsia.crema.model.graphical.BayesianNetwork} model.
+	 */
+	final int skill;
+
+	/**
+	 * Used only as a reference.
+	 */
+	final int difficulty;
+
+	/**
+	 * Name of this question.
+	 */
+	final String idx;
 
 	@Override
 	public String toString() {

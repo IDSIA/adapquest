@@ -25,6 +25,8 @@ import static ch.idsia.adaptive.experiments.utils.StatusCodeCheck.is2xxSuccessfu
  * Author:  Claudio "Dna" Bonesana
  * Project: AdaptiveSurvey
  * Date:    29.01.2021 16:50
+ * <p>
+ * This tool is intended to simplify the connection to a remote machine running the AdaptiveSurveyBackend.
  */
 public class Tool {
 	private static final Logger logger = LogManager.getLogger(Tool.class);
