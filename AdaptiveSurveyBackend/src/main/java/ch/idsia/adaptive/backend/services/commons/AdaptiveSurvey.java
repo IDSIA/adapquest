@@ -133,21 +133,26 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 				final Integer Q = question.getVariable();
 				final int size = network.getSize(Q);
 
-				double h = 0;
+				double HSQ = 0;
 
 				for (int i = 0; i < size; i++) {
-					TIntIntMap obs = new TIntIntHashMap(observations);
-					obs.put(Q, i);
-					BayesianFactor pS = inference.query(S, obs);
-					double v = BayesianEntropy.H(pS);
-					v = Double.isNaN(v) ? 0.0 : v;
-					h += v;
+					TIntIntMap qi = new TIntIntHashMap(observations);
+					qi.put(Q, i);
+
+					final BayesianFactor pSq = inference.query(S, qi);
+
+					final double pSqi = pSq.getValue(i);
+
+					double HSqi = BayesianEntropy.H(pSq);
+					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
+
+					HSQ += HSqi * pSqi;
 				}
 
-				h /= size;
+				HSQ /= size;
 
 				H x = new H(skill, question);
-				map.computeIfAbsent(x, i -> new ArrayList<>()).add(h);
+				map.computeIfAbsent(x, i -> new ArrayList<>()).add(HSQ);
 			}
 		}
 

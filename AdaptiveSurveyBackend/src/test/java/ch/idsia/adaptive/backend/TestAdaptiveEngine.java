@@ -84,6 +84,7 @@ class TestAdaptiveEngine {
 		ResponseData data = tool.init(code);
 
 		List<String> sequence = new ArrayList<>();
+		List<ResponseState> rqsList = new ArrayList<>();
 
 		logger.info("\n");
 		state = tool.state(data.token);
@@ -98,30 +99,37 @@ class TestAdaptiveEngine {
 			logger.info("Question:   {}", question.id);
 			logger.info("Entropy S0: {}\t{}", state.entropyDistribution.get("S0"), state.skillDistribution.get("S0"));
 			logger.info("Entropy S1: {}\t{}\n", state.entropyDistribution.get("S1"), state.skillDistribution.get("S1"));
-		}
 
-		logger.info("Sequence:   {}", String.join(" ", sequence));
+			rqsList.add(state);
+		}
 
 		question = tool.next(data.token);
 		Assertions.assertNull(question);
 
 		tool.consoleSurveyRemove(key, code);
+
+		logger.info("Sequence:   {}\n", String.join(" ", sequence));
+
+		rqsList.forEach(s0 -> logger.info("Entropy S0: {}\t{}", s0.entropyDistribution.get("S0"), s0.skillDistribution.get("S0")));
+		logger.info("\n");
+		rqsList.forEach(s0 -> logger.info("Entropy S1: {}\t{}", s0.entropyDistribution.get("S1"), s0.skillDistribution.get("S1")));
+		logger.info("\n");
 	}
 
 	@Test
 	public void numberOfQuestionsWithDifferentEntropyThresholds() throws Exception {
-		double[] thresholds = new double[]{.5, .2, .1};
+		final Random r = new Random(42);
+		final int[] rs = IntStream.range(0, 20).map(x -> r.nextInt(2)).toArray();
+
+		final double[] thresholds = new double[]{.5, .2, .1, .0};
 		final ImportStructure structure = SurveyStructureRepository.structure1S20Q("test");
 
-		List<ResponseState> states = new ArrayList<>();
-		List<Integer> questionsDone = new ArrayList<>();
-		List<String> sequences = new ArrayList<>();
+		final List<ResponseState> states = new ArrayList<>();
+		final List<Integer> questionsDone = new ArrayList<>();
+		final List<String> sequences = new ArrayList<>();
 
 		ResponseQuestion question;
 		ResponseData data;
-
-		final Random r = new Random(42);
-		final int[] rs = IntStream.range(0, 20).map(x -> r.nextInt(2)).toArray();
 
 		for (double th : thresholds) {
 			logger.info("Threshold: {}", th);
@@ -155,6 +163,7 @@ class TestAdaptiveEngine {
 			logger.info("Sequence:       {}", sequences.get(i));
 			logger.info("Entropy:        {}", states.get(i).entropyDistribution.get("S0"));
 			logger.info("Distribution:   {}", states.get(i).skillDistribution.get("S0"));
+			logger.info("\n");
 		}
 	}
 
