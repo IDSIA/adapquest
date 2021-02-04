@@ -21,7 +21,6 @@ import java.util.*;
 public class AdaptiveSurvey extends NonAdaptiveSurvey {
 	private static final Logger logger = LogManager.getLogger(AdaptiveSurvey.class);
 
-	protected Map<Skill, LinkedList<Question>> questionsDonePerSkill = new HashMap<>();
 	protected Map<Skill, LinkedList<Question>> availableQuestionsPerSkill = new HashMap<>();
 
 
@@ -55,7 +54,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 	 * @return true if the skill is valid, otherwise false.
 	 */
 	public boolean isSkillValid(Skill skill) {
-		Integer questionsDone = questionsDonePerSkill.get(skill).size();
+		Long questionsDone = (long) questionsDonePerSkill.get(skill).size();
 
 		if (availableQuestionsPerSkill.get(skill).isEmpty()) {
 			// the skill has no questions available
@@ -90,7 +89,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 	public boolean isFinished() {
 		if (questions.isEmpty()) {
 			// we don't have any more question
-			logger.debug("survey finished with no more questions");
+			logger.debug("survey finished with no more available questions");
 			return true;
 		}
 
@@ -101,7 +100,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 		}
 
 		if (questionsDone.size() < survey.getQuestionTotalMin() && skills.stream().anyMatch(this::isSkillValid)) {
-			// we need to make more questions and there still are skills that are valid
+			// we need to make more questions and there are skills that are still valid
 			return false;
 		}
 

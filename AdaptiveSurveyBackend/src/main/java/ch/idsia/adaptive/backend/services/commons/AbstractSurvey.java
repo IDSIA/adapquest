@@ -23,15 +23,34 @@ public abstract class AbstractSurvey {
 	protected final Survey survey;
 	protected final Random random;
 
-	protected Set<Skill> skills = new HashSet<>();
+	/**
+	 * Available skill in no specific order.
+	 */
+	protected final Set<Skill> skills = new HashSet<>();
 
-	protected LinkedList<Question> questions = new LinkedList<>();
-	protected List<Question> questionsDone = new ArrayList<>();
+	/**
+	 * List of all the questions available in the survey.
+	 */
+	protected final LinkedList<Question> questions = new LinkedList<>();
+	/**
+	 * Questions who already have an answer.
+	 */
+	protected final LinkedList<Question> questionsDone = new LinkedList<>();
+	/**
+	 * Questions who already have an answer for each skill.
+	 */
+	protected final Map<Skill, List<Question>> questionsDonePerSkill = new HashMap<>();
 
+	/**
+	 * Model associated with this survey.
+	 */
 	protected final BayesianNetwork network;
+	/**
+	 * Inference engine.
+	 */
 	protected final BeliefPropagation<BayesianFactor> inference;
 
-	protected TIntIntMap observations = new TIntIntHashMap();
+	protected final TIntIntMap observations = new TIntIntHashMap();
 
 	@Getter
 	protected boolean answered = false;
@@ -49,19 +68,15 @@ public abstract class AbstractSurvey {
 	}
 
 	public State getState() {
-
 		Map<String, double[]> state = new HashMap<>();
 		Map<String, Double> entropy = new HashMap<>();
-
-		inference.clearEvidence();
-		inference.setEvidence(observations);
 
 		Map<String, Skill> sks = new HashMap<>();
 
 		for (Skill skill : skills) {
 			String s = skill.getName();
 
-			BayesianFactor f = inference.query(skill.getVariable());
+			BayesianFactor f = inference.query(skill.getVariable(), observations);
 			double[] distr = f.getData();
 			double h = BayesianEntropy.H(f);
 
@@ -97,16 +112,21 @@ public abstract class AbstractSurvey {
 
 			this.questions.add(q);
 			this.skills.add(skill);
+			this.questionsDonePerSkill.putIfAbsent(skill, new LinkedList<>());
 		});
 	}
 
 	public abstract boolean isFinished();
 
 	public void check(Answer answer) {
-		Integer variable = answer.getQuestion().getVariable();
-		Integer state = answer.getQuestionAnswer().getState();
+		final Integer variable = answer.getQuestion().getVariable();
+		final Integer state = answer.getQuestionAnswer().getState();
 		observations.put(variable, state);
 		answered = true;
+
+		final Skill skill = answer.getQuestion().getSkill();
+		questionsDonePerSkill.get(skill).add(answer.getQuestion());
+		questionsDone.add(answer.getQuestion());
 	}
 
 	public abstract Question next() throws SurveyException;

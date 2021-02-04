@@ -25,7 +25,6 @@ public class NonAdaptiveSurvey extends AbstractSurvey {
 		} else {
 			currentQuestion = questions.poll();
 		}
-		questionsDone.add(currentQuestion);
 
 		return currentQuestion;
 	}
