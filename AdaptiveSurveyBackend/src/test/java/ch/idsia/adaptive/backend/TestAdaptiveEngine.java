@@ -125,7 +125,7 @@ class TestAdaptiveEngine {
 		final Random r = new Random(42);
 		final int[] rs = IntStream.range(0, 20).map(x -> r.nextInt(2)).toArray();
 
-		final double[] thresholds = new double[]{.5, .2, .1, .0};
+		final double[] thresholds = {.5, .2, .1, .05, .0};
 		final ImportStructure structure = SurveyStructureRepository.structure1S20Q("test");
 
 		final List<ResponseState> states = new ArrayList<>();

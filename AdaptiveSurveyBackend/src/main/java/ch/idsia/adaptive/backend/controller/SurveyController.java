@@ -341,8 +341,8 @@ public class SurveyController {
 			logger.error(e);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (SurveyException e) {
-			logger.error(e);
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			logger.info("User with token={} has no more questions", token);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 	}
 

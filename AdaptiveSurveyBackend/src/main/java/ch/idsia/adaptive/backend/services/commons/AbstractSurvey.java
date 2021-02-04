@@ -48,11 +48,11 @@ public abstract class AbstractSurvey {
 	/**
 	 * Questions who already have an answer for each skill.
 	 */
-	protected final Map<Skill, List<Question>> questionsDonePerSkill = new HashMap<>();
+	protected final Map<Skill, LinkedList<Question>> questionsDonePerSkill = new HashMap<>();
 	/**
 	 * Questions who don't have an answer for each skill,
 	 */
-	protected final Map<Skill, LinkedList<Question>> availableQuestionsPerSkill = new HashMap<>();
+	protected final Map<Skill, LinkedList<Question>> questionsAvailablePerSkill = new HashMap<>();
 
 
 	/**
@@ -121,7 +121,7 @@ public abstract class AbstractSurvey {
 			this.questions.add(q);
 			this.skills.add(skill);
 			this.questionsDonePerSkill.putIfAbsent(skill, new LinkedList<>());
-			this.availableQuestionsPerSkill.computeIfAbsent(skill, x -> new LinkedList<>()).add(q);
+			this.questionsAvailablePerSkill.computeIfAbsent(skill, x -> new LinkedList<>()).add(q);
 		});
 	}
 
@@ -136,7 +136,7 @@ public abstract class AbstractSurvey {
 		Skill s = q.getSkill();
 
 		// remove from possible questions
-		availableQuestionsPerSkill.get(s).remove(q);
+		questionsAvailablePerSkill.get(s).remove(q);
 		questions.remove(q);
 
 		// add to done slacks

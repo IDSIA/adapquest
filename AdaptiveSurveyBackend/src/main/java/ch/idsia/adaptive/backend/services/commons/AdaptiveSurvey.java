@@ -2,7 +2,6 @@ package ch.idsia.adaptive.backend.services.commons;
 
 import ch.idsia.adaptive.backend.persistence.model.Question;
 import ch.idsia.adaptive.backend.persistence.model.Skill;
-import ch.idsia.adaptive.backend.persistence.model.SkillSate;
 import ch.idsia.adaptive.backend.persistence.model.Survey;
 import ch.idsia.crema.entropy.BayesianEntropy;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
@@ -12,7 +11,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
-import java.util.LinkedList;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -26,6 +24,12 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 		super(model, seed);
 	}
 
+	public boolean isSkillValid(Skill skill) {
+		final BayesianFactor PS = inference.query(skill.getVariable(), observations);
+		final double HS = BayesianEntropy.H(PS); // skill entropy
+		return isSkillValid(skill, HS);
+	}
+
 	/**
 	 * Check if the given {@link Skill} is valid in the current state or not. The condition for a {@link Skill} to be
 	 * valid are:
@@ -36,10 +40,10 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 	 * @param skill the skill to test
 	 * @return true if the skill is valid, otherwise false.
 	 */
-	public boolean isSkillValid(Skill skill) {
+	public boolean isSkillValid(Skill skill, double entropy) {
 		final Long questionsDone = (long) questionsDonePerSkill.get(skill).size();
 
-		if (availableQuestionsPerSkill.get(skill).isEmpty()) {
+		if (questionsAvailablePerSkill.get(skill).isEmpty()) {
 			// the skill has no questions available
 			logger.debug("skill={} has no questions available", skill.getName());
 			return false;
@@ -50,22 +54,24 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 			return true;
 		}
 
-		// we can make more questions if we are below the maximum amount
-		final boolean b = questionsDone <= survey.getQuestionPerSkillMax();
-
-		if (!b)
+		if (questionsDone > survey.getQuestionPerSkillMax()) {
 			logger.debug("skill={} reached max questions per skill (done= {}, max={})", skill.getName(), questionsDone, survey.getQuestionPerSkillMax());
+			return false;
+		}
 
-		return b;
-	}
+		if (entropy > survey.getEntropyUpperThreshold()) {
+			// skill entropy level achieved
+			logger.debug("skill={} has too low entropy={} (upper={})", skill.getName(), entropy, survey.getEntropyUpperThreshold());
+			return false;
+		}
 
-	/**
-	 * Set a {@link Skill} to be invalid by reducing the number of {@link SkillSate} to zero.
-	 *
-	 * @param skill the skill to invalidate
-	 */
-	public void invalidateSkill(Skill skill) {
-		availableQuestionsPerSkill.put(skill, new LinkedList<>());
+		if (entropy < survey.getEntropyLowerThreshold()) {
+			// skill entropy level achieved
+			logger.debug("skill={} has too low entropy={} (lower={})", skill.getName(), entropy, survey.getEntropyLowerThreshold());
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override
@@ -107,7 +113,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 		}
 
 		// all skills are depleted?
-		final boolean b = availableQuestionsPerSkill.values().stream().allMatch(Collection::isEmpty);
+		final boolean b = questionsAvailablePerSkill.values().stream().allMatch(Collection::isEmpty);
 
 		if (b)
 			logger.debug("survey finished with no more valid skills");
@@ -122,24 +128,20 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 
 		// find the question with the optimal entropy
 		Question nextQuestion = null;
-		Skill nextSkill = null;
 		double maxIG = -Double.MAX_VALUE;
 
 		for (Skill skill : skills) {
 			Integer S = skill.getVariable();
 
-			if (!isSkillValid(skill)) {
+			final BayesianFactor PS = inference.query(S, observations);
+			final double HS = BayesianEntropy.H(PS); // skill entropy
+
+			if (!isSkillValid(skill, HS)) {
 				logger.debug("skill={} is not valid", skill.getName());
 				continue;
 			}
 
-			final BayesianFactor PS = inference.query(S, observations);
-			final double HS = BayesianEntropy.H(PS); // skill entropy
-
-			for (Question question : availableQuestionsPerSkill.get(skill)) {
-				if (questionsDonePerSkill.get(skill).contains(question))
-					continue;
-
+			for (Question question : questionsAvailablePerSkill.get(skill)) {
 				final Integer Q = question.getVariable();
 				final int size = network.getSize(Q);
 
@@ -160,11 +162,10 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 
 				final double infoGain = Math.max(0, HS - HSQ);
 
-				logger.debug("skill={} question={} with average entropy={}", skill.getName(), question.getName(), infoGain);
+				logger.debug("skill={} question={} with average infoGain={}", skill.getName(), question.getName(), infoGain);
 
 				if (infoGain > maxIG) {
 					nextQuestion = question;
-					nextSkill = skill;
 					maxIG = infoGain;
 				}
 			}
@@ -176,19 +177,6 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 
 		// register the chosen question as nextQuestion
 		register(nextQuestion);
-
-		// check if the skill is not valid anymore TODO: do we NEED this kind of check?
-		if (questionsDonePerSkill.get(nextSkill).size() > survey.getQuestionPerSkillMin() && questionsDone.size() > survey.getQuestionTotalMin()) {
-			if (maxIG > survey.getEntropyUpperThreshold() || maxIG < survey.getEntropyLowerThreshold()) {
-				// skill entropy level achieved
-				invalidateSkill(nextSkill);
-			}
-
-			if (questionsDonePerSkill.get(nextSkill).size() > survey.getQuestionPerSkillMax()) {
-				// too many questions per skill
-				invalidateSkill(nextSkill);
-			}
-		}
 
 		return currentQuestion;
 	}
