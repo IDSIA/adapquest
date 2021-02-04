@@ -107,8 +107,8 @@ class TestAdaptiveEngine {
 			rqsList.add(state);
 		}
 
-//		question = tool.next(data.token);
-//		Assertions.assertNull(question);
+		question = tool.next(data.token);
+		Assertions.assertNull(question);
 
 		tool.consoleSurveyRemove(key, code);
 

@@ -11,7 +11,8 @@ import gnu.trove.map.hash.TIntIntHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -21,26 +22,8 @@ import java.util.*;
 public class AdaptiveSurvey extends NonAdaptiveSurvey {
 	private static final Logger logger = LogManager.getLogger(AdaptiveSurvey.class);
 
-	protected Map<Skill, LinkedList<Question>> availableQuestionsPerSkill = new HashMap<>();
-
-
 	public AdaptiveSurvey(Survey model, Long seed) {
 		super(model, seed);
-	}
-
-	@Override
-	public void addQuestions(List<Question> questions) {
-		questions.forEach(q -> {
-			Skill skill = q.getSkill();
-
-			// for AbstractSurvey class
-			this.questions.add(q);
-			this.skills.add(skill);
-
-			// for this class
-			this.questionsDonePerSkill.putIfAbsent(skill, new LinkedList<>());
-			this.availableQuestionsPerSkill.computeIfAbsent(skill, x -> new LinkedList<>()).add(q);
-		});
 	}
 
 	/**
@@ -54,7 +37,7 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 	 * @return true if the skill is valid, otherwise false.
 	 */
 	public boolean isSkillValid(Skill skill) {
-		Long questionsDone = (long) questionsDonePerSkill.get(skill).size();
+		final Long questionsDone = (long) questionsDonePerSkill.get(skill).size();
 
 		if (availableQuestionsPerSkill.get(skill).isEmpty()) {
 			// the skill has no questions available
@@ -150,8 +133,8 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 				continue;
 			}
 
-			final BayesianFactor pS = inference.query(S, observations);
-			final double HS = BayesianEntropy.H(pS); // skill entropy
+			final BayesianFactor PS = inference.query(S, observations);
+			final double HS = BayesianEntropy.H(PS); // skill entropy
 
 			for (Question question : availableQuestionsPerSkill.get(skill)) {
 				if (questionsDonePerSkill.get(skill).contains(question))
@@ -163,16 +146,16 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 				double HSQ = 0;
 
 				for (int i = 0; i < size; i++) {
-					TIntIntMap qi = new TIntIntHashMap(observations);
+					final TIntIntMap qi = new TIntIntHashMap(observations);
 					qi.put(Q, i);
 
-					final BayesianFactor pSq = inference.query(S, qi);
-					final double pSqi = pSq.getValue(i);
+					final BayesianFactor PSq = inference.query(S, qi);
+					final double PSqi = PSq.getValue(i);
 
-					double HSqi = BayesianEntropy.H(pSq);
+					double HSqi = BayesianEntropy.H(PSq);
 					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
 
-					HSQ += HSqi * pSqi; // conditional entropy
+					HSQ += HSqi * PSqi; // conditional entropy
 				}
 
 				final double infoGain = Math.max(0, HS - HSQ);
@@ -191,10 +174,10 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 			// this is also valid for nextSkill == null
 			throw new SurveyException("No valid question found!");
 
-		// register the chosen question as nextQuestion and maps
-		logger.debug("next question is skill={} question={} with entropy={}", nextSkill.getName(), nextQuestion.getName(), maxIG);
+		// register the chosen question as nextQuestion
 		register(nextQuestion);
 
+		// check if the skill is not valid anymore TODO: do we NEED this kind of check?
 		if (questionsDonePerSkill.get(nextSkill).size() > survey.getQuestionPerSkillMin() && questionsDone.size() > survey.getQuestionTotalMin()) {
 			if (maxIG > survey.getEntropyUpperThreshold() || maxIG < survey.getEntropyLowerThreshold()) {
 				// skill entropy level achieved
@@ -208,20 +191,5 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 		}
 
 		return currentQuestion;
-	}
-
-	private void register(Question q) {
-		Skill s = q.getSkill();
-
-		// remove from possible questions
-		availableQuestionsPerSkill.get(s).remove(q);
-		questions.remove(q);
-
-		// add to done slacks
-		questionsDonePerSkill.get(s).add(q);
-		questionsDone.add(q);
-
-		// update current question
-		currentQuestion = q;
 	}
 }

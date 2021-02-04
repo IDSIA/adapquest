@@ -21,9 +21,9 @@ public class NonAdaptiveSurvey extends AbstractSurvey {
 
 		if (survey.getQuestionsAreRandom()) {
 			int i = random.nextInt(questions.size());
-			currentQuestion = questions.remove(i);
+			register(questions.remove(i));
 		} else {
-			currentQuestion = questions.poll();
+			register(questions.poll());
 		}
 
 		return currentQuestion;

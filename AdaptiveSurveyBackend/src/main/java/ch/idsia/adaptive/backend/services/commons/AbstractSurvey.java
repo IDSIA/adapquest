@@ -9,6 +9,8 @@ import ch.idsia.crema.model.io.uai.BayesUAIParser;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import lombok.Getter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,8 +21,15 @@ import java.util.stream.Collectors;
  * Date:    14.12.2020 17:18
  */
 public abstract class AbstractSurvey {
+	private static final Logger logger = LogManager.getLogger(AbstractSurvey.class);
 
+	/**
+	 * Reference survey.
+	 */
 	protected final Survey survey;
+	/**
+	 * Random generator.
+	 */
 	protected final Random random;
 
 	/**
@@ -40,6 +49,11 @@ public abstract class AbstractSurvey {
 	 * Questions who already have an answer for each skill.
 	 */
 	protected final Map<Skill, List<Question>> questionsDonePerSkill = new HashMap<>();
+	/**
+	 * Questions who don't have an answer for each skill,
+	 */
+	protected final Map<Skill, LinkedList<Question>> availableQuestionsPerSkill = new HashMap<>();
+
 
 	/**
 	 * Model associated with this survey.
@@ -68,34 +82,28 @@ public abstract class AbstractSurvey {
 	}
 
 	public State getState() {
-		Map<String, double[]> state = new HashMap<>();
-		Map<String, Double> entropy = new HashMap<>();
-
-		Map<String, Skill> sks = new HashMap<>();
+		final Map<String, Skill> sks = new HashMap<>();
+		final Map<String, double[]> state = new HashMap<>();
+		final Map<String, Double> entropy = new HashMap<>();
+		final Map<String, Long> qps = new HashMap<>();
+		final Set<String> skillCompleted = new HashSet<>();
 
 		for (Skill skill : skills) {
 			String s = skill.getName();
 
-			BayesianFactor f = inference.query(skill.getVariable(), observations);
-			double[] distr = f.getData();
-			double h = BayesianEntropy.H(f);
+			final BayesianFactor f = inference.query(skill.getVariable(), observations);
+			final double h = BayesianEntropy.H(f);
 
 			sks.put(skill.getName(), skill);
-			state.put(s, distr);
+			state.put(s, f.getData());
 			entropy.put(s, h);
+
+			final long qdps = questionsDonePerSkill.get(skill).size();
+			qps.put(s, qdps);
+
+			if (qdps > survey.getQuestionPerSkillMax())
+				skillCompleted.add(s);
 		}
-
-		Map<String, Long> qps = questionsDone.stream()
-				.map(Question::getSkill)
-				.collect(Collectors.groupingBy(
-						Skill::getName,
-						Collectors.counting()
-				));
-
-		Set<String> skillCompleted = qps.entrySet().stream()
-				.filter(x -> x.getValue() > survey.getQuestionPerSkillMax())
-				.map(Map.Entry::getKey)
-				.collect(Collectors.toSet());
 
 		return new State()
 				.setSkills(sks)
@@ -113,20 +121,39 @@ public abstract class AbstractSurvey {
 			this.questions.add(q);
 			this.skills.add(skill);
 			this.questionsDonePerSkill.putIfAbsent(skill, new LinkedList<>());
+			this.availableQuestionsPerSkill.computeIfAbsent(skill, x -> new LinkedList<>()).add(q);
 		});
 	}
 
 	public abstract boolean isFinished();
+
+	public void register(Question q) {
+		if (q == null) {
+			currentQuestion = null;
+			return;
+		}
+
+		Skill s = q.getSkill();
+
+		// remove from possible questions
+		availableQuestionsPerSkill.get(s).remove(q);
+		questions.remove(q);
+
+		// add to done slacks
+		questionsDonePerSkill.get(s).add(q);
+		questionsDone.add(q);
+
+		// update current question
+		currentQuestion = q;
+
+		logger.debug("next question is skill={} question={}", s.getName(), q.getName());
+	}
 
 	public void check(Answer answer) {
 		final Integer variable = answer.getQuestion().getVariable();
 		final Integer state = answer.getQuestionAnswer().getState();
 		observations.put(variable, state);
 		answered = true;
-
-		final Skill skill = answer.getQuestion().getSkill();
-		questionsDonePerSkill.get(skill).add(answer.getQuestion());
-		questionsDone.add(answer.getQuestion());
 	}
 
 	public abstract Question next() throws SurveyException;
