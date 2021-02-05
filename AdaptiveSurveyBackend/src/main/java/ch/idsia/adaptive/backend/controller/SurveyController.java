@@ -288,7 +288,7 @@ public class SurveyController {
 			answer = answers.save(answer);
 			manager.checkAnswer(data, answer);
 
-			sessions.setLastAnswer(session, answer);
+			sessions.setLastAnswerTime(session);
 
 			State s = manager.getState(data).setSession(session);
 

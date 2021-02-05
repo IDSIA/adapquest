@@ -1,9 +1,6 @@
 package ch.idsia.adaptive.backend.controller;
 
-import ch.idsia.adaptive.backend.persistence.dao.ClientRepository;
-import ch.idsia.adaptive.backend.persistence.dao.SessionRepository;
-import ch.idsia.adaptive.backend.persistence.dao.StatesRepository;
-import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
+import ch.idsia.adaptive.backend.persistence.dao.*;
 import ch.idsia.adaptive.backend.persistence.external.ImportStructure;
 import ch.idsia.adaptive.backend.persistence.external.ModelStructure;
 import ch.idsia.adaptive.backend.persistence.model.Client;
@@ -56,17 +53,19 @@ public class ConsoleController {
 	private final SurveyRepository surveys;
 	private final SessionRepository sessions;
 	private final StatesRepository states;
+	private final AnswerRepository answers;
 
 	@Value("${magic.api.key}")
 	private String magicApiKey;
 
 	@Autowired
-	public ConsoleController(InitializationService initService, SurveyRepository surveys, ClientRepository clients, SessionRepository sessions, StatesRepository states) {
+	public ConsoleController(InitializationService initService, SurveyRepository surveys, ClientRepository clients, SessionRepository sessions, StatesRepository states, AnswerRepository answers) {
 		this.initService = initService;
 		this.surveys = surveys;
 		this.clients = clients;
 		this.sessions = sessions;
 		this.states = states;
+		this.answers = answers;
 	}
 
 	@PostMapping("/key")
@@ -220,17 +219,19 @@ public class ConsoleController {
 		}
 
 		final List<Session> sessions = this.sessions.findAllByAccessCode(code);
-		final Integer statesDeleted = this.states.deleteBySessionIn(sessions);
 
+		final Integer answersDeleted = this.answers.deleteBySessionIn(sessions);
+		logger.warn("ip={} key={}: deleted {} answers(s) with access code={}", ip, key, answersDeleted, code);
+
+		final Integer statesDeleted = this.states.deleteBySessionIn(sessions);
 		logger.warn("ip={} key={}: deleted {} state(s) with access code={}", ip, key, statesDeleted, code);
 
 		final Integer sessionsDeleted = this.sessions.deleteByAccessCode(survey.getAccessCode());
-
 		logger.warn("ip={} key={}: deleted {} session(s) with access code={}", ip, key, sessionsDeleted, code);
 
 		surveys.delete(survey);
-
 		logger.warn("ip={} key={}: survey with access code={} deleted", ip, key, code);
+
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -252,13 +253,16 @@ public class ConsoleController {
 		}
 
 		final List<Session> sessions = this.sessions.findAllByAccessCode(code);
-		final Integer statesDeleted = this.states.deleteBySessionIn(sessions);
 
+		final Integer answersDeleted = this.answers.deleteBySessionIn(sessions);
+		logger.warn("ip={} key={}: deleted {} answers(s) with access code={}", ip, key, answersDeleted, code);
+
+		final Integer statesDeleted = this.states.deleteBySessionIn(sessions);
 		logger.warn("ip={} key={}: deleted {} state(s) with access code={}", ip, key, statesDeleted, code);
 
 		final Integer sessionsDeleted = this.sessions.deleteByAccessCode(survey.getAccessCode());
-
 		logger.warn("ip={} key={}: deleted {} session(s) with access code={}", ip, key, sessionsDeleted, code);
+
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

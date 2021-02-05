@@ -2,7 +2,10 @@ package ch.idsia.adaptive.backend.services;
 
 import ch.idsia.adaptive.backend.persistence.dao.SessionRepository;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
-import ch.idsia.adaptive.backend.persistence.model.*;
+import ch.idsia.adaptive.backend.persistence.model.Session;
+import ch.idsia.adaptive.backend.persistence.model.Survey;
+import ch.idsia.adaptive.backend.persistence.model.SurveyData;
+import ch.idsia.adaptive.backend.persistence.model.SurveyToken;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
@@ -101,10 +104,8 @@ public class SessionService {
 	 * Set the last given answer to the session identified by token.
 	 *
 	 * @param session a valid session
-	 * @param answer  answer to save
 	 */
-	public void setLastAnswer(Session session, Answer answer) {
-		session.getAnswers().add(answer);
+	public void setLastAnswerTime(Session session) {
 		session.setLastAnswerTime(LocalDateTime.now());
 		repository.save(session);
 	}
