@@ -77,7 +77,7 @@ public class Session {
 	/**
 	 * Answers given during this session.
 	 */
-	@OneToMany(mappedBy = "session", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "session", cascade = CascadeType.ALL)
 	@OrderBy("creation asc")
 	private Set<Answer> answers = new HashSet<>();
 
