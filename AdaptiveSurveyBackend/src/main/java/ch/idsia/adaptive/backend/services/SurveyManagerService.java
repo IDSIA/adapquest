@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -24,8 +24,7 @@ public class SurveyManagerService {
 
 	private final SurveyRepository surveyRepository;
 
-	// TODO: add cache for models
-	private final Map<String, AbstractSurvey> activeSurveys = new HashMap<>();
+	private final Map<String, AbstractSurvey> activeSurveys = new ConcurrentHashMap<>();
 
 	@Autowired
 	public SurveyManagerService(SurveyRepository surveyRepository) {
