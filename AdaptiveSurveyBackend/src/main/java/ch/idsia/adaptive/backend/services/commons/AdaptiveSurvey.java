@@ -147,12 +147,14 @@ public class AdaptiveSurvey extends NonAdaptiveSurvey {
 
 				double HSQ = 0;
 
+				final BayesianFactor PSQ = inference.query(S, observations);
+
 				for (int i = 0; i < size; i++) {
 					final TIntIntMap qi = new TIntIntHashMap(observations);
 					qi.put(Q, i);
 
 					final BayesianFactor PSq = inference.query(S, qi);
-					final double PSqi = PSq.getValue(i);
+					final double PSqi = PSQ.getValue(i);
 
 					double HSqi = BayesianEntropy.H(PSq);
 					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
