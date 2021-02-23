@@ -2,10 +2,7 @@ package ch.idsia.adaptive.backend.services;
 
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
-import ch.idsia.adaptive.backend.services.commons.AbstractSurvey;
-import ch.idsia.adaptive.backend.services.commons.AdaptiveSurvey;
-import ch.idsia.adaptive.backend.services.commons.NonAdaptiveSurvey;
-import ch.idsia.adaptive.backend.services.commons.SurveyException;
+import ch.idsia.adaptive.backend.services.commons.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +45,11 @@ public class SurveyManagerService {
 		AbstractSurvey content;
 
 		if (survey.getIsAdaptive()) {
-			content = new AdaptiveSurvey(survey, seed);
+			if (survey.getIsSimple()) {
+				content = new SimpleAdaptiveSurvey(survey, seed);
+			} else {
+				content = new AdaptiveSurvey(survey, seed);
+			}
 		} else {
 			content = new NonAdaptiveSurvey(survey, seed);
 		}

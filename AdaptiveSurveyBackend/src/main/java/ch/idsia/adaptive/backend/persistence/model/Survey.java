@@ -77,6 +77,12 @@ public class Survey {
 	private Boolean isAdaptive = true;
 
 	/**
+	 * If true, use the simple version of a model, where the questions are not grouped or connected to skills.
+	 * Only available when using <code>adaptive=true</code>.
+	 */
+	private Boolean isSimple = false;
+
+	/**
 	 * Minimum number of questions to be asked for each skill.
 	 */
 	private Integer questionPerSkillMin = 0;

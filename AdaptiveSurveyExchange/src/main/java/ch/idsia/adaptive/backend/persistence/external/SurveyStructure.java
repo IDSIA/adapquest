@@ -58,6 +58,12 @@ public class SurveyStructure {
 	public Boolean adaptive = false;
 
 	/**
+	 * If true, use the simple version of a model, where the questions are not grouped or connected to skills.
+	 * Only available when using <code>adaptive=true</code>.
+	 */
+	public Boolean simple = false;
+
+	/**
 	 * Minimum number of question for each skill.
 	 */
 	public Integer questionPerSkillMin = 0;

@@ -11,67 +11,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Author:  Claudio "Dna" Bonesana
  * Project: AdaptiveSurvey
  * Date:    14.12.2020 17:17
  */
-public class AdaptiveSurvey extends AbstractSurvey {
-	private static final Logger logger = LogManager.getLogger(AdaptiveSurvey.class);
+public class SimpleAdaptiveSurvey extends AbstractSurvey {
+	private static final Logger logger = LogManager.getLogger(SimpleAdaptiveSurvey.class);
 
-	public AdaptiveSurvey(Survey model, Long seed) {
+	public SimpleAdaptiveSurvey(Survey model, Long seed) {
 		super(model, seed);
-	}
-
-	public boolean isSkillValid(Skill skill) {
-		final BayesianFactor PS = inference.query(skill.getVariable(), observations);
-		final double HS = BayesianEntropy.H(PS); // skill entropy
-		return isSkillValid(skill, HS);
-	}
-
-	/**
-	 * Check if the given {@link Skill} is valid in the current state or not. The condition for a {@link Skill} to be
-	 * valid are:
-	 * <li>the number of questions are below the minimum;</li>
-	 * <li>the number of questions are below are above the maximum;</li>
-	 * <li>there still are questions available.</li>
-	 *
-	 * @param skill the skill to test
-	 * @return true if the skill is valid, otherwise false.
-	 */
-	public boolean isSkillValid(Skill skill, double entropy) {
-		final Long questionsDone = (long) questionsDonePerSkill.get(skill).size();
-
-		if (questionsAvailablePerSkill.get(skill).isEmpty()) {
-			// the skill has no questions available
-			logger.debug("skill={} has no questions available", skill.getName());
-			return false;
-		}
-
-		if (questionsDone <= survey.getQuestionPerSkillMin()) {
-			// we need to make more questions for this skill
-			return true;
-		}
-
-		if (questionsDone > survey.getQuestionPerSkillMax()) {
-			logger.debug("skill={} reached max questions per skill (done= {}, max={})", skill.getName(), questionsDone, survey.getQuestionPerSkillMax());
-			return false;
-		}
-
-		if (entropy > survey.getEntropyUpperThreshold()) {
-			// skill entropy level achieved
-			logger.debug("skill={} has too low entropy={} (upper={})", skill.getName(), entropy, survey.getEntropyUpperThreshold());
-			return false;
-		}
-
-		if (entropy < survey.getEntropyLowerThreshold()) {
-			// skill entropy level achieved
-			logger.debug("skill={} has too low entropy={} (lower={})", skill.getName(), entropy, survey.getEntropyLowerThreshold());
-			return false;
-		}
-
-		return true;
 	}
 
 	@Override
@@ -88,7 +40,7 @@ public class AdaptiveSurvey extends AbstractSurvey {
 			return true;
 		}
 
-		if (questionsDone.size() < survey.getQuestionTotalMin() && skills.stream().anyMatch(this::isSkillValid)) {
+		if (questionsDone.size() < survey.getQuestionTotalMin()) {
 			// we need to make more questions and there are skills that are still valid
 			return false;
 		}
@@ -130,24 +82,26 @@ public class AdaptiveSurvey extends AbstractSurvey {
 		Question nextQuestion = null;
 		double maxIG = -Double.MAX_VALUE;
 
+		Map<Skill, Double> HSs = new HashMap<>();
 		for (Skill skill : skills) {
 			Integer S = skill.getVariable();
 
 			final BayesianFactor PS = inference.query(S, observations);
 			final double HS = BayesianEntropy.H(PS); // skill entropy
+			HSs.put(skill, HS);
+		}
 
-			if (!isSkillValid(skill, HS)) {
-				logger.debug("skill={} is not valid", skill.getName());
-				continue;
-			}
+		for (Question question : questions) {
+			final Integer Q = question.getVariable();
+			final int size = network.getSize(Q);
 
-			for (Question question : questionsAvailablePerSkill.get(skill)) {
-				final Integer Q = question.getVariable();
-				final int size = network.getSize(Q);
-
-				double HSQ = 0;
+			double meanInfoGain = 0;
+			for (Skill skill : skills) {
+				final Integer S = skill.getVariable();
+				final Double HS = HSs.get(skill);
 
 				final BayesianFactor PSQ = inference.query(S, observations);
+				double HSQ = 0;
 
 				for (int i = 0; i < size; i++) {
 					final TIntIntMap qi = new TIntIntHashMap(observations);
@@ -162,14 +116,14 @@ public class AdaptiveSurvey extends AbstractSurvey {
 					HSQ += HSqi * PSqi; // conditional entropy
 				}
 
-				final double infoGain = Math.max(0, HS - HSQ);
+				meanInfoGain += Math.max(0, HS - HSQ) / skills.size();
+			}
 
-				logger.debug("skill={} question={} with average infoGain={}", skill.getName(), question.getName(), infoGain);
+			logger.debug("question={} with average infoGain={}", question.getName(), meanInfoGain);
 
-				if (infoGain > maxIG) {
-					nextQuestion = question;
-					maxIG = infoGain;
-				}
+			if (meanInfoGain > maxIG) {
+				nextQuestion = question;
+				maxIG = meanInfoGain;
 			}
 		}
 

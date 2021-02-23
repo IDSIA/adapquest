@@ -174,6 +174,7 @@ public class InitializationService {
 				.setModelData(modelData)
 				.setMixedSkillOrder(structure.survey.mixedSkillOrder)
 				.setIsAdaptive(structure.survey.adaptive)
+				.setIsSimple(structure.survey.simple)
 				.setQuestionsAreRandom(structure.survey.randomQuestions)
 				.setQuestionPerSkillMin(structure.survey.questionPerSkillMin)
 				.setQuestionPerSkillMax(structure.survey.questionPerSkillMax)
