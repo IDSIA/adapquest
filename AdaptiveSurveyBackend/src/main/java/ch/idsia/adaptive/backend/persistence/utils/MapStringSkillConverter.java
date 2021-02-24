@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.persistence.AttributeConverter;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -29,6 +30,9 @@ public class MapStringSkillConverter implements AttributeConverter<Map<String, S
 
 	@Override
 	public Map<String, Skill> convertToEntityAttribute(String dbData) {
+		// TODO: why this can be null?
+		if (dbData == null)
+			return new HashMap<>();
 		try {
 			TypeReference<Map<String, Skill>> t = new TypeReference<>() {
 			};

@@ -1,31 +1,41 @@
 Configuration:
   name: Default
 
-  Properties:
-    Property:
+  properties:
+    property:
       name: log-path
       value: "logs"
 
-  Appenders:
+  appenders:
 
     Console:
-      name: Console_Appender
+      name: LogToConsole
       target: SYSTEM_OUT
       PatternLayout:
         pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"
 
-    File:
-      name: File_Appender
-      filename: ${log-path}/experiments.log
-      filePattern: "network-builder-%d{MM-dd-yyyy}-%i.log.zip"
-      PatternLayout:
-        pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"
-      Policies:
-        TimeBasedTriggeringPolicy:
-        SizeBasedTriggeringPolicy: "10 MB"
+    RollingFile:
+      - name: LogToRollingFile
+        fileName: ${log-path}/experiments.log
+        filePattern: "network-builder-%d{MM-dd-yyyy}-%i.log.zip"
+        PatternLayout:
+          pattern: "[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n"
+        Policies:
+          SizeBasedTriggeringPolicy:
+            size: 10MB
+        DefaultRollOverStrategy:
+          max: 10
 
   Loggers:
+    logger:
+      - name: ch.idsia
+        level: debug
+        additivity: false
+        AppenderRef:
+          - ref: LogToConsole
+          - ref: LogToRollingFile
+
     Root:
-      level: debug
+      level: info
       AppenderRef:
-        - ref: Console_Appender
+        ref: LogToConsole

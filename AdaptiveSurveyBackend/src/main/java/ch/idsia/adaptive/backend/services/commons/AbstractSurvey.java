@@ -63,7 +63,9 @@ public abstract class AbstractSurvey {
 	 * Inference engine.
 	 */
 	protected final BeliefPropagation<BayesianFactor> inference;
-
+	/**
+	 * Evidence map of past answers.
+	 */
 	protected final TIntIntMap observations = new TIntIntHashMap();
 
 	@Getter
@@ -89,6 +91,8 @@ public abstract class AbstractSurvey {
 		final Set<String> skillCompleted = new HashSet<>();
 
 		for (Skill skill : skills) {
+			if (skill == null)
+				continue;
 			String s = skill.getName();
 
 			final BayesianFactor f = inference.query(skill.getVariable(), observations);
@@ -98,11 +102,13 @@ public abstract class AbstractSurvey {
 			state.put(s, f.getData());
 			entropy.put(s, h);
 
-			final long qdps = questionsDonePerSkill.get(skill).size();
-			qps.put(s, qdps);
+			if (questionsDonePerSkill.containsKey(skill)) {
+				final long qdps = questionsDonePerSkill.get(skill).size();
+				qps.put(s, qdps);
 
-			if (qdps > survey.getQuestionPerSkillMax())
-				skillCompleted.add(s);
+				if (qdps > survey.getQuestionPerSkillMax())
+					skillCompleted.add(s);
+			}
 		}
 
 		return new State()
@@ -114,12 +120,17 @@ public abstract class AbstractSurvey {
 				.setTotalAnswers(questionsDone.size());
 	}
 
+	public void addSkills(Set<Skill> skills) {
+		this.skills.addAll(skills);
+	}
+
 	public void addQuestions(List<Question> questions) {
 		questions.forEach(q -> {
 			Skill skill = q.getSkill();
+			if (skill != null && !skills.contains(skill))
+				this.skills.add(skill);
 
 			this.questions.add(q);
-			this.skills.add(skill);
 			this.questionsDonePerSkill.putIfAbsent(skill, new LinkedList<>());
 			this.questionsAvailablePerSkill.computeIfAbsent(skill, x -> new LinkedList<>()).add(q);
 		});

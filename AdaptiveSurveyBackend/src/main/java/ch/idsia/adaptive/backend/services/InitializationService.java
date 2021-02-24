@@ -17,10 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -171,6 +168,7 @@ public class InitializationService {
 				.setDuration(structure.survey.duration)
 				.setQuestions(questions)
 				.setSkillOrder(structure.survey.skillOrder)
+				.setSkills(new HashSet<>(skills.values()))
 				.setModelData(modelData)
 				.setMixedSkillOrder(structure.survey.mixedSkillOrder)
 				.setIsAdaptive(structure.survey.adaptive)
@@ -187,6 +185,7 @@ public class InitializationService {
 				.setQuestionTotalMax(structure.survey.questionTotalMax);
 
 		questions.forEach(q -> q.setSurvey(survey));
+		skills.values().forEach(s -> s.setSurvey(survey));
 
 		logger.info("Found survey with accessCode={}", survey.getAccessCode());
 

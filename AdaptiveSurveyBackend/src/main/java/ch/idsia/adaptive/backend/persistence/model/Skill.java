@@ -19,7 +19,7 @@ import java.util.List;
 @Entity
 @Data
 @Accessors(chain = true)
-@EqualsAndHashCode(onlyExplicitlyIncluded = false)
+@EqualsAndHashCode()
 public class Skill implements Comparable<Skill> {
 
 	@Id
@@ -43,6 +43,13 @@ public class Skill implements Comparable<Skill> {
 	 * Index of the variable in the model.
 	 */
 	private Integer variable;
+
+	/**
+	 * Survey that include this question.
+	 */
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "fk_survey")
+	private Survey survey;
 
 	@Override
 	public String toString() {

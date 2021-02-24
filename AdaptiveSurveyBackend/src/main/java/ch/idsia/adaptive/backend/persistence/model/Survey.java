@@ -138,6 +138,9 @@ public class Survey {
 	@OrderBy("id ASC")
 	private List<Question> questions;
 
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	private Set<Skill> skills;
+
 	/**
 	 * Survey Sessions open for this Survey.
 	 */

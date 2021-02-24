@@ -53,6 +53,7 @@ public class SurveyManagerService {
 		} else {
 			content = new NonAdaptiveSurvey(survey, seed);
 		}
+		content.addSkills(survey.getSkills());
 		content.addQuestions(survey.getQuestions());
 
 		activeSurveys.put(data.getToken(), content);
