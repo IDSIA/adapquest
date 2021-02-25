@@ -100,7 +100,7 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 				final Integer S = skill.getVariable();
 				final Double HS = HSs.get(skill);
 
-				final BayesianFactor PSQ = inference.query(S, observations);
+				final BayesianFactor PSQ = inference.query(Q, observations);
 				double HSQ = 0;
 
 				for (int i = 0; i < size; i++) {
@@ -108,10 +108,10 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 					qi.put(Q, i);
 
 					final BayesianFactor PSq = inference.query(S, qi);
-					final double PSqi = PSQ.getValue(i);
-
 					double HSqi = BayesianEntropy.H(PSq);
 					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
+
+					final double PSqi = PSQ.getValue(i);
 
 					HSQ += HSqi * PSqi; // conditional entropy
 				}

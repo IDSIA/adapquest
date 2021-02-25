@@ -1,6 +1,7 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
 import ch.idsia.adaptive.backend.persistence.utils.ListSkillStateConverter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -37,7 +38,7 @@ public class Skill implements Comparable<Skill> {
 	 */
 	@Convert(converter = ListSkillStateConverter.class)
 	@Column(name = "states", length = 1023)
-	private List<SkillSate> states;
+	private List<SkillState> states;
 
 	/**
 	 * Index of the variable in the model.
@@ -48,7 +49,8 @@ public class Skill implements Comparable<Skill> {
 	 * Survey that include this question.
 	 */
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "fk_survey")
+	@JoinColumn(name = "fk_skill_survey")
+	@JsonBackReference
 	private Survey survey;
 
 	@Override

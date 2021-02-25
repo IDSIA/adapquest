@@ -80,7 +80,7 @@ public class State {
 	 * Session associated with this Status.
 	 */
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "fk_session")
+	@JoinColumn(name = "fk_state_session")
 	private Session session;
 
 }

@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -107,8 +108,8 @@ class TestSurveyNonAdaptiveFlow {
 				.setName("A")
 				.setVariable(A)
 				.setStates(List.of(
-						new SkillSate("low", 0),
-						new SkillSate("high", 1)
+						new SkillState("low", 0),
+						new SkillState("high", 1)
 				));
 
 		// 3 questions
@@ -149,7 +150,8 @@ class TestSurveyNonAdaptiveFlow {
 				.setAccessCode(accessCode)
 				.setDescription("This is just a description")
 				.setDuration(3600L)
-				.setQuestions(List.of(q1, q2, q3))
+				.setQuestions(Set.of(q1, q2, q3))
+				.setSkills(Set.of(skill))
 				.setSkillOrder(List.of(skill.getName()))
 				.setModelData(String.join("\n", modelData))
 				.setMixedSkillOrder(false)

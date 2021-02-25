@@ -5,6 +5,7 @@ import ch.idsia.adaptive.backend.TestApplication;
 import ch.idsia.adaptive.backend.config.PersistenceConfig;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.external.ImportStructure;
+import ch.idsia.adaptive.backend.persistence.model.Question;
 import ch.idsia.adaptive.backend.persistence.model.Survey;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIParser;
@@ -15,7 +16,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,9 +59,12 @@ class InitializationServiceTest {
 		assertEquals(1, survey.getSkillOrder().size());
 		assertEquals(3, survey.getQuestions().size());
 
-		assertEquals(3, survey.getQuestions().get(0).getAnswersAvailable().size());
-		assertEquals(2, survey.getQuestions().get(1).getAnswersAvailable().size());
-		assertEquals(3, survey.getQuestions().get(2).getAnswersAvailable().size());
+		final List<Question> qs = new ArrayList<>(survey.getQuestions());
+		qs.sort(Comparator.comparingInt(Question::getVariable));
+
+		assertEquals(3, qs.get(0).getAnswersAvailable().size());
+		assertEquals(2, qs.get(1).getAnswersAvailable().size());
+		assertEquals(3, qs.get(2).getAnswersAvailable().size());
 
 		List<String> lines = Arrays.stream(survey.getModelData().split("\n")).collect(Collectors.toList());
 

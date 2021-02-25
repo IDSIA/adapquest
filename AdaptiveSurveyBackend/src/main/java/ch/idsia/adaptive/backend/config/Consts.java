@@ -32,4 +32,6 @@ public class Consts {
 	public static int QUESTION_TOT_MIN = 30;
 
 	public static int QUESTION_SKILL_MAX = 35;
+
+	public static String NO_SKILL = "NoSkill";
 }

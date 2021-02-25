@@ -194,7 +194,7 @@ public class SurveyController {
 			// update data and assign session token
 			Session session = sessions.registerNewSession(data);
 
-			logger.debug("New initialization for accessCode=" + accessCode + " received token=" + session.getToken());
+			logger.debug("New initialization for accessCode={} received token={}", accessCode, session.getToken());
 
 			// TODO: initialize a timer or timeout for the time-limit achieved when someone abandons the survey
 

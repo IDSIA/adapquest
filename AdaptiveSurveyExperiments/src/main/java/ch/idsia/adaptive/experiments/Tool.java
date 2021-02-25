@@ -70,6 +70,15 @@ public class Tool {
 	}
 
 	/**
+	 * Overwrite the API key with a new one.
+	 *
+	 * @param key the new API key to use.
+	 */
+	public void setKey(String key) {
+		this.key = key;
+	}
+
+	/**
 	 * Utility, it build an {@link URI} to the correct endpoint.
 	 *
 	 * @param path endpoint to use

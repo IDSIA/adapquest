@@ -37,21 +37,21 @@ public class Answer {
 	 * The answer given.
 	 */
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "fk_questionAnswer")
+	@JoinColumn(name = "fk_answer_questionAnswer")
 	private QuestionAnswer questionAnswer;
 
 	/**
 	 * Question of which this answer is for.
 	 */
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "fk_question")
+	@JoinColumn(name = "fk_answer_question")
 	private Question question;
 
 	/**
 	 * Session associated with this answer.
 	 */
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "fk_session")
+	@JoinColumn(name = "fk_answer_session")
 	private Session session;
 
 	public Long getQuestionId() {

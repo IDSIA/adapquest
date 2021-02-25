@@ -1,5 +1,7 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -7,6 +9,7 @@ import lombok.experimental.Accessors;
 import javax.persistence.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,6 +69,7 @@ public class Question implements Comparable<Question> {
 	 */
 	@OneToMany(mappedBy = "question", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@OrderBy("id ASC")
+	@JsonManagedReference
 	private List<QuestionAnswer> answersAvailable;
 
 	/**
@@ -78,14 +82,15 @@ public class Question implements Comparable<Question> {
 	 * Skill associated with this question.
 	 */
 	@ManyToOne(cascade = CascadeType.PERSIST)
-	@JoinColumn(name = "fk_skill")
+	@JoinColumn(name = "fk_question_skill")
 	private Skill skill;
 
 	/**
 	 * Survey that include this question.
 	 */
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "fk_survey")
+	@JoinColumn(name = "fk_question_survey")
+	@JsonBackReference
 	private Survey survey;
 
 	public Question addAnswersAvailable(QuestionAnswer... answersAvailable) {
@@ -108,5 +113,18 @@ public class Question implements Comparable<Question> {
 				", name=" + name +
 				", weight=" + weight +
 				'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Question question1 = (Question) o;
+		return question.equals(question1.question) && name.equals(question1.name) && variable.equals(question1.variable);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(question, name, variable);
 	}
 }

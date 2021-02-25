@@ -21,6 +21,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static ch.idsia.adaptive.backend.config.Consts.NO_SKILL;
+
 /**
  * Author:  Claudio "Dna" Bonesana
  * Project: AdaptiveSurvey
@@ -131,15 +133,21 @@ public class InitializationService {
 						.setName(s.name)
 						.setVariable(v.computeIfAbsent(s.name, i -> -1))
 						.setStates(s.states.stream()
-								.map(l -> new SkillSate(l.name, l.value))
+								.map(l -> new SkillState(l.name, l.value))
 								.collect(Collectors.toList())
 						)
 				)
 				.collect(Collectors.toMap(Skill::getName, x -> x));
-		logger.info("Found {} skill(s): {}", skills.size(), String.join(" ", skills.keySet()));
+
+		if (structure.survey.getSimple()) {
+			skills.put("", new Skill().setName(NO_SKILL).setStates(new ArrayList<>()));
+			logger.info("Simple survey: added empty skill {}", NO_SKILL);
+		}
+
+		logger.info("Found {} skill(s): {}", skills.size(), skills.values().stream().map(Skill::getName).collect(Collectors.joining(" ")));
 
 		// build questions
-		final List<Question> questions = structure.questions.stream()
+		final Set<Question> questions = structure.questions.stream()
 				.map(q -> new Question()
 						.setQuestion(q.question)
 						.setExplanation(q.explanation)
@@ -157,7 +165,7 @@ public class InitializationService {
 								)
 								.toArray(QuestionAnswer[]::new)
 						)
-				).collect(Collectors.toList());
+				).collect(Collectors.toCollection(LinkedHashSet::new));
 		logger.info("Found {} question(s)", questions.size());
 
 		// build survey

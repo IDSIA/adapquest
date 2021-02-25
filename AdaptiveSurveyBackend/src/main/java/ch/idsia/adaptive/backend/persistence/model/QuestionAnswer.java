@@ -1,5 +1,6 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -44,7 +45,8 @@ public class QuestionAnswer {
 	private List<Answer> answers;
 
 	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name = "fk_question")
+	@JoinColumn(name = "fk_questionAnswer_question")
+	@JsonBackReference
 	private Question question;
 
 	public QuestionAnswer(String text) {

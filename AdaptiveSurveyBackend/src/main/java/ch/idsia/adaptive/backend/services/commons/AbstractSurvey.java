@@ -15,6 +15,8 @@ import org.apache.logging.log4j.Logger;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ch.idsia.adaptive.backend.config.Consts.NO_SKILL;
+
 /**
  * Author:  Claudio "Dna" Bonesana
  * Project: AdaptiveSurvey
@@ -91,8 +93,6 @@ public abstract class AbstractSurvey {
 		final Set<String> skillCompleted = new HashSet<>();
 
 		for (Skill skill : skills) {
-			if (skill == null)
-				continue;
 			String s = skill.getName();
 
 			final BayesianFactor f = inference.query(skill.getVariable(), observations);
@@ -121,19 +121,22 @@ public abstract class AbstractSurvey {
 	}
 
 	public void addSkills(Set<Skill> skills) {
-		this.skills.addAll(skills);
+		this.skills.addAll(
+				skills.stream()
+						.filter(Objects::nonNull)
+						.filter(x -> !x.getName().equals(NO_SKILL))
+						.collect(Collectors.toList())
+		);
 	}
 
-	public void addQuestions(List<Question> questions) {
+	public void addQuestions(Set<Question> questions) {
 		questions.forEach(q -> {
 			Skill skill = q.getSkill();
-			if (skill != null && !skills.contains(skill))
-				this.skills.add(skill);
-
 			this.questions.add(q);
 			this.questionsDonePerSkill.putIfAbsent(skill, new LinkedList<>());
 			this.questionsAvailablePerSkill.computeIfAbsent(skill, x -> new LinkedList<>()).add(q);
 		});
+		this.questions.sort(Comparator.comparingInt(Question::getVariable));
 	}
 
 	public abstract boolean isFinished();

@@ -85,7 +85,7 @@ public class Session {
 	 * Survey done in this session.
 	 */
 	@ManyToOne
-	@JoinColumn(name = "fk_survey")
+	@JoinColumn(name = "fk_session_survey")
 	private Survey survey;
 
 	/**

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class SkillSate implements Comparable<SkillSate> {
+public class SkillState implements Comparable<SkillState> {
 
 	/**
 	 * Human readable name of this state.
@@ -26,13 +26,13 @@ public class SkillSate implements Comparable<SkillSate> {
 	@EqualsAndHashCode.Include
 	private Integer state;
 
-	public SkillSate(String name, Integer state) {
+	public SkillState(String name, Integer state) {
 		this.name = name;
 		this.state = state;
 	}
 
 	@Override
-	public int compareTo(SkillSate other) {
+	public int compareTo(SkillState other) {
 		return Integer.compare(this.state, other.state);
 	}
 }

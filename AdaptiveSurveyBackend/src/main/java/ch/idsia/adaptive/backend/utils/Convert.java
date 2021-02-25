@@ -62,7 +62,7 @@ public class Convert {
 		return rs;
 	}
 
-	public static ResponseSkillState toResponse(SkillSate state) {
+	public static ResponseSkillState toResponse(SkillState state) {
 		ResponseSkillState rsl = new ResponseSkillState();
 
 		rsl.name = state.getName();
