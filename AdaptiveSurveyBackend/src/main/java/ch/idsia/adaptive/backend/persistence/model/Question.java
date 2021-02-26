@@ -65,6 +65,11 @@ public class Question implements Comparable<Question> {
 	private Boolean randomAnswers = false;
 
 	/**
+	 * If true, this question will be forced to be asked before the adaptive engine starts.
+	 */
+	public Boolean mandatory = false;
+
+	/**
 	 * Available answers for this multiple choice question.
 	 */
 	@OneToMany(mappedBy = "question", fetch = FetchType.EAGER, cascade = CascadeType.ALL)

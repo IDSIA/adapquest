@@ -313,9 +313,11 @@ public class SurveyController {
 	public ResponseEntity<ResponseQuestion> nextQuestion(@PathVariable("token") String token, HttpServletRequest request) {
 		logger.info("User with token={} request a new question", token);
 
+		Session session = null;
+		SurveyData data = null;
 		try {
-			Session session = sessions.getSession(token);
-			SurveyData data = new SurveyData()
+			session = sessions.getSession(token);
+			data = new SurveyData()
 					.setFromSession(session)
 					.setUserAgent(request.getHeader("User-Agent"))
 					.setRemoteAddress(request.getRemoteAddr());
@@ -341,7 +343,13 @@ public class SurveyController {
 			logger.error(e);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (SurveyException e) {
-			logger.info("User with token={} has no more questions", token);
+			if (e.getMessage().equals("Finished")) {
+				logger.info("User with token={} has ended with a lower info gain", token);
+				manager.complete(data);
+				sessions.endSurvey(session);
+			} else {
+				logger.info("User with token={} has no more questions", token);
+			}
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 	}

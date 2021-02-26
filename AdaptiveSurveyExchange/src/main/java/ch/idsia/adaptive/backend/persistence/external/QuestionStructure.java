@@ -58,6 +58,11 @@ public class QuestionStructure {
 	public Boolean randomAnswers = false;
 
 	/**
+	 * If true, this question will be forced to be asked before the adaptive engine starts.
+	 */
+	public Boolean mandatory = false;
+
+	/**
 	 * List of available answers.
 	 */
 	public List<AnswerStructure> answers = new ArrayList<>();

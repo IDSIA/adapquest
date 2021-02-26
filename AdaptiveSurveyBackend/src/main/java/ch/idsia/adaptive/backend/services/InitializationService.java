@@ -157,6 +157,7 @@ public class InitializationService {
 						.setWeight(q.weight)
 						.setIsExample(q.example)
 						.setRandomAnswers(q.randomAnswers)
+						.setMandatory(q.mandatory)
 						.addAnswersAvailable(q.answers.stream()
 								.map(a -> new QuestionAnswer()
 										.setText(a.text)

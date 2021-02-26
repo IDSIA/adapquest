@@ -44,6 +44,10 @@ public abstract class AbstractSurvey {
 	 */
 	protected final LinkedList<Question> questions = new LinkedList<>();
 	/**
+	 * List of mandatory questions.
+	 */
+	protected final LinkedList<Question> mandatoryQuestions = new LinkedList<>();
+	/**
 	 * Questions who already have an answer.
 	 */
 	protected final LinkedList<Question> questionsDone = new LinkedList<>();
@@ -135,6 +139,9 @@ public abstract class AbstractSurvey {
 			this.questions.add(q);
 			this.questionsDonePerSkill.putIfAbsent(skill, new LinkedList<>());
 			this.questionsAvailablePerSkill.computeIfAbsent(skill, x -> new LinkedList<>()).add(q);
+			if (q.getMandatory()) {
+				this.mandatoryQuestions.add(q);
+			}
 		});
 		this.questions.sort(Comparator.comparingInt(Question::getVariable));
 	}
@@ -152,6 +159,8 @@ public abstract class AbstractSurvey {
 		// remove from possible questions
 		questionsAvailablePerSkill.get(s).remove(q);
 		questions.remove(q);
+		if (q.getMandatory())
+			mandatoryQuestions.remove(q);
 
 		// add to done slacks
 		questionsDonePerSkill.get(s).add(q);
@@ -170,5 +179,32 @@ public abstract class AbstractSurvey {
 		answered = true;
 	}
 
-	public abstract Question next() throws SurveyException;
+	public Question next() throws SurveyException {
+		if (!answered && currentQuestion != null)
+			return currentQuestion;
+
+		Question nextQuestion;
+		if (!mandatoryQuestions.isEmpty()) {
+			// first empty the mandatory questions...
+			nextQuestion = mandatoryQuestions.getFirst();
+		} else {
+			// ...then find the next question using the specific algorithms
+			nextQuestion = findNext();
+		}
+
+		// register the chosen question as nextQuestion
+		register(nextQuestion);
+
+		return nextQuestion;
+	}
+
+	/**
+	 * Override this method to implement your design for the adaptive search of the next {@link Question} to ask. See
+	 * method {@link #next()} for the stuff that you <u>don't</u> need to check in you code, such as checking the current
+	 * question or register the next question before returning.
+	 *
+	 * @return a valid {@link Question} not null
+	 * @throws SurveyException you can throw this if something bad happens
+	 */
+	protected abstract Question findNext() throws SurveyException;
 }

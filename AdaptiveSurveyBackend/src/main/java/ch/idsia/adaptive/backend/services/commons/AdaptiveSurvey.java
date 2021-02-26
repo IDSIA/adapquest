@@ -122,10 +122,7 @@ public class AdaptiveSurvey extends AbstractSurvey {
 	}
 
 	@Override
-	public Question next() throws SurveyException {
-		if (!answered && currentQuestion != null)
-			return currentQuestion;
-
+	public Question findNext() throws SurveyException {
 		// find the question with the optimal entropy
 		Question nextQuestion = null;
 		double maxIG = -Double.MAX_VALUE;
@@ -177,9 +174,6 @@ public class AdaptiveSurvey extends AbstractSurvey {
 			// this is also valid for nextSkill == null
 			throw new SurveyException("No valid question found!");
 
-		// register the chosen question as nextQuestion
-		register(nextQuestion);
-
-		return currentQuestion;
+		return nextQuestion;
 	}
 }

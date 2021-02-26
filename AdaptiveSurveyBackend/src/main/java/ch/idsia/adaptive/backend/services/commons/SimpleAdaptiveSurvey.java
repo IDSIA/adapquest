@@ -22,8 +22,14 @@ import java.util.Map;
 public class SimpleAdaptiveSurvey extends AbstractSurvey {
 	private static final Logger logger = LogManager.getLogger(SimpleAdaptiveSurvey.class);
 
+	private Boolean finishedByLowInfoGain = false;
+
 	public SimpleAdaptiveSurvey(Survey model, Long seed) {
 		super(model, seed);
+	}
+
+	public Boolean getFinishedByLowInfoGain() {
+		return finishedByLowInfoGain;
 	}
 
 	@Override
@@ -74,10 +80,7 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 	}
 
 	@Override
-	public Question next() throws SurveyException {
-		if (!answered && currentQuestion != null)
-			return currentQuestion;
-
+	public Question findNext() throws SurveyException {
 		// find the question with the optimal entropy
 		Question nextQuestion = null;
 		double maxIG = -Double.MAX_VALUE;
@@ -127,13 +130,13 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 			}
 		}
 
-		if (nextQuestion == null)
-			// this is also valid for nextSkill == null
-			throw new SurveyException("No valid question found!");
+		double eps = 1e-9;
+		if (maxIG <= eps) {
+			logger.info("InfoGain below threshold: maxIG={} eps={}", maxIG, eps);
+			finishedByLowInfoGain = true;
+			throw new SurveyException("Finished");
+		}
 
-		// register the chosen question as nextQuestion
-		register(nextQuestion);
-
-		return currentQuestion;
+		return nextQuestion;
 	}
 }
