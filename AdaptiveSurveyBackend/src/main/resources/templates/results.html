@@ -18,7 +18,7 @@
         <div>
             <ul>
                 <li>Started: <span th:text="${result.data}"></span></li>
-                <li>Duration: <span th:text="${result.seconds} seconds"></span></li>
+                <li>Duration: <span th:text="${result.seconds}+' second(s)'"></span></li>
                 <li>Ended: <span th:text="${result.ended ? 'Yes' : 'No'}"></span></li>
                 <li>Answers: <span th:text="${result.state.totalAnswers}"></span></li>
                 <li th:each="key : ${result.state.skills}">
