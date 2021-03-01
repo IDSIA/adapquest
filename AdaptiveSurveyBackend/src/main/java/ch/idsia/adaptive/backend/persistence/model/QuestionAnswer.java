@@ -29,6 +29,7 @@ public class QuestionAnswer {
 	/**
 	 * Text for this answer.
 	 */
+	@Column(length = 4096)
 	private String text;
 
 	/**

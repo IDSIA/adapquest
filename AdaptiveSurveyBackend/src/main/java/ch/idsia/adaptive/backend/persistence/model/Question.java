@@ -3,7 +3,6 @@ package ch.idsia.adaptive.backend.persistence.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
@@ -21,22 +20,22 @@ import java.util.stream.Collectors;
 @Entity
 @Data
 @Accessors(chain = true)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Question implements Comparable<Question> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@EqualsAndHashCode.Include
 	private Long id;
 
 	/**
 	 * Explanation text.
 	 */
+	@Column(length = 4096)
 	private String explanation = "";
 
 	/**
 	 * Question text.
 	 */
+	@Column(length = 4096)
 	private String question = "";
 
 	/**

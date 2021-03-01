@@ -30,23 +30,19 @@
                 </ul>
             </div>
 
-            <div th:if="${state != null}">
+            <div th:if="${state != null && show}">
                 <h3>State</h3>
                 <ul>
                     <li>Created: <span th:text="${state.creationTime}"></span></li>
                     <li>Answers: <span th:text="${state.totalAnswers}"></span></li>
                     <li th:each="key : ${state.skills}">
-                        <span th:text="'Skill: ' + ${key}"></span>
+                        Skill: <span th:text="${key.name}"></span>
                         <br/>
-                        Questions: <span th:if="${state.questionsPerSkill.containsKey(key)}"
-                                         th:text="${state.questionsPerSkill.get(key)}"></span>
+                        Distribution: <span th:each="d : ${state.skillDistribution.get(key.name)}"
+                                            th:text="${#numbers.formatDecimal(d, 1, 2)}+' '"></span>
                         <br/>
-                        Completed: <span th:text="${state.skillCompleted.contains(key)} ? 'Yes' : 'No'"></span>
-                        <br/>
-                        Entropy: <span th:text="${state.entropyDistribution.get(key)}"></span>
-                    </li>
-                    <li>
-                        <img alt="state" th:src="@{/survey/state/image/(token=${token})}"/>
+                        Entropy: <span
+                            th:text="${#numbers.formatDecimal(state.entropyDistribution.get(key.name), 1, 2)}"></span>
                     </li>
                 </ul>
             </div>

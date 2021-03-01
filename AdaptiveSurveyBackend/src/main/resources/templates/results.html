@@ -18,24 +18,17 @@
         <div>
             <ul>
                 <li>Started: <span th:text="${result.data}"></span></li>
-                <li>Duration: <span th:text="${result.seconds}"></span></li>
+                <li>Duration: <span th:text="${result.seconds} seconds"></span></li>
                 <li>Ended: <span th:text="${result.ended ? 'Yes' : 'No'}"></span></li>
                 <li>Answers: <span th:text="${result.state.totalAnswers}"></span></li>
                 <li th:each="key : ${result.state.skills}">
-                    Skill: <span th:text="${key}"></span>
+                    Skill: <span th:text="${key.name}"></span>
                     <br/>
-                    Distribution: <span th:each="d : ${result.state.skillDistribution.get(key)}"
+                    Distribution: <span th:each="d : ${result.state.skillDistribution.get(key.name)}"
                                         th:text="${#numbers.formatDecimal(d, 1,2)}+' '"></span>
                     <br/>
-                    Questions: <span th:if="${result.state.questionsPerSkill.containsKey(key)}"
-                                     th:text="${result.state.questionsPerSkill.get(key)}"></span>
-                    <br/>
-                    Completed: <span th:text="${result.state.skillCompleted.contains(key)} ? 'Yes' : 'No'"></span>
-                    <br/>
-                    Entropy: <span th:text="${result.state.entropyDistribution.get(key)}"></span>
-                </li>
-                <li>
-                    <img alt="state" th:src="@{/survey/state/image/(token=${token})}"/>
+                    Entropy: <span
+                        th:text="${#numbers.formatDecimal(result.state.entropyDistribution.get(key.name), 1,2)}"></span>
                 </li>
             </ul>
         </div>

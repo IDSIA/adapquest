@@ -99,10 +99,12 @@ public class DemoController {
 			@PathVariable String token,
 			@RequestParam(required = false) Long questionId,
 			@RequestParam(required = false) Long answerId,
+			@RequestParam(required = false, defaultValue = "false") Boolean show,
 			Model model,
 			HttpServletRequest request
 	) {
 		model.addAttribute("token", token);
+		model.addAttribute("show", show);
 
 		// check answer
 		if (questionId != null && answerId != null) {
