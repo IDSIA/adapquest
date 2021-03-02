@@ -3,7 +3,7 @@ package ch.idsia.adaptive.backend.services.commons;
 import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.crema.entropy.BayesianEntropy;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
-import ch.idsia.crema.inference.bp.BeliefPropagation;
+import ch.idsia.crema.inference.bp.LoopyBeliefPropagation;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIParser;
 import gnu.trove.map.TIntIntMap;
@@ -68,7 +68,7 @@ public abstract class AbstractSurvey {
 	/**
 	 * Inference engine.
 	 */
-	protected final BeliefPropagation<BayesianFactor> inference;
+	protected final LoopyBeliefPropagation<BayesianFactor> inference;
 	/**
 	 * Evidence map of past answers.
 	 */
@@ -86,7 +86,7 @@ public abstract class AbstractSurvey {
 		List<String> lines = Arrays.stream(survey.getModelData().split("\n")).collect(Collectors.toList());
 
 		this.network = new BayesUAIParser(lines).parse();
-		this.inference = new BeliefPropagation<>(network);
+		this.inference = new LoopyBeliefPropagation<>(network);
 	}
 
 	public State getState() {

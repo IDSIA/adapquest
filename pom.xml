@@ -32,7 +32,7 @@
 		<dependency>
 			<groupId>ch.idsia</groupId>
 			<artifactId>crema</artifactId>
-			<version>0.1.6.f</version>
+			<version>0.1.6.g</version>
 			<scope>compile</scope>
 		</dependency>
 
