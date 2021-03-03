@@ -32,6 +32,10 @@ public abstract class AbstractAdaptiveModel {
 
 	String accessCode;
 
+	public String getAccessCode() {
+		return accessCode;
+	}
+
 	/**
 	 * @param accessCode code used to access to this survey on the remote application.
 	 */
