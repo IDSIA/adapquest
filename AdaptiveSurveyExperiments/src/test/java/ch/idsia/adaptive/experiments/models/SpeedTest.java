@@ -2,7 +2,7 @@ package ch.idsia.adaptive.experiments.models;
 
 import ch.idsia.crema.entropy.BayesianEntropy;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
-import ch.idsia.crema.inference.bp.BeliefPropagation;
+import ch.idsia.crema.inference.bp.LoopyBeliefPropagation;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
@@ -32,7 +32,7 @@ public class SpeedTest {
 		ltg.model();
 		final BayesianNetwork bn = ltg.bn;
 
-		final BeliefPropagation<BayesianFactor> bp = new BeliefPropagation<>(bn);
+		final LoopyBeliefPropagation<BayesianFactor> bp = new LoopyBeliefPropagation<>(bn);
 
 		for (int nQuestions : questions) {
 //			System.out.println("#questions: " + nQuestions);
