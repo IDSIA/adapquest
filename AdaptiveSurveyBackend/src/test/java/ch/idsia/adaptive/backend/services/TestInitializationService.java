@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 		SurveyRepository.class,
 		InitializationService.class,
 })
-class InitializationServiceTest {
+public class TestInitializationService {
 
 	@Autowired
 	InitializationService is;

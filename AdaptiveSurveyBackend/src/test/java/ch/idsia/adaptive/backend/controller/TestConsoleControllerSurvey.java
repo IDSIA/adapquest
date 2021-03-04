@@ -50,7 +50,7 @@ import java.util.List;
 })
 @Import(TestTool.class)
 @Transactional
-class ConsoleControllerSurveyTest {
+public class TestConsoleControllerSurvey {
 
 	@Autowired
 	SessionRepository sessions;

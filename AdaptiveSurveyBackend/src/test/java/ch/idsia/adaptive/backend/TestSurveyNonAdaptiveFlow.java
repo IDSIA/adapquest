@@ -55,7 +55,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 })
 @Import(TestTool.class)
 @Transactional
-class TestSurveyNonAdaptiveFlow {
+public class TestSurveyNonAdaptiveFlow {
 
 	@Autowired
 	ObjectMapper om;

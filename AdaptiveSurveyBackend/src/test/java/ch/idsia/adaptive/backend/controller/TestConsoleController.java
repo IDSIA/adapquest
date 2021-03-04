@@ -37,7 +37,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 		ConsoleController.class,
 })
 @Import(TestTool.class)
-class ConsoleControllerTest {
+public class TestConsoleController {
 
 	@Autowired
 	TestTool tool;

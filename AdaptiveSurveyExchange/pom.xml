@@ -13,6 +13,8 @@
 	<version>1.0</version>
 	<packaging>jar</packaging>
 
+	<name>AdaptiveSurveyExchange</name>
+
 	<build>
 		<plugins>
 			<plugin>

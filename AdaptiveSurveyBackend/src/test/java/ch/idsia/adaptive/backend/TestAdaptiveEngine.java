@@ -52,7 +52,7 @@ import java.util.stream.IntStream;
 		SurveyController.class,
 })
 @Import(TestTool.class)
-class TestAdaptiveEngine {
+public class TestAdaptiveEngine {
 	private static final Logger logger = LogManager.getLogger(TestAdaptiveEngine.class);
 
 	@Autowired

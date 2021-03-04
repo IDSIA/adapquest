@@ -54,7 +54,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				final Client client = clients.findClientByKey(key);
 				if (client == null) {
 					logger.warn("One API key was not found or is invalid");
-					throw new BadCredentialsException("API Key not found or not valid");
+					authentication.setAuthenticated(false);
+					return authentication;
 				}
 
 				authentication.setAuthenticated(true);
