@@ -68,6 +68,17 @@ public class ConsoleController {
 		this.answers = answers;
 	}
 
+	@GetMapping("/key")
+	public ResponseEntity<String> getApiKey(
+			@RequestHeader("APIKey") String key,
+			HttpServletRequest request
+	) {
+		final String ip = request.getRemoteAddr();
+		logger.info("ip={} key={}: testing for key", ip, key);
+
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
 	@PostMapping("/key")
 	public ResponseEntity<String> postApiKeyNew(
 			@RequestHeader("APIKey") String key,

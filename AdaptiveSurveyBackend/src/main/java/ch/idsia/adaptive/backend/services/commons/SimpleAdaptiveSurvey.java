@@ -129,11 +129,13 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 			}
 		}
 
-		double eps = 1e-9;
-		if (maxIG <= eps) {
-			logger.info("InfoGain below threshold: maxIG={} eps={}", maxIG, eps);
-			finishedByLowInfoGain = true;
-			throw new SurveyException("Finished");
+		if (questionsDone.size() >= survey.getQuestionTotalMin()) {
+			double eps = 1e-9;
+			if (maxIG <= eps) {
+				logger.info("InfoGain below threshold: maxIG={} eps={}", maxIG, eps);
+				finishedByLowInfoGain = true;
+				throw new SurveyException("Finished");
+			}
 		}
 
 		return nextQuestion;

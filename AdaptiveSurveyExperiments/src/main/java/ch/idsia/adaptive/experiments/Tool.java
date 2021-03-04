@@ -18,6 +18,8 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashSet;
+import java.util.Set;
 
 import static ch.idsia.adaptive.experiments.utils.StatusCodeCheck.is2xxSuccessful;
 
@@ -40,6 +42,8 @@ public class Tool {
 	private final String email;
 
 	private final HttpClient httpClient;
+
+	private final Set<String> accessCodes = new HashSet<>();
 
 	/**
 	 * Personal connection key.
@@ -87,6 +91,28 @@ public class Tool {
 	 */
 	private URI endpoint(String path) throws URISyntaxException {
 		return new URI("http", null, host, port, path, null, null);
+	}
+
+	/**
+	 * @return true if the key is valid, otherwise false
+	 */
+	public boolean isKeyValid() {
+		logger.info("Testing current key={}", key);
+
+		try {
+			HttpRequest get = HttpRequest.newBuilder()
+					.uri(endpoint("/console/key"))
+					.header("APIKey", key)
+					.header("Content-Type", "application/json")
+					.GET()
+					.build();
+
+			final HttpResponse<String> response = httpClient.send(get, HttpResponse.BodyHandlers.ofString());
+
+			return is2xxSuccessful(response.statusCode());
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	/**
@@ -164,7 +190,7 @@ public class Tool {
 
 	/**
 	 * Add a new Survey to the remote application by sending the given {@link ImportStructure} object. This object need
-	 * to have
+	 * to have a valid structure. The access code associated with the givent {@link ImportStructure} is saved internally.
 	 *
 	 * @param structure structure containing the survey to add. This structure need to have a non null
 	 *                  {@link ch.idsia.adaptive.backend.persistence.external.SurveyStructure} and a non empty
@@ -204,6 +230,7 @@ public class Tool {
 			throw new Exception("Could not add new survey.");
 		}
 
+		accessCodes.add(structure.survey.accessCode);
 		logger.info("New survey added with accessCode={}", structure.survey.accessCode);
 	}
 
@@ -244,6 +271,25 @@ public class Tool {
 		}
 
 		logger.info("Survey with accessCode={} deleted.", accessCode);
+	}
+
+	/**
+	 * Removes all surveys added using this tool.
+	 *
+	 * @throws Exception if some surveys cannot be removed.
+	 */
+	public void removeAllSurvey() throws Exception {
+		for (String accessCode : accessCodes) {
+			try {
+				removeSurvey(accessCode);
+				logger.info("Removed survey with accessCode={}", accessCode);
+			} catch (Exception e) {
+				logger.error("Could not remove survey with accessCode={}", accessCode);
+				throw e;
+			}
+		}
+		accessCodes.clear();
+		logger.info("Removed all surveys");
 	}
 
 	/**
