@@ -98,12 +98,12 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 			final Integer Q = question.getVariable();
 			final int size = network.getSize(Q);
 
+			final BayesianFactor PQ = inference.query(Q, observations);
+
 			double meanInfoGain = 0;
 			for (Skill skill : skills) {
 				final Integer S = skill.getVariable();
 				final Double HS = HSs.get(skill);
-
-				final BayesianFactor PQ = inference.query(Q, observations);
 				double HSQ = 0;
 
 				for (int i = 0; i < size; i++) {
