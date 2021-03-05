@@ -128,8 +128,7 @@ public class AdaptiveSurvey extends AbstractSurvey {
 		double maxIG = -Double.MAX_VALUE;
 
 		for (Skill skill : skills) {
-			Integer S = skill.getVariable();
-
+			final Integer S = skill.getVariable();
 			final BayesianFactor PS = inference.query(S, observations);
 			final double HS = BayesianEntropy.H(PS); // skill entropy
 
@@ -140,11 +139,10 @@ public class AdaptiveSurvey extends AbstractSurvey {
 
 			for (Question question : questionsAvailablePerSkill.get(skill)) {
 				final Integer Q = question.getVariable();
+				final BayesianFactor PQ = inference.query(Q, observations);
 				final int size = network.getSize(Q);
 
 				double HSQ = 0;
-
-				final BayesianFactor PQ = inference.query(Q, observations);
 
 				for (int i = 0; i < size; i++) {
 					final TIntIntMap qi = new TIntIntHashMap(observations);
@@ -158,13 +156,14 @@ public class AdaptiveSurvey extends AbstractSurvey {
 					HSQ += HSqi * Pqi; // conditional entropy
 				}
 
-				final double infoGain = Math.max(0, HS - HSQ);
+				final double infoGain = Math.max(0, HSQ - HS);
 
 				logger.debug("skill={} question={} with average infoGain={}", skill.getName(), question.getName(), infoGain);
 
 				if (infoGain > maxIG) {
-					nextQuestion = question;
 					maxIG = infoGain;
+					nextQuestion = question;
+					nextQuestion.setScore(maxIG);
 				}
 			}
 		}

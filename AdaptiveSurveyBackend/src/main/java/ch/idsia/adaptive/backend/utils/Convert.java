@@ -20,6 +20,7 @@ public class Convert {
 		rq.explanation = question.getExplanation();
 		rq.question = question.getQuestion();
 		rq.name = question.getName();
+		rq.score = question.getScore();
 
 		rq.isExample = question.getIsExample();
 		rq.randomAnswers = question.getRandomAnswers();

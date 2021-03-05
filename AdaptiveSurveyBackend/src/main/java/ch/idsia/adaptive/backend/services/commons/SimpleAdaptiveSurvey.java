@@ -87,8 +87,7 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 
 		Map<Skill, Double> HSs = new HashMap<>();
 		for (Skill skill : skills) {
-			Integer S = skill.getVariable();
-
+			final Integer S = skill.getVariable();
 			final BayesianFactor PS = inference.query(S, observations);
 			final double HS = BayesianEntropy.H(PS); // skill entropy
 			HSs.put(skill, HS);
@@ -104,6 +103,7 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 			for (Skill skill : skills) {
 				final Integer S = skill.getVariable();
 				final Double HS = HSs.get(skill);
+
 				double HSQ = 0;
 
 				for (int i = 0; i < size; i++) {
@@ -118,14 +118,15 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 					HSQ += HSqi * Pqi; // conditional entropy
 				}
 
-				meanInfoGain += Math.max(0, HS - HSQ) / skills.size();
+				meanInfoGain += Math.max(0, HSQ - HS) / skills.size();
 			}
 
 			logger.debug("question={} with average infoGain={}", question.getName(), meanInfoGain);
 
 			if (meanInfoGain > maxIG) {
-				nextQuestion = question;
 				maxIG = meanInfoGain;
+				nextQuestion = question;
+				nextQuestion.setScore(maxIG);
 			}
 		}
 

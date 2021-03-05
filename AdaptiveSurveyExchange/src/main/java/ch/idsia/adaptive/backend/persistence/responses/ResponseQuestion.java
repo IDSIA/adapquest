@@ -45,4 +45,8 @@ public class ResponseQuestion {
 	 */
 	public Boolean randomAnswers = false;
 
+	/**
+	 * Score assigned to the question by the adaptive engine.
+	 */
+	public Double score;
 }

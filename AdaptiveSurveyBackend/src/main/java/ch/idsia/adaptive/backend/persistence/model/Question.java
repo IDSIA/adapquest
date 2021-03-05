@@ -69,6 +69,12 @@ public class Question implements Comparable<Question> {
 	public Boolean mandatory = false;
 
 	/**
+	 * Entropy score assigned to this question.
+	 */
+	@Transient
+	private Double score = Double.NaN;
+
+	/**
 	 * Available answers for this multiple choice question.
 	 */
 	@OneToMany(mappedBy = "question", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
