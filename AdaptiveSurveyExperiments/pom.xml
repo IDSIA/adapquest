@@ -26,6 +26,11 @@
 			<artifactId>adaptive-survey-exchange</artifactId>
 			<version>1.0</version>
 		</dependency>
+		<dependency>
+			<groupId>ch.idsia.adaptive</groupId>
+			<artifactId>adaptive-survey-backend</artifactId>
+			<version>1.0</version>
+		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
 		<dependency>

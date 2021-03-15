@@ -32,7 +32,7 @@ public class SpeedTest {
 		ltg.model();
 		final BayesianNetwork bn = ltg.bn;
 
-		final LoopyBeliefPropagation<BayesianFactor> bp = new LoopyBeliefPropagation<>(bn);
+		final LoopyBeliefPropagation<BayesianFactor> bp = new LoopyBeliefPropagation<>();
 
 		for (int nQuestions : questions) {
 //			System.out.println("#questions: " + nQuestions);
@@ -55,7 +55,7 @@ public class SpeedTest {
 
 				for (int s : skills) {
 //					System.out.printf("skill: %d %s%n", s, obs.toString());
-					final BayesianFactor pS = bp.query(s, obs);
+					final BayesianFactor pS = bp.query(bn, obs, s);
 					BayesianEntropy.H(pS);
 				}
 
