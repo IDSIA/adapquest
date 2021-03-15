@@ -3,7 +3,8 @@ package ch.idsia.adaptive.backend.services.commons;
 import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.crema.entropy.BayesianEntropy;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
-import ch.idsia.crema.inference.bp.LoopyBeliefPropagation;
+import ch.idsia.crema.inference.Inference;
+import ch.idsia.crema.inference.sampling.LikelihoodWeightingSampling;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIParser;
 import gnu.trove.map.TIntIntMap;
@@ -68,7 +69,7 @@ public abstract class AbstractSurvey {
 	/**
 	 * Inference engine.
 	 */
-	protected final LoopyBeliefPropagation<BayesianFactor> inference;
+	protected final Inference<BayesianNetwork, BayesianFactor> inference;
 	/**
 	 * Evidence map of past answers.
 	 */
@@ -86,7 +87,7 @@ public abstract class AbstractSurvey {
 		List<String> lines = Arrays.stream(survey.getModelData().split("\n")).collect(Collectors.toList());
 
 		this.network = new BayesUAIParser(lines).parse();
-		this.inference = new LoopyBeliefPropagation<>(network);
+		this.inference = new LikelihoodWeightingSampling().setIterations(200);
 	}
 
 	public State getState() {
@@ -99,7 +100,7 @@ public abstract class AbstractSurvey {
 		for (Skill skill : skills) {
 			String s = skill.getName();
 
-			final BayesianFactor f = inference.query(skill.getVariable(), observations);
+			final BayesianFactor f = inference.query(network, observations, skill.getVariable());
 			final double h = BayesianEntropy.H(f);
 
 			sks.put(skill.getName(), skill);

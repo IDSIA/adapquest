@@ -10,11 +10,11 @@ import ch.idsia.adaptive.backend.persistence.model.Survey;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIParser;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Project: AdaptiveSurvey
  * Date:    19.01.2021 13:12
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestApplication.class)
 @WebMvcTest({
 		TestApplication.class,
@@ -76,7 +76,7 @@ public class TestInitializationService {
 	@Test
 	public void testLoadFromStructureWithModelData() {
 		final ImportStructure structure = SurveyStructureRepository.structure2S2Q("test");
-		is.parseSurvey(structure);
+		is.parseSurveyStructure(structure);
 
 		final Survey survey = surveys.findByAccessCode("test");
 		survey.getQuestions().forEach(q -> {

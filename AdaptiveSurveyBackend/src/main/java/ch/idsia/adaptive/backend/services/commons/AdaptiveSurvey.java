@@ -25,7 +25,7 @@ public class AdaptiveSurvey extends AbstractSurvey {
 	}
 
 	public boolean isSkillValid(Skill skill) {
-		final BayesianFactor PS = inference.query(skill.getVariable(), observations);
+		final BayesianFactor PS = inference.query(network, observations, skill.getVariable());
 		final double HS = BayesianEntropy.H(PS); // skill entropy
 		return isSkillValid(skill, HS);
 	}
@@ -98,7 +98,7 @@ public class AdaptiveSurvey extends AbstractSurvey {
 		for (Skill skill : skills) {
 			Integer S = skill.getVariable();
 
-			final BayesianFactor pS = inference.query(S, observations);
+			final BayesianFactor pS = inference.query(network, observations, S);
 			final double HS = BayesianEntropy.H(pS);
 
 			h += HS;
@@ -129,7 +129,7 @@ public class AdaptiveSurvey extends AbstractSurvey {
 
 		for (Skill skill : skills) {
 			final Integer S = skill.getVariable();
-			final BayesianFactor PS = inference.query(S, observations);
+			final BayesianFactor PS = inference.query(network, observations, S);
 			final double HS = BayesianEntropy.H(PS); // skill entropy
 
 			if (!isSkillValid(skill, HS)) {
@@ -139,7 +139,7 @@ public class AdaptiveSurvey extends AbstractSurvey {
 
 			for (Question question : questionsAvailablePerSkill.get(skill)) {
 				final Integer Q = question.getVariable();
-				final BayesianFactor PQ = inference.query(Q, observations);
+				final BayesianFactor PQ = inference.query(network, observations, Q);
 				final int size = network.getSize(Q);
 
 				double HSQ = 0;
@@ -148,7 +148,7 @@ public class AdaptiveSurvey extends AbstractSurvey {
 					final TIntIntMap qi = new TIntIntHashMap(observations);
 					qi.put(Q, i);
 
-					final BayesianFactor PSqi = inference.query(S, qi);
+					final BayesianFactor PSqi = inference.query(network, qi, S);
 					final double Pqi = PQ.getValue(i);
 					double HSqi = BayesianEntropy.H(PSqi);
 					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;

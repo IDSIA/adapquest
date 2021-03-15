@@ -56,7 +56,7 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 		for (Skill skill : skills) {
 			Integer S = skill.getVariable();
 
-			final BayesianFactor pS = inference.query(S, observations);
+			final BayesianFactor pS = inference.query(network, observations, S);
 			final double HS = BayesianEntropy.H(pS);
 
 			h += HS;
@@ -88,7 +88,7 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 		Map<Skill, Double> HSs = new HashMap<>();
 		for (Skill skill : skills) {
 			final Integer S = skill.getVariable();
-			final BayesianFactor PS = inference.query(S, observations);
+			final BayesianFactor PS = inference.query(network, observations, S);
 			final double HS = BayesianEntropy.H(PS); // skill entropy
 			HSs.put(skill, HS);
 		}
@@ -97,7 +97,7 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 			final Integer Q = question.getVariable();
 			final int size = network.getSize(Q);
 
-			final BayesianFactor PQ = inference.query(Q, observations);
+			final BayesianFactor PQ = inference.query(network, observations, Q);
 
 			double meanInfoGain = 0;
 			for (Skill skill : skills) {
@@ -110,13 +110,15 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 					final TIntIntMap qi = new TIntIntHashMap(observations);
 					qi.put(Q, i);
 
-					final BayesianFactor PSqi = inference.query(S, qi);
+					final BayesianFactor PSqi = inference.query(network, qi, S);
 					final double Pqi = PQ.getValue(i);
 					double HSqi = BayesianEntropy.H(PSqi);
 					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
 
 					HSQ += HSqi * Pqi; // conditional entropy
 				}
+
+				logger.debug("question={} skill={} with HSQ={}", question.getName(), skill.getName(), HSQ);
 
 				meanInfoGain += Math.max(0, HSQ - HS) / skills.size();
 			}

@@ -12,19 +12,19 @@ import ch.idsia.adaptive.backend.persistence.external.SurveyStructure;
 import ch.idsia.adaptive.backend.services.InitializationService;
 import ch.idsia.adaptive.backend.utils.TestTool;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Author:  Claudio "Dna" Bonesana
  * Project: AdaptiveSurvey
  * Date:    29.01.2021 19:46
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = AdaptiveSurveyBackend.class)
 @WebMvcTest({
 		WebConfig.class,

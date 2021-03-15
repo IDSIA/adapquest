@@ -54,6 +54,34 @@ public class InitializationService {
 		logger.info("Data initialization completed with {} survey(s)", surveys.count());
 	}
 
+	void readDataFolder() {
+		Path cwd = Paths.get("");
+		try (Stream<Path> paths = Files.walk(cwd.resolve("data"))) {
+			paths
+					.filter(Files::isRegularFile)
+					.map(path -> {
+						try {
+							logger.info("Reading file={}", path.toFile());
+							return om.readValue(path.toFile(), ImportStructure.class);
+						} catch (IOException e) {
+							logger.error("Could not import path={}", path);
+							logger.error(e);
+							return null;
+						}
+					})
+					.filter(Objects::nonNull)
+					.forEach(this::parseSurvey);
+		} catch (IOException e) {
+			logger.error(e);
+		}
+	}
+
+	public Survey parseSurvey(ImportStructure structure) {
+		final Survey survey = parseSurveyStructure(structure);
+		// save survey
+		return surveys.save(survey);
+	}
+
 	public static String parseModelStructure(ModelStructure model, Map<String, Integer> variables) {
 		logger.info("Parsing model structure with {} variable(s).", model.variables.size());
 		final BayesianNetwork bn = new BayesianNetwork();
@@ -91,29 +119,7 @@ public class InitializationService {
 		return String.join("\n", modelData);
 	}
 
-	void readDataFolder() {
-		Path cwd = Paths.get("");
-		try (Stream<Path> paths = Files.walk(cwd.resolve("data"))) {
-			paths
-					.filter(Files::isRegularFile)
-					.map(path -> {
-						try {
-							logger.info("Reading file={}", path.toFile());
-							return om.readValue(path.toFile(), ImportStructure.class);
-						} catch (IOException e) {
-							logger.error("Could not import path={}", path);
-							logger.error(e);
-							return null;
-						}
-					})
-					.filter(Objects::nonNull)
-					.forEach(this::parseSurvey);
-		} catch (IOException e) {
-			logger.error(e);
-		}
-	}
-
-	public Survey parseSurvey(ImportStructure structure) {
+	public static Survey parseSurveyStructure(ImportStructure structure) {
 		// build model
 		final Map<String, Integer> v = new HashMap<>();
 		String modelData = "";
@@ -198,8 +204,7 @@ public class InitializationService {
 
 		logger.info("Found survey with accessCode={}", survey.getAccessCode());
 
-		// save survey
-		return surveys.save(survey);
+		return survey;
 	}
 
 }
