@@ -214,11 +214,11 @@ public class SurveyController {
 		}
 	}
 
-	@GetMapping("/answers/{code}")
-	public List<Answer> getAnswers(@PathVariable("code") String code) {
-		logger.info("Request all answers for accessCode={}", code);
+	@GetMapping("/answers/{token}")
+	public List<Answer> getAnswers(@PathVariable("token") String token) {
+		logger.info("Request all answers for token={}", token);
 
-		return answers.findAllBySessionTokenOrderByCreationAsc(code);
+		return answers.findAllBySessionTokenOrderByCreationAsc(token);
 	}
 
 	// TODO: getActiveTests?

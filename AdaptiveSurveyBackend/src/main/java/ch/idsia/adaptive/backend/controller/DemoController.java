@@ -1,6 +1,7 @@
 package ch.idsia.adaptive.backend.controller;
 
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
+import ch.idsia.adaptive.backend.persistence.model.Answer;
 import ch.idsia.adaptive.backend.persistence.model.SurveyData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -50,6 +52,8 @@ public class DemoController {
 	@GetMapping("/results/{token}")
 	public String results(@PathVariable String token, Model model) {
 		ResponseEntity<ResponseResult> resResult = this.controller.surveyResults(token);
+		List<Answer> answers = this.controller.getAnswers(token);
+
 		HttpStatus statusCode = resResult.getStatusCode();
 
 		if (statusCode.is4xxClientError()) {
@@ -61,6 +65,7 @@ public class DemoController {
 
 		ResponseResult r = resResult.getBody();
 		model.addAttribute("result", r);
+		model.addAttribute("answers", answers);
 
 		return "results";
 	}
