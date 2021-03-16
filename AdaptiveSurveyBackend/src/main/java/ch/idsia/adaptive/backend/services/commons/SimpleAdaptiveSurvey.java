@@ -118,7 +118,7 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 					HSQ += HSqi * Pqi; // conditional entropy
 				}
 
-				logger.debug("question={} skill={} with HSQ={}", question.getName(), skill.getName(), HSQ);
+//				logger.debug("question={} skill={} with HSQ={}", question.getName(), skill.getName(), HSQ);
 
 				meanInfoGain += Math.max(0, HSQ - HS) / skills.size();
 			}

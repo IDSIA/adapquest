@@ -20,6 +20,20 @@
 		<maven.compiler.target>11</maven.compiler.target>
 	</properties>
 
+	<build>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources/</directory>
+				<targetPath>.</targetPath>
+				<includes>
+					<include>**/*.txt</include>
+					<include>**/*.csv</include>
+					<include>**/*.yaml</include>
+				</includes>
+			</testResource>
+		</testResources>
+	</build>
+
 	<dependencies>
 		<dependency>
 			<groupId>ch.idsia.adaptive</groupId>

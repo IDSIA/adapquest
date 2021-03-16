@@ -27,15 +27,16 @@ Configuration:
           max: 10
 
   Loggers:
-    logger:
+    Logger:
       - name: ch.idsia
-        level: debug
         additivity: false
         AppenderRef:
           - ref: LogToConsole
+            level: info
           - ref: LogToRollingFile
+            level: info
 
     Root:
-      level: info
       AppenderRef:
-        ref: LogToConsole
+        - ref: LogToConsole
+          level: info
