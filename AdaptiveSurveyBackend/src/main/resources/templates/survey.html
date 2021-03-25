@@ -18,14 +18,14 @@
         <input th:name="questionId" th:value="${question.id}" type="hidden">
         <div class="jumbotron">
             <div>
-                <h1 th:text="'Question' + ${question.id}"></h1>
+                <h1 th:text="'Q' + ${question.id}"></h1>
                 <p th:text="${question.explanation}"></p>
                 <p th:text="${question.question}"></p>
 
                 <ul>
                     <li th:each="answer : ${question.answers}" th:with="aid = ${'a'+answer.id}">
-                        <input th:id="aid" th:name="answerId" th:value="${answer.id}" type="radio"/>
-                        <label th:for="aid" th:text="${answer.text}"></label>
+                        <input th:id="${aid}" th:name="answerId" th:value="${answer.id}" type="radio"/>
+                        <label th:for="${aid}" th:text="${answer.text}"></label>
                     </li>
                 </ul>
             </div>
