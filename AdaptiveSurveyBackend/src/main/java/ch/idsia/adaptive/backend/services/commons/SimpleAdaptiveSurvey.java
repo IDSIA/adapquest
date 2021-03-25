@@ -120,7 +120,7 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 
 //				logger.debug("question={} skill={} with HSQ={}", question.getName(), skill.getName(), HSQ);
 
-				meanInfoGain += Math.max(0, HSQ - HS) / skills.size();
+				meanInfoGain += Math.max(0, HS - HSQ) / skills.size();
 			}
 
 			logger.debug("question={} with average infoGain={}", question.getName(), meanInfoGain);

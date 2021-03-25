@@ -185,6 +185,10 @@ public abstract class AbstractSurvey {
 		if (!answered && currentQuestion != null)
 			return currentQuestion;
 
+		if (isFinished()) {
+			throw new SurveyException("Survey is finished");
+		}
+
 		Question nextQuestion;
 		if (!mandatoryQuestions.isEmpty()) {
 			// first empty the mandatory questions...

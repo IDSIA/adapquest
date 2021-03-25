@@ -59,6 +59,10 @@ public class AdaptiveSurvey extends AbstractSurvey {
 			return false;
 		}
 
+		if (this.questionsDone.size() < survey.getQuestionTotalMin()) {
+			return true;
+		}
+
 		if (entropy > survey.getEntropyUpperThreshold()) {
 			// skill entropy level achieved
 			logger.debug("skill={} has too low entropy={} (upper={})", skill.getName(), entropy, survey.getEntropyUpperThreshold());
@@ -82,7 +86,7 @@ public class AdaptiveSurvey extends AbstractSurvey {
 			return true;
 		}
 
-		if (questionsDone.size() > survey.getQuestionTotalMax()) {
+		if (questionsDone.size() >= survey.getQuestionTotalMax()) {
 			// we made too many questions
 			logger.debug("survey finished with too many questions (done={}, max={})", questionsDone.size(), survey.getQuestionTotalMax());
 			return true;
@@ -156,7 +160,7 @@ public class AdaptiveSurvey extends AbstractSurvey {
 					HSQ += HSqi * Pqi; // conditional entropy
 				}
 
-				final double infoGain = Math.max(0, HSQ - HS);
+				final double infoGain = Math.max(0, HS - HSQ);
 
 				logger.debug("skill={} question={} with average infoGain={}", skill.getName(), question.getName(), infoGain);
 
