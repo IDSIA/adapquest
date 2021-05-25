@@ -16,11 +16,9 @@
 
     <div class="jumbotron">
         <div>
-            <ul>
-                <li>Start: <span th:text="${result.data}"></span></li>
-                <li>Length: <span th:text="${result.seconds}+' second(s)'"></span></li>
-                <li>Answers: <span th:text="${result.state.totalAnswers}"></span></li>
-            </ul>
+            <div>Start: <span th:text="${result.data}"></span></div>
+            <div>Length: <span th:text="${result.seconds}+' second(s)'"></span></div>
+            <div>Answers: <span th:text="${result.state.totalAnswers}"></span></div>
         </div>
 
         <div class="charts">

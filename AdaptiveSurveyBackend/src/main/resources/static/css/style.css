@@ -4,11 +4,14 @@ label {
 
 svg {
     background-color: white;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: .25rem;
 }
 
 .charts {
     display: flex;
     justify-content: space-between;
+    margin: 1em;
 }
 
 .tooltip {
@@ -16,4 +19,55 @@ svg {
     border: 1px solid black;
     padding: 10px;
     opacity: 0;
+}
+
+.code {
+    font-family: monospace;
+    background-color: #cccccc;
+    padding: 2pt;
+}
+
+.answers {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+.radio-custom {
+    display: none;
+}
+
+.radio-custom-label {
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: .25rem;
+    background-color: white;
+    padding: 2pt;
+    min-width: 5em;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.radio-custom-label:hover {
+    background-color: dodgerblue;
+}
+
+.radio-custom:checked ~ label {
+    background-color: dodgerblue;
+    color: white;
+}
+
+.submit {
+    text-align: center;
+    margin: 1em;
+}
+
+.submit > input {
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: .25rem;
+    padding: 0.5em 1em;
+}
+
+.submit > input:hover {
+    background-color: dodgerblue;
 }

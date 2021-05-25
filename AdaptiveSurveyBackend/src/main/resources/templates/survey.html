@@ -22,20 +22,20 @@
                 <p th:text="${question.explanation}"></p>
                 <p th:text="${question.question}"></p>
 
-                <ul>
-                    <li th:each="answer : ${question.answers}" th:with="aid = ${'a'+answer.id}">
-                        <input th:id="${aid}" th:name="answerId" th:value="${answer.id}" type="radio"/>
-                        <label th:for="${aid}" th:text="${answer.text}"></label>
-                    </li>
-                </ul>
+                <div class="answers">
+                    <div class="answer" th:each="answer : ${question.answers}" th:with="aid = ${'a'+answer.id}">
+                        <input class="radio-custom" th:id="${aid}" th:name="answerId" th:value="${answer.id}"
+                               type="radio"/>
+                        <label class="radio-custom-label" th:for="${aid}" th:text="${answer.text}"></label>
+                    </div>
+                </div>
             </div>
-            <input th:value="'▶'" type="submit"/>
+
+            <div class="submit">
+                <input th:value="'▶'" type="submit"/>
+            </div>
 
             <div th:if="${state != null && show}">
-                <ul>
-                    <li>Answers: <span th:text="${state.totalAnswers}"></span></li>
-                </ul>
-
                 <div class="charts">
                     <div id="chart-entropy"></div>
                     <div id="chart-distribution"></div>
@@ -44,10 +44,11 @@
                 <script src="https://d3js.org/d3.v4.js"></script>
                 <script th:src="@{/js/charts.js}"></script>
 
-                <div th:replace="fragments/layout :: footer"></div>
             </div>
         </div>
     </form>
+
+    <div th:replace="fragments/layout :: footer"></div>
 </div>
 
 </body>

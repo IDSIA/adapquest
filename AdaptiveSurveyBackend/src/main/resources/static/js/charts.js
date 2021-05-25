@@ -1,6 +1,6 @@
 const colors = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00', '#ffff33', '#a65628', '#f781bf', '#999999']
 
-const margin = {top: 10, right: 30, bottom: 30, left: 60};
+const margin = {top: 20, right: 30, bottom: 60, left: 60};
 const width = 500 - margin.left - margin.right;
 const height = 400 - margin.top - margin.bottom;
 
@@ -38,7 +38,7 @@ d3.json(
             .entries(entropies);
 
         let x = d3.scaleLinear()
-            .domain([0, d3.max(data, (d) => d.totalAnswers + 1)])
+            .domain([0, d3.max([1, d3.max(data, (d) => d.totalAnswers)])])
             .range([0, width]);
         svge.append('g')
             .attr('transform', `translate(0, ${height})`)
@@ -93,7 +93,10 @@ d3.json(
 
         svgd.append('g')
             .attr('transform', `translate(0, ${height})`)
-            .call(d3.axisBottom(x));
+            .call(d3.axisBottom(x))
+            .selectAll("text")
+            .attr("transform", "translate(-10,0)rotate(-35)")
+            .style("text-anchor", "end");
 
         let y = d3.scaleLinear()
             .domain([0, 1])
