@@ -1,6 +1,8 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
 import ch.idsia.adaptive.backend.persistence.utils.ListStringConverter;
+import ch.idsia.adaptive.backend.services.commons.scoring.precise.ScoringFunctionBayesianMode;
+import ch.idsia.adaptive.backend.services.commons.scoring.precise.ScoringFunctionExpectedEntropy;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -82,6 +84,17 @@ public class Survey {
 	 * Only available when using <code>adaptive=true</code>.
 	 */
 	private Boolean isSimple = false;
+
+	/**
+	 * Possible scoring functions are:
+	 * <ul>
+	 *     <li><code>mode</code> ({@link ScoringFunctionBayesianMode})</li>
+	 *     <li><code>entropy</code> ({@link ScoringFunctionExpectedEntropy})</li>
+	 * </ul>
+	 * If the name is not valid, <code>entropy</code> will be used.
+	 * Only available when using <code>adaptive=true</code>.
+	 */
+	private String scoring = "entropy";
 
 	/**
 	 * Minimum number of questions to be asked for each skill.

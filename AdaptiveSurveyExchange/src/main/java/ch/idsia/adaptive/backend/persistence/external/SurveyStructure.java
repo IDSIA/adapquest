@@ -64,6 +64,17 @@ public class SurveyStructure {
 	public Boolean simple = false;
 
 	/**
+	 * Possible scoring functions are:
+	 * <ul>
+	 *     <li><code>mode</code></li>
+	 *     <li><code>entropy</code> (default)</li>
+	 * </ul>
+	 * If the name is not valid, <code>entropy</code> will be used.
+	 * Only available when using <code>adaptive=true</code>.
+	 */
+	private String scoring = "entropy";
+
+	/**
 	 * Minimum number of question for each skill.
 	 */
 	public Integer questionPerSkillMin = 0;

@@ -1,9 +1,10 @@
-package ch.idsia.adaptive.backend.services.commons;
+package ch.idsia.adaptive.backend.services.commons.agents;
 
 import ch.idsia.adaptive.backend.persistence.model.Question;
 import ch.idsia.adaptive.backend.persistence.model.Skill;
 import ch.idsia.adaptive.backend.persistence.model.Survey;
-import ch.idsia.crema.entropy.BayesianEntropy;
+import ch.idsia.adaptive.backend.services.commons.SurveyException;
+import ch.idsia.adaptive.backend.services.commons.scoring.Scoring;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
@@ -19,21 +20,15 @@ import java.util.Map;
  * Project: AdaptiveSurvey
  * Date:    14.12.2020 17:17
  */
-public class SimpleAdaptiveSurvey extends AbstractSurvey {
-	private static final Logger logger = LogManager.getLogger(SimpleAdaptiveSurvey.class);
+public class AgentPreciseAdaptiveSimple extends AgentPrecise {
+	private static final Logger logger = LogManager.getLogger(AgentPreciseAdaptiveSimple.class);
 
-	private Boolean finishedByLowInfoGain = false;
-
-	public SimpleAdaptiveSurvey(Survey model, Long seed) {
-		super(model, seed);
-	}
-
-	public Boolean getFinishedByLowInfoGain() {
-		return finishedByLowInfoGain;
+	public AgentPreciseAdaptiveSimple(Survey model, Long seed, Scoring<BayesianFactor> scoring) {
+		super(model, seed, scoring);
 	}
 
 	@Override
-	public boolean isFinished() {
+	public boolean checkStop() {
 		if (questions.isEmpty()) {
 			// we don't have any more question
 			logger.debug("survey finished with no more available questions");
@@ -56,8 +51,8 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 		for (Skill skill : skills) {
 			Integer S = skill.getVariable();
 
-			final BayesianFactor pS = inference.query(network, observations, S);
-			final double HS = BayesianEntropy.H(pS);
+			final BayesianFactor pS = inference.query(model, observations, S);
+			final double HS = scoring.score(pS);
 
 			h += HS;
 		}
@@ -80,7 +75,7 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 	}
 
 	@Override
-	public Question findNext() throws SurveyException {
+	public Question nextQuestion() throws SurveyException {
 		// find the question with the optimal entropy
 		Question nextQuestion = null;
 		double maxIG = -Double.MAX_VALUE;
@@ -88,16 +83,16 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 		Map<Skill, Double> HSs = new HashMap<>();
 		for (Skill skill : skills) {
 			final Integer S = skill.getVariable();
-			final BayesianFactor PS = inference.query(network, observations, S);
-			final double HS = BayesianEntropy.H(PS); // skill entropy
+			final BayesianFactor PS = inference.query(model, observations, S);
+			final double HS = scoring.score(PS); // skill score
 			HSs.put(skill, HS);
 		}
 
 		for (Question question : questions) {
 			final Integer Q = question.getVariable();
-			final int size = network.getSize(Q);
+			final int size = model.getSize(Q);
 
-			final BayesianFactor PQ = inference.query(network, observations, Q);
+			final BayesianFactor PQ = inference.query(model, observations, Q);
 
 			double meanInfoGain = 0;
 			for (Skill skill : skills) {
@@ -110,9 +105,9 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 					final TIntIntMap qi = new TIntIntHashMap(observations);
 					qi.put(Q, i);
 
-					final BayesianFactor PSqi = inference.query(network, qi, S);
+					final BayesianFactor PSqi = inference.query(model, qi, S);
 					final double Pqi = PQ.getValue(i);
-					double HSqi = BayesianEntropy.H(PSqi);
+					double HSqi = scoring.score(PSqi);
 					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
 
 					HSQ += HSqi * Pqi; // conditional entropy
@@ -136,7 +131,7 @@ public class SimpleAdaptiveSurvey extends AbstractSurvey {
 			double eps = 1e-9;
 			if (maxIG <= eps) {
 				logger.info("InfoGain below threshold: maxIG={} eps={}", maxIG, eps);
-				finishedByLowInfoGain = true;
+				finished = true;
 				throw new SurveyException("Finished");
 			}
 		}

@@ -76,9 +76,10 @@ public class TestInitializationService {
 	@Test
 	public void testLoadFromStructureWithModelData() {
 		final ImportStructure structure = SurveyStructureRepository.structure2S2Q("test");
-		is.parseSurveyStructure(structure);
+		is.parseSurvey(structure);
 
 		final Survey survey = surveys.findByAccessCode("test");
+		assertNotNull(survey);
 		survey.getQuestions().forEach(q -> {
 					assertTrue(q.getVariable() >= 0);
 					assertTrue(q.getSkill().getVariable() >= 0);
