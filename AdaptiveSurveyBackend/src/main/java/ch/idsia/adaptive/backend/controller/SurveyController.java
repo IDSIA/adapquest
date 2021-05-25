@@ -285,14 +285,14 @@ public class SurveyController {
 					.setIsCorrect(qa.getIsCorrect())
 					.setQuestion(qa.getQuestion());
 
-			answer = answers.save(answer);
-			manager.checkAnswer(data, answer);
+			final boolean b = manager.checkAnswer(data, answer);
+			if (b) {
+				answer = answers.save(answer);
+				sessions.setLastAnswerTime(session);
 
-			sessions.setLastAnswerTime(session);
-
-			State s = manager.getState(data).setSession(session);
-
-			statuses.save(s);
+				State s = manager.getState(data).setSession(session);
+				statuses.save(s);
+			}
 
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (SessionException e) {

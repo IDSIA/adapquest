@@ -16,18 +16,18 @@
 
     <div class="jumbotron">
         <div>
-            <ul>
-                <li>Start: <span th:text="${result.data}"></span></li>
-                <li>Length: <span th:text="${result.seconds}+' second(s)'"></span></li>
-                <li>Answers: <span th:text="${result.state.totalAnswers}"></span></li>
-                <li th:each="key : ${result.state.skills}">
-                    <span th:text="${key.name}"></span>:&nbsp;<span
-                        th:text="${#numbers.formatDecimal(result.state.skillDistribution.get(key.name)[1], 1, 2)}+' '"></span>
-                </li>
-            </ul>
+            <div>Start: <span th:text="${result.data}"></span></div>
+            <div>Length: <span th:text="${result.seconds}+' second(s)'"></span></div>
+            <div>Answers: <span th:text="${result.state.totalAnswers}"></span></div>
         </div>
+
+        <div class="charts">
+            <div id="chart-entropy"></div>
+            <div id="chart-distribution"></div>
+        </div>
+
         <div>
-            Risposte:
+            Answers:
             <ul>
                 <li th:each="answer : ${answers}">
                     D: <span th:text="${answer.getQuestion().getQuestion()}"></span>
@@ -36,6 +36,8 @@
                 </li>
             </ul>
         </div>
+        <script src="https://d3js.org/d3.v4.js"></script>
+        <script th:src="@{/js/charts.js}"></script>
     </div>
 
     <div th:replace="fragments/layout :: footer"></div>

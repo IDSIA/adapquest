@@ -22,31 +22,29 @@
                 <p th:text="${question.explanation}"></p>
                 <p th:text="${question.question}"></p>
 
-                <ul>
-                    <li th:each="answer : ${question.answers}" th:with="aid = ${'a'+answer.id}">
-                        <input th:id="${aid}" th:name="answerId" th:value="${answer.id}" type="radio"/>
-                        <label th:for="${aid}" th:text="${answer.text}"></label>
-                    </li>
-                </ul>
+                <div class="answers">
+                    <div class="answer" th:each="answer : ${question.answers}" th:with="aid = ${'a'+answer.id}">
+                        <input class="radio-custom" th:id="${aid}" th:name="answerId" th:value="${answer.id}"
+                               type="radio"/>
+                        <label class="radio-custom-label" th:for="${aid}" th:text="${answer.text}"></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="submit">
+                <input th:value="'▶'" type="submit"/>
             </div>
 
             <div th:if="${state != null && show}">
-                <h3>State</h3>
-                <ul>
-                    <li>Created: <span th:text="${state.creationTime}"></span></li>
-                    <li>Answers: <span th:text="${state.totalAnswers}"></span></li>
-                    <li th:each="key : ${state.skills}">
-                        Skill: <span th:text="${key.name}"></span>
-                        <br/>
-                        Distribution: <span th:each="d : ${state.skillDistribution.get(key.name)}"
-                                            th:text="${#numbers.formatDecimal(d, 1, 2)}+' '"></span>
-                        <br/>
-                        Entropy: <span
-                            th:text="${#numbers.formatDecimal(state.entropyDistribution.get(key.name), 1, 2)}"></span>
-                    </li>
-                </ul>
+                <div class="charts">
+                    <div id="chart-entropy"></div>
+                    <div id="chart-distribution"></div>
+                </div>
+
+                <script src="https://d3js.org/d3.v4.js"></script>
+                <script th:src="@{/js/charts.js}"></script>
+
             </div>
-            <input th:value="'▶'" type="submit"/>
         </div>
     </form>
 
