@@ -1,3 +1,8 @@
 label {
     min-width: 10em;
 }
+
+svg {
+    background-color: white;
+    width: 460px;
+}

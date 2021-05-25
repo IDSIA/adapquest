@@ -45,12 +45,16 @@
                             th:text="${#numbers.formatDecimal(state.entropyDistribution.get(key.name), 1, 2)}"></span>
                     </li>
                 </ul>
+                <div id="chart-entropy"></div>
+
+                <script src="https://d3js.org/d3.v4.js"></script>
+                <script th:src="@{/js/charts.js}"></script>
+
+                <div th:replace="fragments/layout :: footer"></div>
             </div>
             <input th:value="'▶'" type="submit"/>
         </div>
     </form>
-
-    <div th:replace="fragments/layout :: footer"></div>
 </div>
 
 </body>
