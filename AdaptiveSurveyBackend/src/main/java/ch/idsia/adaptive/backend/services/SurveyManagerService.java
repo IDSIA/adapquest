@@ -2,7 +2,12 @@ package ch.idsia.adaptive.backend.services;
 
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.*;
-import ch.idsia.adaptive.backend.services.commons.*;
+import ch.idsia.adaptive.backend.services.commons.SurveyException;
+import ch.idsia.adaptive.backend.services.commons.agents.*;
+import ch.idsia.adaptive.backend.services.commons.scoring.Scoring;
+import ch.idsia.adaptive.backend.services.commons.scoring.precise.ScoringFunctionBayesianMode;
+import ch.idsia.adaptive.backend.services.commons.scoring.precise.ScoringFunctionExpectedEntropy;
+import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +26,7 @@ public class SurveyManagerService {
 
 	private final SurveyRepository surveyRepository;
 
-	private final Map<String, AbstractSurvey> activeSurveys = new ConcurrentHashMap<>();
+	private final Map<String, Agent> activeSurveys = new ConcurrentHashMap<>();
 
 	@Autowired
 	public SurveyManagerService(SurveyRepository surveyRepository) {
@@ -42,24 +47,32 @@ public class SurveyManagerService {
 
 		Long seed = data.getStartTime().toEpochSecond(OffsetDateTime.now().getOffset());
 
-		AbstractSurvey content;
+		// TODO: allow also imprecise agents
+		AgentPrecise agent;
 
 		if (survey.getIsAdaptive()) {
+			Scoring<BayesianFactor> scoring;
+
+			if (survey.getScoring().equals("mode"))
+				scoring = new ScoringFunctionBayesianMode();
+			else
+				scoring = new ScoringFunctionExpectedEntropy();
+
 			if (survey.getIsSimple()) {
-				content = new SimpleAdaptiveSurvey(survey, seed);
+				agent = new AgentPreciseAdaptiveSimple(survey, seed, scoring);
 			} else {
-				content = new AdaptiveSurvey(survey, seed);
+				agent = new AgentPreciseAdaptive(survey, seed, scoring);
 			}
 		} else {
-			content = new NonAdaptiveSurvey(survey, seed);
+			agent = new AgentPreciseNonAdaptive(survey, seed);
 		}
-		content.addSkills(survey.getSkills());
-		content.addQuestions(survey.getQuestions());
+		agent.addSkills(survey.getSkills());
+		agent.addQuestions(survey.getQuestions());
 
-		activeSurveys.put(data.getToken(), content);
+		activeSurveys.put(data.getToken(), agent);
 	}
 
-	public AbstractSurvey getSurvey(SurveyData data) {
+	public Agent getSurvey(SurveyData data) {
 		String token = data.getToken();
 		return Optional.ofNullable(activeSurveys.get(token))
 				.orElseThrow(() -> new IllegalArgumentException("Cannot load status: no model for token=" + token));
@@ -70,7 +83,7 @@ public class SurveyManagerService {
 	}
 
 	public boolean isFinished(SurveyData data) {
-		return getSurvey(data).isFinished();
+		return getSurvey(data).stop();
 	}
 
 	public void checkAnswer(SurveyData data, Answer answer) {

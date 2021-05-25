@@ -1,13 +1,14 @@
-package ch.idsia.adaptive.backend.services.commons;
+package ch.idsia.adaptive.backend.services.commons.agents;
 
-import ch.idsia.adaptive.backend.persistence.model.*;
-import ch.idsia.crema.entropy.BayesianEntropy;
-import ch.idsia.crema.factor.bayesian.BayesianFactor;
-import ch.idsia.crema.inference.Inference;
-import ch.idsia.crema.inference.bp.LoopyBeliefPropagation;
-import ch.idsia.crema.model.graphical.BayesianNetwork;
+import ch.idsia.adaptive.backend.persistence.model.Answer;
+import ch.idsia.adaptive.backend.persistence.model.Question;
+import ch.idsia.adaptive.backend.persistence.model.Skill;
+import ch.idsia.adaptive.backend.persistence.model.Survey;
+import ch.idsia.adaptive.backend.services.commons.SurveyException;
+import ch.idsia.adaptive.backend.services.commons.inference.InferenceEngine;
+import ch.idsia.adaptive.backend.services.commons.scoring.Scoring;
+import ch.idsia.crema.factor.GenericFactor;
 import ch.idsia.crema.model.graphical.DAGModel;
-import ch.idsia.crema.model.io.uai.BayesUAIParser;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import lombok.Getter;
@@ -24,8 +25,8 @@ import static ch.idsia.adaptive.backend.config.Consts.NO_SKILL;
  * Project: AdaptiveSurvey
  * Date:    14.12.2020 17:18
  */
-public abstract class AbstractSurvey {
-	private static final Logger logger = LogManager.getLogger(AbstractSurvey.class);
+public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
+	private static final Logger logger = LogManager.getLogger(AgentGeneric.class);
 
 	/**
 	 * Reference survey.
@@ -66,11 +67,11 @@ public abstract class AbstractSurvey {
 	/**
 	 * Model associated with this survey.
 	 */
-	protected final BayesianNetwork network;
+	protected DAGModel<F> model;
 	/**
 	 * Inference engine.
 	 */
-	protected final Inference<DAGModel<BayesianFactor>, BayesianFactor> inference;
+	protected InferenceEngine<F> inference;
 	/**
 	 * Evidence map of past answers.
 	 */
@@ -80,50 +81,15 @@ public abstract class AbstractSurvey {
 	protected boolean answered = false;
 	@Getter
 	protected Question currentQuestion = null;
+	@Getter
+	protected Boolean finished = false;
 
-	public AbstractSurvey(Survey survey, Long seed) {
+	protected final Scoring<F> scoring;
+
+	public AgentGeneric(Survey survey, Long seed, Scoring<F> scoring) {
 		this.survey = survey;
 		this.random = new Random(seed);
-
-		final List<String> lines = Arrays.stream(survey.getModelData().split("\n")).collect(Collectors.toList());
-
-		this.network = new BayesUAIParser(lines).parse();
-		this.inference = new LoopyBeliefPropagation<>();
-	}
-
-	public State getState() {
-		final Map<String, Skill> sks = new HashMap<>();
-		final Map<String, double[]> state = new HashMap<>();
-		final Map<String, Double> entropy = new HashMap<>();
-		final Map<String, Long> qps = new HashMap<>();
-		final Set<String> skillCompleted = new HashSet<>();
-
-		for (Skill skill : skills) {
-			String s = skill.getName();
-
-			final BayesianFactor f = inference.query(network, observations, skill.getVariable());
-			final double h = BayesianEntropy.H(f);
-
-			sks.put(skill.getName(), skill);
-			state.put(s, f.getData());
-			entropy.put(s, h);
-
-			if (questionsDonePerSkill.containsKey(skill)) {
-				final long qdps = questionsDonePerSkill.get(skill).size();
-				qps.put(s, qdps);
-
-				if (qdps > survey.getQuestionPerSkillMax())
-					skillCompleted.add(s);
-			}
-		}
-
-		return new State()
-				.setSkills(sks)
-				.setState(state)
-				.setEntropy(entropy)
-				.setQuestionsPerSkill(qps)
-				.setSkillCompleted(skillCompleted)
-				.setTotalAnswers(questionsDone.size());
+		this.scoring = scoring;
 	}
 
 	public void addSkills(Set<Skill> skills) {
@@ -148,9 +114,7 @@ public abstract class AbstractSurvey {
 		this.questions.sort(Comparator.comparingInt(Question::getVariable));
 	}
 
-	public abstract boolean isFinished();
-
-	public void register(Question q) {
+	private void register(Question q) {
 		if (q == null) {
 			currentQuestion = null;
 			return;
@@ -174,6 +138,16 @@ public abstract class AbstractSurvey {
 		logger.debug("next question is skill={} question={}", s.getName(), q.getName());
 	}
 
+	@Override
+	public boolean stop() {
+		if (finished)
+			return true;
+
+		finished = checkStop();
+		return finished;
+	}
+
+	@Override
 	public void check(Answer answer) {
 		final Integer variable = answer.getQuestion().getVariable();
 		final Integer state = answer.getQuestionAnswer().getState();
@@ -181,28 +155,36 @@ public abstract class AbstractSurvey {
 		answered = true;
 	}
 
+	@Override
 	public Question next() throws SurveyException {
 		if (!answered && currentQuestion != null)
 			return currentQuestion;
 
-		if (isFinished()) {
+		if (finished) {
 			throw new SurveyException("Survey is finished");
 		}
 
-		Question nextQuestion;
-		if (!mandatoryQuestions.isEmpty()) {
-			// first empty the mandatory questions...
-			nextQuestion = mandatoryQuestions.getFirst();
+		Question question;
+		if (mandatoryQuestions.isEmpty()) {
+			// find the next question using the specific algorithms...
+			question = nextQuestion();
 		} else {
-			// ...then find the next question using the specific algorithms
-			nextQuestion = findNext();
+			// ... else first empty the mandatory questions
+			question = mandatoryQuestions.getFirst();
 		}
 
-		// register the chosen question as nextQuestion
-		register(nextQuestion);
+		// register the chosen question as the next question
+		register(question);
 
-		return nextQuestion;
+		return question;
 	}
+
+	/**
+	 * Override this method to implement your design for the stop criteria.
+	 *
+	 * @return true if the survery is completed, otherwise false
+	 */
+	protected abstract boolean checkStop();
 
 	/**
 	 * Override this method to implement your design for the adaptive search of the next {@link Question} to ask. See
@@ -212,5 +194,6 @@ public abstract class AbstractSurvey {
 	 * @return a valid {@link Question} not null
 	 * @throws SurveyException you can throw this if something bad happens
 	 */
-	protected abstract Question findNext() throws SurveyException;
+	protected abstract Question nextQuestion() throws SurveyException;
+
 }

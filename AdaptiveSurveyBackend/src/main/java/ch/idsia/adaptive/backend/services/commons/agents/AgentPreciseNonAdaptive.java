@@ -1,4 +1,4 @@
-package ch.idsia.adaptive.backend.services.commons;
+package ch.idsia.adaptive.backend.services.commons.agents;
 
 import ch.idsia.adaptive.backend.persistence.model.Question;
 import ch.idsia.adaptive.backend.persistence.model.Survey;
@@ -8,14 +8,14 @@ import ch.idsia.adaptive.backend.persistence.model.Survey;
  * Project: AdaptiveSurvey
  * Date:    14.12.2020 17:18
  */
-public class NonAdaptiveSurvey extends AbstractSurvey {
+public class AgentPreciseNonAdaptive extends AgentPrecise {
 
-	public NonAdaptiveSurvey(Survey model, Long seed) {
-		super(model, seed);
+	public AgentPreciseNonAdaptive(Survey model, Long seed) {
+		super(model, seed, (f) -> 0);
 	}
 
 	@Override
-	public Question findNext() {
+	public Question nextQuestion() {
 		Question nextQuestion;
 		if (survey.getQuestionsAreRandom()) {
 			int i = random.nextInt(questions.size());
@@ -28,7 +28,8 @@ public class NonAdaptiveSurvey extends AbstractSurvey {
 	}
 
 	@Override
-	public boolean isFinished() {
+	public boolean checkStop() {
 		return questions.isEmpty();
 	}
+
 }

@@ -1,8 +1,10 @@
-package ch.idsia.adaptive.backend.services.commons;
+package ch.idsia.adaptive.backend.services.commons.agents;
 
 import ch.idsia.adaptive.backend.persistence.model.Question;
 import ch.idsia.adaptive.backend.persistence.model.Skill;
 import ch.idsia.adaptive.backend.persistence.model.Survey;
+import ch.idsia.adaptive.backend.services.commons.SurveyException;
+import ch.idsia.adaptive.backend.services.commons.scoring.Scoring;
 import ch.idsia.crema.entropy.BayesianEntropy;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import gnu.trove.map.TIntIntMap;
@@ -17,15 +19,15 @@ import java.util.Collection;
  * Project: AdaptiveSurvey
  * Date:    14.12.2020 17:17
  */
-public class AdaptiveSurvey extends AbstractSurvey {
-	private static final Logger logger = LogManager.getLogger(AdaptiveSurvey.class);
+public class AgentPreciseAdaptive extends AgentPrecise {
+	private static final Logger logger = LogManager.getLogger(AgentPreciseAdaptive.class);
 
-	public AdaptiveSurvey(Survey model, Long seed) {
-		super(model, seed);
+	public AgentPreciseAdaptive(Survey survey, Long seed, Scoring<BayesianFactor> scoring) {
+		super(survey, seed, scoring);
 	}
 
 	public boolean isSkillValid(Skill skill) {
-		final BayesianFactor PS = inference.query(network, observations, skill.getVariable());
+		final BayesianFactor PS = inference.query(model, observations, skill.getVariable());
 		final double HS = BayesianEntropy.H(PS); // skill entropy
 		return isSkillValid(skill, HS);
 	}
@@ -79,7 +81,7 @@ public class AdaptiveSurvey extends AbstractSurvey {
 	}
 
 	@Override
-	public boolean isFinished() {
+	public boolean checkStop() {
 		if (questions.isEmpty()) {
 			// we don't have any more question
 			logger.debug("survey finished with no more available questions");
@@ -102,8 +104,8 @@ public class AdaptiveSurvey extends AbstractSurvey {
 		for (Skill skill : skills) {
 			Integer S = skill.getVariable();
 
-			final BayesianFactor pS = inference.query(network, observations, S);
-			final double HS = BayesianEntropy.H(pS);
+			final BayesianFactor pS = inference.query(model, observations, S);
+			final double HS = scoring.score(pS);
 
 			h += HS;
 		}
@@ -126,15 +128,15 @@ public class AdaptiveSurvey extends AbstractSurvey {
 	}
 
 	@Override
-	public Question findNext() throws SurveyException {
+	public Question nextQuestion() throws SurveyException {
 		// find the question with the optimal entropy
 		Question nextQuestion = null;
 		double maxIG = -Double.MAX_VALUE;
 
 		for (Skill skill : skills) {
 			final Integer S = skill.getVariable();
-			final BayesianFactor PS = inference.query(network, observations, S);
-			final double HS = BayesianEntropy.H(PS); // skill entropy
+			final BayesianFactor PS = inference.query(model, observations, S);
+			final double HS = scoring.score(PS); // skill score
 
 			if (!isSkillValid(skill, HS)) {
 				logger.debug("skill={} is not valid", skill.getName());
@@ -143,8 +145,8 @@ public class AdaptiveSurvey extends AbstractSurvey {
 
 			for (Question question : questionsAvailablePerSkill.get(skill)) {
 				final Integer Q = question.getVariable();
-				final BayesianFactor PQ = inference.query(network, observations, Q);
-				final int size = network.getSize(Q);
+				final BayesianFactor PQ = inference.query(model, observations, Q);
+				final int size = model.getSize(Q);
 
 				double HSQ = 0;
 
@@ -152,9 +154,9 @@ public class AdaptiveSurvey extends AbstractSurvey {
 					final TIntIntMap qi = new TIntIntHashMap(observations);
 					qi.put(Q, i);
 
-					final BayesianFactor PSqi = inference.query(network, qi, S);
+					final BayesianFactor PSqi = inference.query(model, qi, S);
 					final double Pqi = PQ.getValue(i);
-					double HSqi = BayesianEntropy.H(PSqi);
+					double HSqi = scoring.score(PSqi);
 					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
 
 					HSQ += HSqi * Pqi; // conditional entropy
@@ -178,4 +180,5 @@ public class AdaptiveSurvey extends AbstractSurvey {
 
 		return nextQuestion;
 	}
+
 }

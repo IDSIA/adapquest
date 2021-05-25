@@ -7,6 +7,8 @@ import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,21 +28,21 @@ public class State {
 	 */
 	@Convert(converter = MapStringSkillConverter.class)
 	@Column(name = "skills", length = 1023)
-	public Map<String, Skill> skills;
+	public Map<String, Skill> skills = new HashMap<>();
 
 	/**
 	 * Mapping skill name to entropy.
 	 */
 	@Convert(converter = MapStringDoubleConverter.class)
 	@Column(name = "entropy", length = 1023)
-	public Map<String, Double> entropy;
+	public Map<String, Double> entropy = new HashMap<>();
 
 	/**
 	 * If a skill is completed (no more questions) its name should be saved there there.
 	 */
 	@Convert(converter = SetStringConverter.class)
 	@Column(name = "skillCompleted", length = 1023)
-	public Set<String> skillCompleted;
+	public Set<String> skillCompleted = new HashSet<>();
 
 	/**
 	 * Encoded Status saved.
@@ -53,7 +55,7 @@ public class State {
 	 */
 	@Convert(converter = MapStringDoubleArrayConverter.class)
 	@Column(name = "state", length = 1023)
-	public Map<String, double[]> state;
+	public Map<String, double[]> state = new HashMap<>();
 	@Id
 	@GeneratedValue
 	@EqualsAndHashCode.Include
@@ -74,7 +76,7 @@ public class State {
 	 */
 	@Convert(converter = MapStringLongConverter.class)
 	@Column(name = "questionsPerSkill", length = 1023)
-	private Map<String, Long> questionsPerSkill;
+	private Map<String, Long> questionsPerSkill = new HashMap<>();
 
 	/**
 	 * Session associated with this Status.
