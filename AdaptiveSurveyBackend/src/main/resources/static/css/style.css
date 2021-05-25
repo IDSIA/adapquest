@@ -4,5 +4,16 @@ label {
 
 svg {
     background-color: white;
-    width: 460px;
+}
+
+.charts {
+    display: flex;
+    justify-content: space-between;
+}
+
+.tooltip {
+    background-color: white;
+    border: 1px solid black;
+    padding: 10px;
+    opacity: 0;
 }

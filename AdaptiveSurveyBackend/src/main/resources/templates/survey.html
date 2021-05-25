@@ -29,30 +29,23 @@
                     </li>
                 </ul>
             </div>
+            <input th:value="'▶'" type="submit"/>
 
             <div th:if="${state != null && show}">
-                <h3>State</h3>
                 <ul>
-                    <li>Created: <span th:text="${state.creationTime}"></span></li>
                     <li>Answers: <span th:text="${state.totalAnswers}"></span></li>
-                    <li th:each="key : ${state.skills}">
-                        Skill: <span th:text="${key.name}"></span>
-                        <br/>
-                        Distribution: <span th:each="d : ${state.skillDistribution.get(key.name)}"
-                                            th:text="${#numbers.formatDecimal(d, 1, 2)}+' '"></span>
-                        <br/>
-                        Entropy: <span
-                            th:text="${#numbers.formatDecimal(state.entropyDistribution.get(key.name), 1, 2)}"></span>
-                    </li>
                 </ul>
-                <div id="chart-entropy"></div>
+
+                <div class="charts">
+                    <div id="chart-entropy"></div>
+                    <div id="chart-distribution"></div>
+                </div>
 
                 <script src="https://d3js.org/d3.v4.js"></script>
                 <script th:src="@{/js/charts.js}"></script>
 
                 <div th:replace="fragments/layout :: footer"></div>
             </div>
-            <input th:value="'▶'" type="submit"/>
         </div>
     </form>
 </div>

@@ -20,17 +20,16 @@
                 <li>Start: <span th:text="${result.data}"></span></li>
                 <li>Length: <span th:text="${result.seconds}+' second(s)'"></span></li>
                 <li>Answers: <span th:text="${result.state.totalAnswers}"></span></li>
-                <li th:each="key : ${result.state.skills}">
-                    <span th:text="${key.name}"></span>:&nbsp;<span
-                        th:text="${#numbers.formatDecimal(result.state.skillDistribution.get(key.name)[1], 1, 2)}+' '"></span>
-                </li>
             </ul>
         </div>
 
-        <div id="chart-entropy"></div>
+        <div class="charts">
+            <div id="chart-entropy"></div>
+            <div id="chart-distribution"></div>
+        </div>
 
         <div>
-            Risposte:
+            Answers:
             <ul>
                 <li th:each="answer : ${answers}">
                     D: <span th:text="${answer.getQuestion().getQuestion()}"></span>
