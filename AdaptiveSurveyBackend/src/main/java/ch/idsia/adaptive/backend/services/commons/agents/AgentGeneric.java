@@ -136,6 +136,7 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 		currentQuestion = q;
 
 		logger.debug("next question is skill={} question={}", s.getName(), q.getName());
+		answered = false;
 	}
 
 	@Override
@@ -148,11 +149,15 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 	}
 
 	@Override
-	public void check(Answer answer) {
-		final Integer variable = answer.getQuestion().getVariable();
-		final Integer state = answer.getQuestionAnswer().getState();
-		observations.put(variable, state);
-		answered = true;
+	public boolean check(Answer answer) {
+		if (currentQuestion != null && currentQuestion.getVariable().equals(answer.getQuestion().getVariable())) {
+			final Integer variable = answer.getQuestion().getVariable();
+			final Integer state = answer.getQuestionAnswer().getState();
+			observations.put(variable, state);
+			answered = true;
+			return true;
+		}
+		return false;
 	}
 
 	@Override

@@ -21,10 +21,11 @@ public interface Agent {
 	/**
 	 * Checks the answer to the given question.
 	 *
-	 * @param question question to check
-	 * @param answer   answer given
+	 * @param answer answer given
+	 * @return true if the answer was correctly recorded, otherwise (as an example, in case the answer is for the wrong
+	 * question) false.
 	 */
-	void check(Answer answer);
+	boolean check(Answer answer);
 
 	/**
 	 * @return true if stop conditions are met, otherwise false.

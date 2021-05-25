@@ -86,8 +86,8 @@ public class SurveyManagerService {
 		return getSurvey(data).stop();
 	}
 
-	public void checkAnswer(SurveyData data, Answer answer) {
-		getSurvey(data).check(answer);
+	public boolean checkAnswer(SurveyData data, Answer answer) {
+		return getSurvey(data).check(answer);
 	}
 
 	public Question nextQuestion(SurveyData data) throws SurveyException {
