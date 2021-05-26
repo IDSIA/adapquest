@@ -104,7 +104,7 @@ public class DemoController {
 			@PathVariable String token,
 			@RequestParam(required = false) Long questionId,
 			@RequestParam(required = false) Long answerId,
-			@RequestParam(required = false, defaultValue = "false") Boolean show,
+			@RequestParam(required = false, defaultValue = "true") Boolean show,
 			Model model,
 			HttpServletRequest request
 	) {
