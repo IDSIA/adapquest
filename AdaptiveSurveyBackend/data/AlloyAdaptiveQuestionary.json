@@ -1,0 +1,1237 @@
+{
+  "survey": {
+    "language": "en",
+    "description": "<p>This survey intended to be an <u>example</u> of how the adaptive tool works on a real world case scenario. The content and the produced results can only be interpreted in the space of adaptive questionnaires and have no meaning outside of it.</p><p>The project was an internal study based on the prediction of the possible evolution of a mental and psychological state of a person with questions based on its work environment. The data and questions are have in mind a target from Switzerland; it is possible that some details are different in other countries.</p>",
+    "accessCode": "Alloy-Adaptive-Example",
+    "duration": 3600,
+    "adaptive": true,
+    "entropyLowerThreshold": 0.5,
+    "globalMeanEntropyLowerThreshold": 0.5,
+    "questionTotalMin": 5,
+    "questionTotalMax": 20
+  },
+  "skills": [
+    {
+      "name": "target",
+      "variable": 0,
+      "states": [
+        {
+          "name": "000",
+          "value": 0
+        },
+        {
+          "name": "001",
+          "value": 1
+        },
+        {
+          "name": "010",
+          "value": 2
+        },
+        {
+          "name": "011",
+          "value": 3
+        },
+        {
+          "name": "100",
+          "value": 4
+        },
+        {
+          "name": "101",
+          "value": 5
+        },
+        {
+          "name": "110",
+          "value": 6
+        },
+        {
+          "name": "111",
+          "value": 7
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "skill": "target",
+      "question": "Do you consider your gender more aligned with the concept of 'Man' or 'Woman'?",
+      "name": "women",
+      "variable": 1,
+      "answers": [
+        {
+          "text": "Man",
+          "state": 0
+        },
+        {
+          "text": "Woman",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "What is your instruction level?",
+      "name": "education_level",
+      "variable": 4,
+      "answers": [
+        {
+          "text": "Low: no school degree, elementary school, or secondary school degree",
+          "state": 0
+        },
+        {
+          "text": "Medium: high school or professional school degree",
+          "state": 1
+        },
+        {
+          "text": "Tertiary: Scientific formation, advanced professional, university degree",
+          "state": 2
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "What is your age?",
+      "name": "age",
+      "variable": 2,
+      "answers": [
+        {
+          "text": "0 - 25",
+          "state": 0
+        },
+        {
+          "text": "26 - 35",
+          "state": 1
+        },
+        {
+          "text": "35 - 45",
+          "state": 2
+        },
+        {
+          "text": "46 - 55",
+          "state": 3
+        },
+        {
+          "text": "55+",
+          "state": 4
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Your first nationality is Switzerland?",
+      "name": "swiss",
+      "variable": 3,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 1
+        },
+        {
+          "text": "No",
+          "state": 0
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "What is the region your current live in?",
+      "name": "region",
+      "variable": 14,
+      "answers": [
+        {
+          "text": "Lemano region (VD, VS, GE)",
+          "state": 0
+        },
+        {
+          "text": "Espace Mittelland (BE, FR, SO, NE, JU)",
+          "state": 1
+        },
+        {
+          "text": "Northwestern Switzerland (BS, BL, AG)",
+          "state": 2
+        },
+        {
+          "text": "Zurich area (ZH)",
+          "state": 3
+        },
+        {
+          "text": "Eastern Switzerland (GL, SH, AR, AI, SG, GR, TG)",
+          "state": 5
+        },
+        {
+          "text": "Central Switzerland (LU, UR, SZ, OW, NW, ZG)",
+          "state": 4
+        },
+        {
+          "text": "Southern Switzerland (TI)",
+          "state": 6
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Are you married or with a registered partner?",
+      "name": "married",
+      "variable": 10,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 1
+        },
+        {
+          "text": "No",
+          "state": 0
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "How many children under the age of 17 do you have?",
+      "name": "kids",
+      "variable": 11,
+      "answers": [
+        {
+          "text": "0",
+          "state": 0
+        },
+        {
+          "text": "1",
+          "state": 1
+        },
+        {
+          "text": "2",
+          "state": 2
+        },
+        {
+          "text": "3+",
+          "state": 3
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "What is the age of your youngest child? Consider only those under the age of 17.",
+      "name": "age_kids",
+      "variable": 12,
+      "answers": [
+        {
+          "text": "0-6",
+          "state": 0
+        },
+        {
+          "text": "6-17",
+          "state": 1
+        },
+        {
+          "text": "None",
+          "state": 2
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "What is you Body Mass Index (BMI)?",
+      "name": "BMI",
+      "variable": 9,
+      "answers": [
+        {
+          "text": "10-20",
+          "state": 0
+        },
+        {
+          "text": "21-25",
+          "state": 1
+        },
+        {
+          "text": "26-30",
+          "state": 2
+        },
+        {
+          "text": "31-100",
+          "state": 3
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "How often do you usually experience the emotion \"Joy\"?",
+      "name": "joy",
+      "variable": 19,
+      "answers": [
+        {
+          "text": "0 - Never",
+          "state": 0
+        },
+        {
+          "text": "1",
+          "state": 1
+        },
+        {
+          "text": "2",
+          "state": 2
+        },
+        {
+          "text": "3",
+          "state": 3
+        },
+        {
+          "text": "4",
+          "state": 4
+        },
+        {
+          "text": "5",
+          "state": 5
+        },
+        {
+          "text": "6",
+          "state": 6
+        },
+        {
+          "text": "7",
+          "state": 7
+        },
+        {
+          "text": "8",
+          "state": 8
+        },
+        {
+          "text": "9",
+          "state": 9
+        },
+        {
+          "text": "10 - Always",
+          "state": 10
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "How often do you usually experience the emotion \"Anger\"?",
+      "name": "noanger",
+      "variable": 21,
+      "answers": [
+        {
+          "text": "0 - Never",
+          "state": 10
+        },
+        {
+          "text": "1",
+          "state": 9
+        },
+        {
+          "text": "2",
+          "state": 8
+        },
+        {
+          "text": "3",
+          "state": 7
+        },
+        {
+          "text": "4",
+          "state": 6
+        },
+        {
+          "text": "5",
+          "state": 5
+        },
+        {
+          "text": "6",
+          "state": 4
+        },
+        {
+          "text": "7",
+          "state": 3
+        },
+        {
+          "text": "8",
+          "state": 2
+        },
+        {
+          "text": "9",
+          "state": 1
+        },
+        {
+          "text": "10 - Always",
+          "state": 0
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "How often do you usually experience the emotion \"Sadness\"?",
+      "name": "nosadness",
+      "variable": 22,
+      "answers": [
+        {
+          "text": "0 - Never",
+          "state": 10
+        },
+        {
+          "text": "1",
+          "state": 9
+        },
+        {
+          "text": "2",
+          "state": 8
+        },
+        {
+          "text": "3",
+          "state": 7
+        },
+        {
+          "text": "4",
+          "state": 6
+        },
+        {
+          "text": "5",
+          "state": 5
+        },
+        {
+          "text": "6",
+          "state": 4
+        },
+        {
+          "text": "7",
+          "state": 3
+        },
+        {
+          "text": "8",
+          "state": 2
+        },
+        {
+          "text": "9",
+          "state": 1
+        },
+        {
+          "text": "10 - Always",
+          "state": 0
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "How often do you usually experience the emotion \"Worry\"?",
+      "name": "noworry",
+      "variable": 23,
+      "answers": [
+        {
+          "text": "0 - Never",
+          "state": 10
+        },
+        {
+          "text": "1",
+          "state": 9
+        },
+        {
+          "text": "2",
+          "state": 8
+        },
+        {
+          "text": "3",
+          "state": 7
+        },
+        {
+          "text": "4",
+          "state": 6
+        },
+        {
+          "text": "5",
+          "state": 5
+        },
+        {
+          "text": "6",
+          "state": 4
+        },
+        {
+          "text": "7",
+          "state": 3
+        },
+        {
+          "text": "8",
+          "state": 2
+        },
+        {
+          "text": "9",
+          "state": 1
+        },
+        {
+          "text": "10 - Always",
+          "state": 0
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "In the past 4 weeks, have you had difficulty falling asleep or experienced insomnia?",
+      "name": "sleeping_problem",
+      "variable": 8,
+      "answers": [
+        {
+          "text": "Not at all or a little",
+          "state": 0
+        },
+        {
+          "text": "A lot",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "How often do you experience negative feelings such as \"Melancholy\", \"Despair\", \"Anxiety\", or \"Depression\"?",
+      "name": "noanxiety",
+      "variable": 20,
+      "answers": [
+        {
+          "text": "0 - Never",
+          "state": 10
+        },
+        {
+          "text": "1",
+          "state": 9
+        },
+        {
+          "text": "2",
+          "state": 8
+        },
+        {
+          "text": "3",
+          "state": 7
+        },
+        {
+          "text": "4",
+          "state": 6
+        },
+        {
+          "text": "5",
+          "state": 5
+        },
+        {
+          "text": "6",
+          "state": 4
+        },
+        {
+          "text": "7",
+          "state": 3
+        },
+        {
+          "text": "8",
+          "state": 2
+        },
+        {
+          "text": "9",
+          "state": 1
+        },
+        {
+          "text": "10 - Always",
+          "state": 0
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "How ofter do you feel \"Full of strength\", \"Energy\", and \"Optimism\"?",
+      "name": "energy",
+      "variable": 18,
+      "answers": [
+        {
+          "text": "0 - Never",
+          "state": 0
+        },
+        {
+          "text": "1",
+          "state": 1
+        },
+        {
+          "text": "2",
+          "state": 2
+        },
+        {
+          "text": "3",
+          "state": 3
+        },
+        {
+          "text": "4",
+          "state": 4
+        },
+        {
+          "text": "5",
+          "state": 5
+        },
+        {
+          "text": "6",
+          "state": 6
+        },
+        {
+          "text": "7",
+          "state": 7
+        },
+        {
+          "text": "8",
+          "state": 8
+        },
+        {
+          "text": "9",
+          "state": 9
+        },
+        {
+          "text": "10 - Always",
+          "state": 10
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Can you indicate how your health condition restricts you in your daily activities, whether for household chores, work, or leisure?",
+      "name": "impediment",
+      "variable": 7,
+      "answers": [
+        {
+          "text": "Not at all",
+          "state": 0
+        },
+        {
+          "text": "Minimally",
+          "state": 2
+        },
+        {
+          "text": "Fairly",
+          "state": 1
+        },
+        {
+          "text": "Very much",
+          "state": 3
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Do you have a chronic illness or health issue that lasts over time?",
+      "name": "illness",
+      "variable": 6,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 0
+        },
+        {
+          "text": "No",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Do you have suffered from a psychological issue or illness in the last 12 months?",
+      "name": "psico_event2",
+      "variable": 24,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 0
+        },
+        {
+          "text": "No",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "How many days a week do you engage in physical activity, for at least half an hour, that makes you slightly fatigued ? ",
+      "name": "PA",
+      "variable": 25,
+      "answers": [
+        {
+          "text": "0 days",
+          "state": 1
+        },
+        {
+          "text": "1 - 4 days",
+          "state": 0
+        },
+        {
+          "text": "5 - 7 days",
+          "state": 2
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "What is your professional category?",
+      "name": "ISCO",
+      "variable": 15,
+      "answers": [
+        {
+          "text": "Legislators, senior officials and managers, professionals",
+          "state": 0
+        },
+        {
+          "text": "Employees, service workers, store and sales associates",
+          "state": 1
+        },
+        {
+          "text": "Skilled agricultural and fishing personnel, craftsmen and skilled workers",
+          "state": 2
+        },
+        {
+          "text": "Plant and machinery operators, unskilled personnel",
+          "state": 3
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Have you changed employers or businesses in the past 12 months?",
+      "name": "change_employer",
+      "variable": 33,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 0
+        },
+        {
+          "text": "No",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "What do you consider your primary employment?",
+      "name": "contract",
+      "variable": 28,
+      "answers": [
+        {
+          "text": "Permanent employee",
+          "state": 0
+        },
+        {
+          "text": "Fixed-term employee",
+          "state": 1
+        },
+        {
+          "text": "Self-employed",
+          "state": 2
+        },
+        {
+          "text": "Employee in your own company",
+          "state": 3
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "What is your working percentage?",
+      "name": "percentage",
+      "variable": 29,
+      "answers": [
+        {
+          "text": "Up to 40%",
+          "state": 0
+        },
+        {
+          "text": "41 - 60%",
+          "state": 1
+        },
+        {
+          "text": "61 - 80%",
+          "state": 2
+        },
+        {
+          "text": "81 - 99%",
+          "state": 3
+        },
+        {
+          "text": "100%",
+          "state": 4
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "If part-time worker, are you working part-time because you cannot find a full-time job?",
+      "name": "no_findFT",
+      "variable": 30,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 0
+        },
+        {
+          "text": "No, I work part-time for other reasons or I already work full-time (90%-100%)",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "If part-time worker, do you wish to work more than 10% of your current work time?",
+      "name": "underemployed",
+      "variable": 31,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 0
+        },
+        {
+          "text": "No or I already work full-time (90%-100%)",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "In a normal month, do you have to work at night (midnight - 6am)?",
+      "name": "work_night",
+      "variable": 45,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 0
+        },
+        {
+          "text": "No",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "In a normal month, do you have to work on Saturday or Sunday?",
+      "name": "work_we",
+      "variable": 46,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 0
+        },
+        {
+          "text": "No",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "How often are you subjected to a high work rate and crunch time?",
+      "name": "work_fast",
+      "variable": 39,
+      "answers": [
+        {
+          "text": "0 - Never",
+          "state": 4
+        },
+        {
+          "text": "1",
+          "state": 10
+        },
+        {
+          "text": "2",
+          "state": 9
+        },
+        {
+          "text": "3",
+          "state": 7
+        },
+        {
+          "text": "4",
+          "state": 8
+        },
+        {
+          "text": "5",
+          "state": 5
+        },
+        {
+          "text": "6",
+          "state": 1
+        },
+        {
+          "text": "7",
+          "state": 0
+        },
+        {
+          "text": "8",
+          "state": 2
+        },
+        {
+          "text": "9",
+          "state": 6
+        },
+        {
+          "text": "10 - Always",
+          "state": 3
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Does your job expose you to a lot of nervous tension?",
+      "name": "strain",
+      "variable": 40,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 0
+        },
+        {
+          "text": "No",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Does your job expose you to loud noises or dirt?",
+      "name": "noise",
+      "variable": 41,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 0
+        },
+        {
+          "text": "No",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Does your job exposes you to positions or movements that are heavy or tiring in the long run?",
+      "name": "tiring_posture",
+      "variable": 42,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 0
+        },
+        {
+          "text": "No",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Do you use a computer for your work?",
+      "name": "usePC",
+      "variable": 37,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 1
+        },
+        {
+          "text": "No",
+          "state": 0
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Do you usually work more than 48 hours per week in your main job?",
+      "name": "more48hours",
+      "variable": 43,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 0
+        },
+        {
+          "text": "No",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Do you work at home or do you have your own company's office in your home?",
+      "name": "work_athome",
+      "variable": 47,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 0
+        },
+        {
+          "text": "No",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Do you have a management function or are you responsible for supervising and controlling the work of others?",
+      "name": "supervisory_task",
+      "variable": 38,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 1
+        },
+        {
+          "text": "No",
+          "state": 0
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "How many years have you been employed or self-employed?",
+      "name": "past_experience",
+      "variable": 5,
+      "answers": [
+        {
+          "text": "0 - 5",
+          "state": 0
+        },
+        {
+          "text": "6 - 15",
+          "state": 1
+        },
+        {
+          "text": "15 - 30",
+          "state": 2
+        },
+        {
+          "text": "30+",
+          "state": 3
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "How many people work at the company you work at?",
+      "name": "firm_size",
+      "variable": 16,
+      "answers": [
+        {
+          "text": "0",
+          "state": 0
+        },
+        {
+          "text": "1 - 9",
+          "state": 1
+        },
+        {
+          "text": "10 - 49",
+          "state": 2
+        },
+        {
+          "text": "50+",
+          "state": 3
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "In what economic activity area do you work?",
+      "name": "NOGA",
+      "variable": 17,
+      "answers": [
+        {
+          "text": "Agriculture",
+          "state": 10
+        },
+        {
+          "text": "Industry",
+          "state": 0
+        },
+        {
+          "text": "Constructions",
+          "state": 7
+        },
+        {
+          "text": "Trade and Hosting",
+          "state": 5
+        },
+        {
+          "text": "Transport and Communications",
+          "state": 8
+        },
+        {
+          "text": "Financial Services",
+          "state": 6
+        },
+        {
+          "text": "Public Administration",
+          "state": 4
+        },
+        {
+          "text": "Education",
+          "state": 3
+        },
+        {
+          "text": "Health and Social Services",
+          "state": 2
+        },
+        {
+          "text": "Other public, social, and personal services",
+          "state": 9
+        },
+        {
+          "text": "None",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "What is your monthly net earned income (employed and/or self-employed)?",
+      "name": "class_income",
+      "variable": 26,
+      "answers": [
+        {
+          "text": "Up to 4’500 CHF/month",
+          "state": 0
+        },
+        {
+          "text": "Up to 6’000 CHF/month",
+          "state": 1
+        },
+        {
+          "text": "Up to 8’000 CHF/month",
+          "state": 2
+        },
+        {
+          "text": "More than 8'000 CHF/month",
+          "state": 3
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Do you receive or have you received an award or bonus?",
+      "name": "bonus",
+      "variable": 27,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 0
+        },
+        {
+          "text": "No",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Considering all of your household's income and expenses for one year, would you say that:",
+      "name": "family_income",
+      "variable": 13,
+      "answers": [
+        {
+          "text": "Your home economy can save",
+          "state": 0
+        },
+        {
+          "text": "Your household spends what it earns",
+          "state": 1
+        },
+        {
+          "text": "Your household uses up its assets or goes into debt",
+          "state": 2
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Do your work hours vary regularly (shift work, team work)?",
+      "name": "shift",
+      "variable": 44,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 0
+        },
+        {
+          "text": "No",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Do your work hours vary from day to day by your decision?",
+      "name": "flex_youdecide",
+      "variable": 48,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 1
+        },
+        {
+          "text": "No",
+          "state": 0
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Do you rate your qualification higher than your job?",
+      "name": "overqualified",
+      "variable": 36,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 0
+        },
+        {
+          "text": "No",
+          "state": 1
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Is your company undergoing reorganization/restructuring or privatization?",
+      "name": "affected_restr",
+      "variable": 34,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 1
+        },
+        {
+          "text": "No",
+          "state": 0
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Have you taken training courses while working for professional reasons in the last year?",
+      "name": "lifelong_training",
+      "variable": 35,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 1
+        },
+        {
+          "text": "No",
+          "state": 0
+        }
+      ]
+    },
+    {
+      "skill": "target",
+      "question": "Do you normally have many different jobs or employers?",
+      "name": "many_jobs",
+      "variable": 32,
+      "answers": [
+        {
+          "text": "Yes",
+          "state": 0
+        },
+        {
+          "text": "No",
+          "state": 1
+        }
+      ]
+    }
+  ],
+  "model": null,
+  "modelData": "BAYES\n49\n8 2 5 2 3 4 2 4 2 4 2 4 3 3 7 4 4 11 11 11 11 11 11 11 2 3 4 2 4 5 2 2 2 2 2 2 2 2 2 11 2 2 2 2 2 2 2 2 2\n49\n1 0\n2 0 1\n2 0 2\n2 0 3\n2 0 4\n2 0 5\n2 0 6\n2 0 7\n2 0 8\n2 0 9\n2 0 10\n2 0 11\n2 0 12\n2 0 13\n2 0 14\n2 0 15\n2 0 16\n2 0 17\n2 0 18\n2 0 19\n2 0 20\n2 0 21\n2 0 22\n2 0 23\n2 0 24\n2 0 25\n2 0 26\n2 0 27\n2 0 28\n2 0 29\n2 0 30\n2 0 31\n2 0 32\n2 0 33\n2 0 34\n2 0 35\n2 0 36\n2 0 37\n2 0 38\n2 0 39\n2 0 40\n2 0 41\n2 0 42\n2 0 43\n2 0 44\n2 0 45\n2 0 46\n2 0 47\n2 0 48\n\n8\n 0.8789519478 0.0644046853 0.0049463325 0.0334032815 0.0137788079 0.0019339319 0.0019046853 6.763278E-4\n\n16\n 0.5199813 0.4800187\n 0.3524153 0.6475847\n 0.4083518 0.5916482\n 0.5446536 0.4553464\n 0.4097904 0.5902096\n 0.4243856 0.5756144\n 0.2619962 0.7380038\n 0.6081081 0.3918919\n\n40\n 0.06132557 0.15229781 0.26935718 0.33687096 0.18014849\n 0.04042686 0.11762502 0.26203099 0.3755577 0.20435943\n 0.04153732 0.11840355 0.34900222 0.28987435 0.20118256\n 0.0490533 0.145365 0.2556857 0.3371128 0.2127832\n 0.03613691 0.12528522 0.27598833 0.35664633 0.20594322\n 0.01550095 0.13648393 0.24234405 0.40869565 0.19697543\n 0.03109405 0.06180422 0.36890595 0.33819578 0.2\n 0.044324324 0.001081081 0.174054054 0.39027027 0.39027027\n\n16\n 0.9066632 0.0933368\n 0.8224158 0.1775842\n 0.92276423 0.07723577\n 0.8957535 0.1042465\n 0.8618997 0.1381003\n 0.93856333 0.06143667\n 0.93761996 0.06238004\n 0.95405405 0.04594595\n\n24\n 0.03503934 0.48587432 0.47908634\n 0.08130404 0.55402925 0.3646667\n 0.01798473 0.47918206 0.50283321\n 0.04906789 0.53675532 0.41417679\n 0.0446626 0.5286106 0.4267268\n 0.04599874 0.48456207 0.46943919\n 0.04670505 0.63019834 0.32309661\n 0.001801802 0.434234234 0.563963964\n\n32\n 0.07094208 0.18906624 0.45130186 0.28868982\n 0.05132826 0.18165692 0.45230459 0.31471022\n 0.05931264 0.1184405 0.45546933 0.36677753\n 0.06744555 0.19002408 0.41416767 0.3283627\n 0.06798886 0.17199522 0.42458212 0.3354338\n 0.03071834 0.15170132 0.45415879 0.36342155\n 0.01583493 0.13867562 0.55326296 0.29222649\n 0.04459459 0.04459459 0.26081081 0.65\n\n16\n 0.6934075 0.3065925\n 0.6221547 0.3778453\n 0.432003 0.567997\n 0.5814272 0.4185728\n 0.5137968 0.4862032\n 0.3336484 0.6663516\n 0.4462572 0.5537428\n 0.2621622 0.7378378\n\n32\n 0.53462098 0.15033482 0.24523344 0.06981075\n 0.3573963 0.2588551 0.1789323 0.2048164\n 0.2839985 0.2662602 0.3076497 0.1420916\n 0.3852742 0.2390555 0.2302999 0.1453705\n 0.2271823 0.3057177 0.1868533 0.2802467\n 0.13657845 0.46928166 0.04584121 0.34829868\n 0.2461612 0.2461612 0.200096 0.3075816\n 0.3472973 0.17432432 0.08783784 0.39054054\n\n16\n 0.94452948 0.05547052\n 0.818783 0.181217\n 0.8399852 0.1600148\n 0.8931268 0.1068732\n 0.7600159 0.2399841\n 0.6663516 0.3336484\n 0.7072937 0.2927063\n 0.7810811 0.2189189\n\n32\n 0.09247062 0.51635333 0.3041957 0.08698035\n 0.1112704 0.5063433 0.271116 0.1112704\n 0.11252772 0.4672949 0.32538803 0.09478936\n 0.0910857 0.4842125 0.2977181 0.1269837\n 0.12317591 0.51373043 0.27175643 0.09133722\n 0.09120983 0.48440454 0.34829868 0.07608696\n 0.09261036 0.56861804 0.23080614 0.10796545\n 0.17432432 0.30405405 0.47702703 0.04459459\n\n16\n 0.6198378 0.3801622\n 0.5871885 0.4128115\n 0.5325203 0.4674797\n 0.579676 0.420324\n 0.5329 0.4671\n 0.4395085 0.5604915\n 0.5537428 0.4462572\n 0.6081081 0.3918919\n\n32\n 0.58845898 0.15649059 0.18979827 0.06525216\n 0.59761878 0.16530908 0.18392746 0.05314469\n 0.66832964 0.12435329 0.15391722 0.05339985\n 0.61379556 0.14099267 0.17951735 0.06569443\n 0.62834969 0.1847307 0.15076943 0.03615017\n 0.6205104 0.13657845 0.19706994 0.04584121\n 0.67610365 0.15403071 0.13867562 0.03119002\n 0.693243243 0.131081081 0.174324324 0.001351351\n\n24\n 0.1571231 0.2544175 0.5884593\n 0.1239901 0.2783864 0.5976235\n 0.1185021 0.2131067 0.6683912\n 0.1427529 0.2434424 0.6138047\n 0.09560449 0.2760237 0.62837181\n 0.1216131 0.257719 0.6206679\n 0.09277031 0.23096609 0.6762636\n 0.08828829 0.21801802 0.69369369\n\n24\n 0.66113064 0.29484593 0.04402343\n 0.4886379 0.408261 0.1031012\n 0.63291451 0.31362405 0.05346144\n 0.57528 0.35201197 0.07270804\n 0.4776687 0.3757849 0.1465464\n 0.378702 0.4240706 0.1972275\n 0.5073576 0.3691619 0.1234805\n 0.4774775 0.390991 0.1315315\n\n56\n 0.15788767 0.25578098 0.15010146 0.1731939 0.10937358 0.12707557 0.02658685\n 0.36874285 0.26066543 0.08265555 0.10490679 0.06358307 0.05813378 0.06131253\n 0.13018689 0.30757048 0.17748918 0.18340196 0.09471017 0.09471017 0.01193116\n 0.12259416 0.22153254 0.1619944 0.19876796 0.13397645 0.14360762 0.01752685\n 0.27809574 0.26748285 0.09767653 0.19107001 0.06583785 0.04673464 0.05310238\n 0.2573589 0.2573589 0.09100729 0.2573589 0.04563867 0.07588442 0.01539292\n 0.23060049 0.19989032 0.09240472 0.24595558 0.12311489 0.07704963 0.03098437\n 7.722008E-4 0.2602316602 0.1305019305 0.216988417 0.1737451737 0.216988417 7.722008E-4\n\n32\n 0.62669128 0.2151201 0.10501508 0.05317355\n 0.54721292 0.30108702 0.07494182 0.07675824\n 0.63285292 0.29582409 0.04748707 0.02383592\n 0.5525063 0.2556911 0.1120992 0.0797034\n 0.56042717 0.29085964 0.06798886 0.08072433\n 0.69612476 0.12145558 0.09120983 0.09120983\n 0.59932821 0.29222649 0.01583493 0.09261036\n 0.606756757 0.260810811 0.131081081 0.001351351\n\n32\n 0.04841531 0.18157949 0.25065717 0.51934803\n 0.06358915 0.18983085 0.2534058 0.49317421\n 0.02383592 0.14209165 0.22487066 0.60920177\n 0.05168545 0.17426398 0.27845573 0.49559483\n 0.07011144 0.14652428 0.35241443 0.43094985\n 0.04584121 0.12145558 0.28780718 0.54489603\n 0.04654511 0.09261036 0.33829175 0.52255278\n 0.001351351 0.044594595 0.304054054 0.65\n\n88\n 0.14614159 0.03666878 0.14926938 0.11163602 0.07699736 0.12348171 0.18337565 0.03786666 0.04917996 0.06232335 0.02305954\n 0.10989901 0.04632406 0.1952711 0.0890101 0.08038207 0.16348362 0.14849809 0.02634336 0.04723227 0.07992796 0.01362837\n 0.1360613 0.02371834 0.2306659 0.1183229 0.08875899 0.0828462 0.1951891 0.03554391 0.03554391 0.05328227 6.719075E-5\n 0.14360194 0.03941019 0.13134409 0.08756604 0.08756604 0.13747301 0.17599769 0.04904136 0.05867253 0.0726815 0.01664561\n 0.16134012 0.0318628 0.16134012 0.08704986 0.06582407 0.14860465 0.16770786 0.0318628 0.03823054 0.09554017 0.01063701\n 0.13627771 0.04554047 0.16652346 0.09090909 0.10603196 0.06066334 0.21189208 0.0304176 0.06066334 0.07578622 0.01529472\n 0.2151457 0.06159484 0.15372535 0.12301518 0.06159484 0.06159484 0.15372535 0.03088466 0.04623975 0.07694992 0.01552958\n 0.1302211302 4.914005E-4 0.25995086 0.0437346437 0.0437346437 0.1302211302 0.2167076167 0.1302211302 4.914005E-4 0.0437346437 4.914005E-4\n\n88\n 0.003194721 0.002629057 0.005623753 0.007753316 0.012910849 0.059628121 0.092137219 0.262934765 0.369412877 0.131201376 0.052573946\n 0.004092122 0.001367481 0.010449617 0.023164609 0.039058348 0.198903951 0.167116473 0.259754266 0.220701079 0.037696027 0.037696027\n 6.719075E-5 6.719075E-5 0.01189276 0.04736948 0.0414567 0.1537996 0.09467177 0.2306659 0.3075321 0.07102063 0.0414567\n 0.007889998 0.01051668 0.048165799 0.077059309 0.105077258 0.181251057 0.119086233 0.156735352 0.188255544 0.066552578 0.03941019\n 0.006391857 0.010637015 0.067946646 0.114643383 0.169830435 0.27808196 0.114643383 0.127378856 0.093417593 0.008514436 0.008514436\n 0.0152947242 0.0304175975 0.1060319643 0.1967692043 0.181646331 0.227014951 0.0909090909 0.0757862176 0.0606633442 0.0152947242 1.718508E-4\n 1.744896E-4 0.015529576 0.0615948351 0.0769499215 0.0769499215 0.1537253533 0.1537253533 0.2305007852 0.1537253533 0.015529576 0.0615948351\n 4.914005E-4 4.914005E-4 0.086977887 0.1734643735 0.086977887 0.086977887 0.1734643735 0.1734643735 0.1302211302 0.086977887 4.914005E-4\n\n88\n 1.667502E-4 1.002013E-4 7.98964E-4 0.0014977266 0.0051911861 0.0398963956 0.0860147277 0.3101511528 0.4247482205 0.0943666046 0.0370680707\n 0.001821588 5.160305E-6 0.001367481 0.003638015 0.01499069 0.09990866 0.1462276 0.326508 0.3228751 0.05086513 0.03179264\n 6.719075E-5 6.719075E-5 6.719075E-5 6.719075E-5 0.02371834 0.09467177 0.1124101 0.3252704 0.3666599 0.05328227 0.02371834\n 9.949556E-6 9.949556E-6 0.002636632 0.01489448 0.04291243 0.1269663 0.1479797 0.3012029 0.2635538 0.06305033 0.03678351\n 0.006391857 0.012759594 0.006391857 0.04035312 0.061578909 0.195301382 0.188933645 0.284449697 0.165585277 0.017004752 0.02124991\n 1.718508E-4 0.0152947242 0.0455404709 0.0304175975 0.0909090909 0.2118920777 0.2118920777 0.1967692043 0.1967692043 1.718508E-4 1.718508E-4\n 1.744896E-4 1.744896E-4 1.744896E-4 0.0462397487 0.0615948351 0.1844355261 0.1076600942 0.2765660443 0.2458558716 0.0615948351 0.015529576\n 4.914005E-4 4.914005E-4 0.0437346437 4.914005E-4 0.086977887 0.086977887 0.1302211302 0.3464373464 0.25995086 0.0437346437 4.914005E-4\n\n88\n 3.99671E-4 9.65336E-4 0.004425875 0.009017743 0.014774216 0.035803643 0.056733247 0.116227892 0.228229556 0.25338501 0.280037812\n 0.010449617 0.006816763 0.048140484 0.088555992 0.10308741 0.192092349 0.13896185 0.13896185 0.125792752 0.057676728 0.089464206\n 6.719075E-5 0.005979977 0.05328227 0.01780555 0.07693341 0.08875899 0.09467177 0.1242357 0.2129275 0.1951891 0.1301485\n 0.001761071 0.001761071 0.01051668 0.034156825 0.051668043 0.073557066 0.098072771 0.169868765 0.204891202 0.166366522 0.187379983\n 0.01912733 0.03610796 0.09766275 0.16558528 0.12737886 0.15709496 0.1231337 0.1125208 0.07431438 0.04672086 0.04035312\n 0.0757862176 0.0606633442 0.227014951 0.1362777109 0.1514005843 0.1514005843 0.0606633442 0.0152947242 0.0606633442 0.0606633442 1.718508E-4\n 0.04623975 0.03088466 0.16908044 0.15372535 0.07694992 0.16908044 0.09230501 0.10766009 0.10766009 0.03088466 0.01552958\n 4.914005E-4 4.914005E-4 0.1302211302 0.1302211302 0.0437346437 0.0437346437 0.1302211302 0.1302211302 0.25995086 0.0437346437 0.086977887\n\n88\n 0.003061624 0.003594014 0.027851059 0.054903154 0.085648709 0.188699557 0.193590895 0.227697165 0.170132436 0.034639039 0.010182348\n 0.01726122 0.01544479 0.11171544 0.1621213 0.17165754 0.2284209 0.13396667 0.08356082 0.05495209 0.01044962 0.01044962\n 0.005979977 0.005979977 0.041456696 0.088758987 0.136061278 0.218840288 0.16562521 0.171537996 0.124235705 0.035543909 0.005979977\n 0.002636632 0.011392241 0.036783508 0.095446088 0.092819406 0.180375496 0.191757788 0.198762275 0.144477499 0.02977902 0.015770046\n 0.008514436 0.019127331 0.11888854 0.167707856 0.110398225 0.250488434 0.142236909 0.106153067 0.057333751 0.006391857 0.012759594\n 0.01529472 0.01529472 0.12115484 0.15140058 0.10603196 0.1967692 0.15140058 0.13627771 0.0304176 0.01529472 0.06066334\n 0.015529576 1.744896E-4 0.138370267 0.1690804397 0.138370267 0.2765660443 0.1076600942 0.1230151806 0.015529576 0.015529576 1.744896E-4\n 4.914005E-4 4.914005E-4 4.914005E-4 0.1302211302 4.914005E-4 0.3896805897 0.1734643735 0.25995086 4.914005E-4 0.0437346437 4.914005E-4\n\n88\n 0.001264806 0.002296312 0.011912617 0.023325739 0.038898163 0.109073894 0.152496999 0.238444799 0.278507189 0.111037084 0.032742397\n 0.01362837 0.01635301 0.07856564 0.15803434 0.17665272 0.24249821 0.13215025 0.10354152 0.05631441 0.01362837 0.00863319\n 6.719075E-5 6.719075E-5 0.0414567 0.05919505 0.07693341 0.1892764 0.1656252 0.1833636 0.1892764 0.07102063 0.02371834\n 8.855105E-4 0.0026366323 0.0254012158 0.0402857512 0.0691792611 0.1567353518 0.1742465699 0.2031400798 0.2364113942 0.0674281393 0.023650094\n 0.017004752 0.023372488 0.112520804 0.15921754 0.169830435 0.235630382 0.129501435 0.089172435 0.050966015 0.008514436 0.004269278\n 0.0304175975 0.0304175975 0.1514005843 0.181646331 0.1514005843 0.1665234576 0.1060319643 0.0757862176 0.1060319643 1.718508E-4 1.718508E-4\n 0.015529576 1.744896E-4 0.0923050079 0.1537253533 0.2765660443 0.2151456988 0.1230151806 0.0769499215 0.015529576 0.0308846624 1.744896E-4\n 4.914005E-4 4.914005E-4 0.1302211302 0.086977887 0.0437346437 0.1302211302 0.2167076167 0.1302211302 0.2167076167 4.914005E-4 0.0437346437\n\n88\n 0.001364629 0.003028349 0.016571034 0.029481505 0.044554813 0.091105712 0.105147513 0.168934557 0.262735119 0.186703092 0.090373675\n 0.02407282 0.03905835 0.13714542 0.15985076 0.15349327 0.17801504 0.09809224 0.08583135 0.0821985 0.02316461 0.01907765\n 6.719075E-5 6.719075E-5 0.05328227 0.07102063 0.07693341 0.1183229 0.1064973 0.171538 0.1951891 0.1537996 0.05328227\n 8.855105E-4 0.0070144368 0.0306545813 0.033281264 0.0586725303 0.0928194056 0.1225884764 0.2005133971 0.2320335897 0.1330952073 0.0884416011\n 0.02549507 0.03823054 0.1231337 0.14648207 0.14435949 0.14648207 0.12525628 0.10190791 0.08917244 0.04459828 0.01488217\n 0.0304175975 0.0757862176 0.1514005843 0.1514005843 0.0909090909 0.1362777109 0.1211548376 0.1665234576 0.0455404709 0.0304175975 1.718508E-4\n 0.015529576 0.0769499215 0.1076600942 0.1690804397 0.1844355261 0.1690804397 0.0308846624 0.1230151806 0.0769499215 0.0462397487 1.744896E-4\n 0.04373464 0.04373464 0.04373464 0.08697789 0.08697789 0.08697789 0.21670762 0.08697789 0.17346437 0.08697789 0.04373464\n\n16\n 0.994740564 0.005259436\n 0.98589431 0.01410569\n 0.8045085 0.1954915\n 0.98681186 0.01318814\n 0.9531706 0.0468294\n 0.620983 0.379017\n 0.7533589 0.2466411\n 0.6513514 0.3486486\n\n24\n 0.6489522 0.1948563 0.1561915\n 0.5127055 0.3601256 0.1271688\n 0.6506529 0.1953683 0.1539788\n 0.5875378 0.2697092 0.1427529\n 0.5349783 0.3354559 0.1295658\n 0.4089477 0.3635791 0.2274732\n 0.4459373 0.3538068 0.2002559\n 0.6072072 0.218018 0.1747748\n\n32\n 0.1453437 0.254151 0.2955443 0.304961\n 0.2388744 0.2865556 0.2702078 0.2043623\n 0.1243533 0.1775684 0.3963415 0.3017369\n 0.1917752 0.2705757 0.2950914 0.2425577\n 0.2441629 0.2229371 0.2908596 0.2420403\n 0.1214556 0.2878072 0.3029301 0.2878072\n 0.2154511 0.3229367 0.2768714 0.1847409\n 0.1310811 0.2608108 0.2608108 0.3472973\n\n16\n 0.91032339 0.08967661\n 0.91959471 0.08040529\n 0.92276423 0.07723577\n 0.92026923 0.07973077\n 0.90647387 0.09352613\n 0.8780718 0.1219282\n 0.92226488 0.07773512\n 0.91081081 0.08918919\n\n32\n 0.83854944 0.04791619 0.08192264 0.03161173\n 0.83784129 0.04542487 0.09810127 0.01863257\n 0.87527716 0.04748707 0.05339985 0.02383592\n 0.84231695 0.05343658 0.08845901 0.01578746\n 0.8193818 0.07223401 0.08496949 0.0234147\n 0.81710775 0.07608696 0.07608696 0.03071834\n 0.89107486 0.03119002 0.06190019 0.01583493\n 0.952702703 0.001351351 0.044594595 0.001351351\n\n40\n 0.08857731 0.11975543 0.10571363 0.13379723 0.55215639\n 0.1008231 0.1403304 0.1421468 0.151683 0.4650167\n 0.06518847 0.14205469 0.08883962 0.17161863 0.5322986\n 0.09896027 0.11647149 0.109467 0.11734705 0.55775419\n 0.1083046 0.1528787 0.1210401 0.1592465 0.4585301\n 0.07599244 0.18185255 0.07599244 0.12136106 0.54480151\n 0.1078695 0.0925144 0.1232246 0.1846449 0.4917466\n 0.1308108 0.1308108 0.1740541 0.1308108 0.4335135\n\n16\n 0.98239576 0.01760424\n 0.96636771 0.03363229\n 0.96415373 0.03584627\n 0.97980738 0.02019262\n 0.94468029 0.05531971\n 0.96880907 0.03119093\n 0.9990403071 9.596929E-4\n 0.997297297 0.002702703\n\n16\n 0.90629718 0.09370282\n 0.8882613 0.1117387\n 0.91685144 0.08314856\n 0.8913757 0.1086243\n 0.8088352 0.1911648\n 0.8931947 0.1068053\n 0.8915547 0.1084453\n 0.91081081 0.08918919\n\n16\n 0.8872642 0.1127358\n 0.8873531 0.1126469\n 0.8932003 0.1067997\n 0.8843712 0.1156288\n 0.8937384 0.1062616\n 0.8780718 0.1219282\n 0.93761996 0.06238004\n 0.95405405 0.04594595\n\n16\n 0.90776126 0.09223874\n 0.92458988 0.07541012\n 0.94050259 0.05949741\n 0.90363358 0.09636642\n 0.91496418 0.08503582\n 0.8478261 0.1521739\n 0.93761996 0.06238004\n 0.7810811 0.2189189\n\n16\n 0.2933493 0.7066507\n 0.3197196 0.6802804\n 0.3373984 0.6626016\n 0.2898654 0.7101346\n 0.3291324 0.6708676\n 0.3638941 0.6361059\n 0.3541267 0.6458733\n 0.4351351 0.5648649\n\n16\n 0.4072476 0.5927524\n 0.3587728 0.6412272\n 0.4793052 0.5206948\n 0.3380212 0.6619788\n 0.3482356 0.6517644\n 0.379017 0.620983\n 0.415547 0.584453\n 0.2621622 0.7378378\n\n16\n 0.8651367 0.1348633\n 0.8414883 0.1585117\n 0.8695492 0.1304508\n 0.8239575 0.1760425\n 0.7642611 0.2357389\n 0.8175803 0.1824197\n 0.8454894 0.1545106\n 0.7810811 0.2189189\n\n16\n 0.8481668 0.1518332\n 0.7765511 0.2234489\n 0.8636364 0.1363636\n 0.8152019 0.1847981\n 0.8003449 0.1996551\n 0.8478261 0.1521739\n 0.8761996 0.1238004\n 0.91081081 0.08918919\n\n16\n 0.432636 0.567364\n 0.3773912 0.6226088\n 0.4615669 0.5384331\n 0.3283901 0.6716099\n 0.3546033 0.6453967\n 0.4697543 0.5302457\n 0.2773512 0.7226488\n 0.4351351 0.5648649\n\n88\n 0.17971547 0.12278295 0.14880354 0.04388932 0.05843024 0.20660119 0.03843232 0.06262282 0.07253859 0.0508104 0.01537316\n 0.180739678 0.107174372 0.201174485 0.087193671 0.064942437 0.184372533 0.055406193 0.035425493 0.044053523 0.029976211 0.009541404\n 0.15379964 0.13014849 0.20110193 0.11832292 0.01780555 0.19518914 0.03554391 0.0414567 0.03554391 0.05328227 0.01780555\n 0.14272638 0.11821067 0.13397077 0.05692141 0.05779697 0.19788671 0.03853463 0.07881043 0.1042017 0.05954809 0.01139224\n 0.20166912 0.10190791 0.17195301 0.07855954 0.05945633 0.14860465 0.05521117 0.05521117 0.05096601 0.06582407 0.01063701\n 0.21189208 0.06066334 0.27238357 0.07578622 0.04554047 0.13627771 0.06066334 0.04554047 0.0304176 0.04554047 0.01529472\n 0.1997906125 0.0923050079 0.1537253533 0.1690804397 0.0308846624 0.1690804397 0.0923050079 0.0308846624 0.0308846624 0.0308846624 1.744896E-4\n 0.086977887 0.1734643735 0.1302211302 0.0437346437 0.086977887 0.2167076167 4.914005E-4 0.086977887 0.086977887 0.086977887 4.914005E-4\n\n16\n 0.3559384 0.6440616\n 0.5308793 0.4691207\n 0.5502587 0.4497413\n 0.4036883 0.5963117\n 0.5541258 0.4458742\n 0.7268431 0.2731569\n 0.584453 0.415547\n 0.4351351 0.5648649\n\n16\n 0.8125299 0.1874701\n 0.7488505 0.2511495\n 0.8754619 0.1245381\n 0.7828062 0.2171938\n 0.7536482 0.2463518\n 0.8175803 0.1824197\n 0.7840691 0.2159309\n 0.7378378 0.2621622\n\n16\n 0.6628949 0.3371051\n 0.5658455 0.4341545\n 0.6271249 0.3728751\n 0.5674182 0.4325818\n 0.5838419 0.4161581\n 0.5907372 0.4092628\n 0.5383877 0.4616123\n 0.7810811 0.2189189\n\n16\n 0.8351232 0.1648768\n 0.886899 0.113101\n 0.8399852 0.1600148\n 0.8791179 0.1208821\n 0.90435129 0.09564871\n 0.8327032 0.1672968\n 0.8761996 0.1238004\n 0.8675676 0.1324324\n\n16\n 0.91687844 0.08312156\n 0.9186865 0.0813135\n 0.8932003 0.1067997\n 0.8992558 0.1007442\n 0.92982223 0.07017777\n 0.90831758 0.09168242\n 0.8761996 0.1238004\n 0.91081081 0.08918919\n\n16\n 0.8738879 0.1261121\n 0.8791792 0.1208208\n 0.91093865 0.08906135\n 0.8642333 0.1357667\n 0.8916158 0.1083842\n 0.90831758 0.09168242\n 0.8454894 0.1545106\n 0.95405405 0.04594595\n\n16\n 0.4615514 0.5384486\n 0.478657 0.521343\n 0.4556541 0.5443459\n 0.4570975 0.5429025\n 0.4076678 0.5923322\n 0.4092628 0.5907372\n 0.5230326 0.4769674\n 0.3486486 0.6513514\n\n16\n 0.8941853 0.1058147\n 0.8760005 0.1239995\n 0.91093865 0.08906135\n 0.90275802 0.09724198\n 0.8916158 0.1083842\n 0.8478261 0.1521739\n 0.8915547 0.1084453\n 0.91081081 0.08918919\n\n16\n 0.3602308 0.6397692\n 0.3206278 0.6793722\n 0.3255728 0.6744272\n 0.334519 0.665481\n 0.3355001 0.6644999\n 0.2882798 0.7117202\n 0.1545106 0.8454894\n 0.3486486 0.6513514\n"
+}

@@ -36,6 +36,7 @@ public class Survey {
 	/**
 	 * Textual description of a survey.
 	 */
+	@Column(length = 1023)
 	private String description;
 
 	/**
