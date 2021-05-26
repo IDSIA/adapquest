@@ -12,11 +12,14 @@ svg {
     display: flex;
     justify-content: space-between;
     margin: 1em;
+    flex-wrap: wrap;
 }
 
-.tooltip {
+.bar-tooltip {
+    position: absolute;
     background-color: white;
-    border: 1px solid black;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: .25rem;
     padding: 10px;
     opacity: 0;
 }
@@ -70,4 +73,22 @@ svg {
 
 .submit > input:hover {
     background-color: dodgerblue;
+}
+
+.chart-line {
+    fill: none;
+    stroke-width: 1.5pt;
+}
+
+.chart-circle {
+    fill: none;
+    stroke: rgba(0, 0, 0, .125);
+    stroke-width: 1px;
+    opacity: 0;
+}
+
+.chart-text {
+    alignment-baseline: middle;
+    text-anchor: start;
+    opacity: 0;
 }
