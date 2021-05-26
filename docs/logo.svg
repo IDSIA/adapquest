@@ -29,8 +29,8 @@
 		<use xlink:href="#edge" x="-25" y="-45" stroke="black" fill="url(#grad1)" transform="rotate(270)"/>
 	</g>
 	<g transform="translate(80,36)">
-		<text class="st1" x="0" y="0">ADAPT</text>
-		<text class="st2" x="93" y="0">ive</text>
+		<text class="st1" x="0" y="0">ADAP</text>
+		<text class="st2" x="75" y="0">tive</text>
 		<text class="st3" x="40" y="25">Quest</text>
 	</g>
 </svg>

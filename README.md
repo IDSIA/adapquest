@@ -1,4 +1,4 @@
-<img src="docs/logo.png" alt="Adaptquest" width="480"/>
+<img src="docs/logo.png" alt="Adapquest" width="480"/>
 
 **ADAP**tive **QUEST**ionnarie is a web-based micro-service tool that permit the creation of adaptive tests, surveys,
 and questionnaires based on a pool of questions and a graphical model.
@@ -7,7 +7,8 @@ The idea behind this project, is to have a simple way to assess the _skill level
 questions. A skill is considered a particular detail of a person that can be identified with the right questions. The
 adaptive engine aims to find the optimal question for a user in order to maximize the score of the skills.
 
-This tool is based on the [CreMA](/IDSIA/crema) library, also developed by [IDSIA](/IDSIA).
+This tool is based on the [CreMA](https://github.com/IDSIA/crema) library, also developed
+by [IDSIA](https://github.com/IDSIA).
 
 # Content
 
@@ -39,8 +40,8 @@ Some configurations are available, such as:
 Each answer given by a person update its internal `state`. The history of all the answers given and the states produced
 can be used to follow the evolution of the distributions of probability associated with the questionnaire.
 
-For details on the model creation, check the documentation for the [CreMA](/IDSIA/crema) library. For an in depth
-analysis of the available options, check the [Wiki](/IDSIA/adapquest/wiki)
+For details on the model creation, check the documentation for the [CreMA](https://github.com/IDSIA/crema) library. For
+an in depth analysis of the available options, check the [Wiki](https://github.com/IDSIA/adapquest/wiki)
 
 # Usage
 
@@ -75,9 +76,9 @@ to have a running application in few minutes reachable on port `:8080`.
 The stack is composed by a database for storing the questions and the session and the backend engine. We
 chosed `Postgres 13.1` but any other SQL-based engine supported by *Hibernate* should be compatible.
 
-Refer to the [Wiki](/IDSIA/adapquest/wiki) for more details on the `docker-compose` configuration.
+Refer to the [Wiki](https://github.com/IDSIA/adapquest/wiki) for more details on the `docker-compose` configuration.
 
 # Citation
 
-If you write a scientific paper describing research that made use of the `AdaptQuest` tool, please see
-the [CreMA](/IDSIA/crema#citation) library citation note.
+If you write a scientific paper describing research that made use of the `AdapQuest` tool, please see
+the [CreMA](https://github.com/IDSIA/crema#citation) library citation note.
