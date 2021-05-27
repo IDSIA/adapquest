@@ -195,7 +195,6 @@ public class InitializationService {
 				.setScoreLowerThreshold(structure.survey.scoreLowerThreshold)
 				.setGlobalMeanScoreUpperThreshold(structure.survey.globalMeanScoreUpperThreshold)
 				.setGlobalMeanScoreLowerThreshold(structure.survey.globalMeanScoreLowerThreshold)
-				.setQuestionValidityCheckMin(structure.survey.questionValidityCheckMin)
 				.setQuestionTotalMin(structure.survey.questionTotalMin)
 				.setQuestionTotalMax(structure.survey.questionTotalMax);
 

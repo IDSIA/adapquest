@@ -127,12 +127,6 @@ public class Survey {
 	 */
 	public Double globalMeanScoreLowerThreshold = 0.;
 
-
-	/**
-	 * Minimum number of question to start check for the validity of a skill.
-	 */
-	private Integer questionValidityCheckMin = 0;
-
 	/**
 	 * Minimum number of questions to ask in total.
 	 */

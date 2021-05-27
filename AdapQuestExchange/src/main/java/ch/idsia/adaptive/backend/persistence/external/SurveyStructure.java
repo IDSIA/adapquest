@@ -105,11 +105,6 @@ public class SurveyStructure {
 	public Double globalMeanScoreLowerThreshold = 0.;
 
 	/**
-	 * Minimum number of question to start check for the validity of a skill.
-	 */
-	public Integer questionValidityCheckMin = 0;
-
-	/**
 	 * Minimum number of question to pose, independent of the skills.
 	 */
 	public Integer questionTotalMin = 0;
