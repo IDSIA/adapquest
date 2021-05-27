@@ -41,7 +41,7 @@ Each answer given by a person update its internal `state`. The history of all th
 can be used to follow the evolution of the distributions of probability associated with the questionnaire.
 
 For details on the model creation, check the documentation for the [CreMA](https://github.com/IDSIA/crema) library. For
-an in depth analysis of the available options, check the [Wiki](https://github.com/IDSIA/adapquest/wiki)
+an in depth analysis of the available options, check the [Wiki](https://github.com/IDSIA/adapquest/wiki).
 
 # Usage
 
@@ -60,7 +60,7 @@ These two settings allows the application to run with an *in-memory* database an
 Finally, run the build jar as following:
 
 ```bash
-java -jar adaptive-survey-backend.jar
+java -jar adapquest-backend.jar
 ```
 
 The demo page will be accessible at the url http://localhost:8080/demo/.
