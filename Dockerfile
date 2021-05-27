@@ -6,15 +6,15 @@ WORKDIR /build
 
 # Copy everything from current context to the build folder
 COPY pom.xml .
-COPY AdaptiveSurveyBackend/pom.xml AdaptiveSurveyBackend/
-COPY AdaptiveSurveyExchange/pom.xml AdaptiveSurveyExchange/
-COPY AdaptiveSurveyExperiments/pom.xml AdaptiveSurveyExperiments/
+COPY AdapQuestBackend/pom.xml AdapQuestBackend/
+COPY AdapQuestExchange/pom.xml AdapQuestExchange/
+COPY AdapQuestExperiments/pom.xml AdapQuestExperiments/
 
 RUN mvn clean package -Dmaven.main.skip -Dmaven.test.skip
 
-COPY AdaptiveSurveyBackend/src AdaptiveSurveyBackend/src
-COPY AdaptiveSurveyExchange/src AdaptiveSurveyExchange/src
-COPY AdaptiveSurveyExperiments/src AdaptiveSurveyExperiments/src
+COPY AdapQuestBackend/src AdapQuestBackend/src
+COPY AdapQuestExchange/src AdapQuestExchange/src
+COPY AdapQuestExperiments/src AdapQuestExperiments/src
 
 # Build using maven
 RUN mvn clean install package -Dmaven.test.skip
@@ -26,11 +26,11 @@ FROM openjdk:11-jre-slim
 WORKDIR /adaptive
 
 # Copy executable fat-jar
-COPY --from=build /build/AdaptiveSurveyBackend/target/adaptive-survey-backend-1.0.jar adaptive-survey-backend.jar
+COPY --from=build /build/AdapQuestBackend/target/adapquest-backend-1.0.jar adapquest-backend.jar
 RUN mkdir "data"
 
 # Expose service to port
 EXPOSE 8080
 
 # Execute command
-CMD ["java", "-jar", "adaptive-survey-backend.jar"]
+CMD ["java", "-jar", "adapquest-backend.jar"]
