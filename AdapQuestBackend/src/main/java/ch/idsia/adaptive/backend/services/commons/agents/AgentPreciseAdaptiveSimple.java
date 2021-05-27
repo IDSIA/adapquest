@@ -46,7 +46,7 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 			return false;
 		}
 
-		// check entropy levels
+		// check score levels
 		double h = 0;
 		for (Skill skill : skills) {
 			Integer S = skill.getVariable();
@@ -59,9 +59,9 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 
 		h /= skills.size();
 
-		if (h < survey.getGlobalMeanEntropyLowerThreshold() || h > survey.getGlobalMeanEntropyUpperThreshold()) {
-			logger.debug("survey finished because the mean global entropy threshold was reached (H={}, lower={}, upper={})",
-					h, survey.getGlobalMeanEntropyLowerThreshold(), survey.getGlobalMeanEntropyUpperThreshold());
+		if (h < survey.getGlobalMeanScoreLowerThreshold() || h > survey.getGlobalMeanScoreUpperThreshold()) {
+			logger.debug("survey finished because the mean global score threshold reached (H={}, lower={}, upper={})",
+					h, survey.getGlobalMeanScoreLowerThreshold(), survey.getGlobalMeanScoreUpperThreshold());
 			return true;
 		}
 
@@ -76,7 +76,7 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 
 	@Override
 	public Question nextQuestion() throws SurveyException {
-		// find the question with the optimal entropy
+		// find the question with the optimal score
 		Question nextQuestion = null;
 		double maxIG = -Double.MAX_VALUE;
 
@@ -110,7 +110,7 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 					double HSqi = scoring.score(PSqi);
 					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
 
-					HSQ += HSqi * Pqi; // conditional entropy
+					HSQ += HSqi * Pqi; // conditional score
 				}
 
 //				logger.debug("question={} skill={} with HSQ={}", question.getName(), skill.getName(), HSQ);

@@ -107,6 +107,9 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 			this.questions.add(q);
 			this.questionsDonePerSkill.putIfAbsent(skill, new LinkedList<>());
 			this.questionsAvailablePerSkill.computeIfAbsent(skill, x -> new LinkedList<>()).add(q);
+			if (q.getIsExample()) {
+				this.mandatoryQuestions.addFirst(q);
+			}
 			if (q.getMandatory()) {
 				this.mandatoryQuestions.add(q);
 			}
@@ -151,9 +154,11 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 	@Override
 	public boolean check(Answer answer) {
 		if (currentQuestion != null && currentQuestion.getVariable().equals(answer.getQuestion().getVariable())) {
-			final Integer variable = answer.getQuestion().getVariable();
-			final Integer state = answer.getQuestionAnswer().getState();
-			observations.put(variable, state);
+			if (!answer.getQuestion().getIsExample()) {
+				final Integer variable = answer.getQuestion().getVariable();
+				final Integer state = answer.getQuestionAnswer().getState();
+				observations.put(variable, state);
+			}
 			answered = true;
 			return true;
 		}

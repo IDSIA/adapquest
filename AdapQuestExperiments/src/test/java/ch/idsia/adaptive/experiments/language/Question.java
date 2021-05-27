@@ -1,4 +1,4 @@
-package ch.idsia.adaptive.experiments.models;
+package ch.idsia.adaptive.experiments.language;
 
 import lombok.AllArgsConstructor;
 

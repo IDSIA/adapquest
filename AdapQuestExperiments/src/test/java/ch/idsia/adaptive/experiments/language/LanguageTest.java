@@ -1,6 +1,7 @@
-package ch.idsia.adaptive.experiments.models;
+package ch.idsia.adaptive.experiments.language;
 
 import ch.idsia.adaptive.backend.persistence.external.*;
+import ch.idsia.adaptive.experiments.models.AbstractAdaptiveModel;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
@@ -17,10 +18,10 @@ import java.util.stream.Collectors;
  * Project: AdapQuest
  * Date:    29.01.2021 17:56
  */
-public class LanguageTestGerman extends AbstractAdaptiveModel {
-	private static final Logger logger = LogManager.getLogger(LanguageTestGerman.class);
+public class LanguageTest extends AbstractAdaptiveModel {
+	private static final Logger logger = LogManager.getLogger(LanguageTest.class);
 
-	public static final String accessCode = "LanguageTestGerman";
+	public static final String accessCode = "LanguageTest";
 
 	int S0, S1, S2, S3;
 	BayesianNetwork bn;
@@ -30,7 +31,7 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 	List<Question> Qs;
 	Map<Integer, String> skillVarToInt;
 
-	public LanguageTestGerman() {
+	public LanguageTest() {
 		super(accessCode);
 	}
 
@@ -162,13 +163,13 @@ public class LanguageTestGerman extends AbstractAdaptiveModel {
 	public SurveyStructure survey() {
 		return super.survey()
 				.setLanguage("de")
-				.setDescription("This is based on an assessment test for the German language.")
+				.setDescription("This is based on an language level assessment test.")
 				.setDuration(3600L)
 				.setSkillOrder(List.of(skill0.getName(), skill1.getName(), skill2.getName(), skill3.getName()))
 				.setMixedSkillOrder(false)
 				.setAdaptive(true) // default is false!
 				.setQuestionPerSkillMin(2) // at least 2 questions will be done for each skill
-				.setEntropyLowerThreshold(.5) // if entropy is below this threshold, then stop
+				.setScoreLowerThreshold(.5) // if score is below this threshold, then stop
 				.setQuestionTotalMax(45) // TODO: remove
 				;
 	}

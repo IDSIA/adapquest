@@ -23,7 +23,7 @@ public class ResponseState {
 	/**
 	 * Distribution for each skill.
 	 */
-	public Map<String, Double> entropyDistribution = new HashMap<>();
+	public Map<String, Double> scoreDistribution = new HashMap<>();
 
 	/**
 	 * Set of completed skills.

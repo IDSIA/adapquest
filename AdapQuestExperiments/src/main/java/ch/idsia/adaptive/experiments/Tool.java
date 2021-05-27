@@ -431,8 +431,8 @@ public class Tool {
 
 	/**
 	 * Request the remote application to send the current state of the survey associated with the session identified by
-	 * the given token. Thi {@link ResponseState} object contains all the information relative to the skill distribution and
-	 * entropy of a survey.
+	 * the given token. Thi {@link ResponseState} object contains all the information relative to the skill distribution
+	 * and score of a survey.
 	 *
 	 * @param token a valid token created using the {@link #init(String)} method.
 	 * @return a valid {@link ResponseState} object.

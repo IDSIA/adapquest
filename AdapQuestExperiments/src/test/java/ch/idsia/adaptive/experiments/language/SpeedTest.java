@@ -1,4 +1,4 @@
-package ch.idsia.adaptive.experiments.models;
+package ch.idsia.adaptive.experiments.language;
 
 import ch.idsia.crema.entropy.BayesianEntropy;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
@@ -28,7 +28,7 @@ public class SpeedTest {
 		final int[] questions = {10, 30, 50, 70, 90};
 		final int runs = 10;
 
-		final LanguageTestGerman ltg = new LanguageTestGerman();
+		final LanguageTest ltg = new LanguageTest();
 		ltg.model();
 		final BayesianNetwork bn = ltg.bn;
 
