@@ -1,0 +1,94 @@
+label {
+    min-width: 10em;
+}
+
+svg {
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: .25rem;
+}
+
+.charts {
+    display: flex;
+    justify-content: space-between;
+    margin: 1em;
+    flex-wrap: wrap;
+}
+
+.bar-tooltip {
+    position: absolute;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: .25rem;
+    padding: 10px;
+    opacity: 0;
+}
+
+.code {
+    font-family: monospace;
+    background-color: #cccccc;
+    padding: 2pt;
+}
+
+.answers {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+.radio-custom {
+    display: none;
+}
+
+.radio-custom-label {
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: .25rem;
+    background-color: white;
+    padding: 2pt;
+    min-width: 5em;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.radio-custom-label:hover {
+    background-color: dodgerblue;
+}
+
+.radio-custom:checked ~ label {
+    background-color: dodgerblue;
+    color: white;
+}
+
+.submit {
+    text-align: center;
+    margin: 1em;
+}
+
+.submit > input {
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: .25rem;
+    padding: 0.5em 1em;
+}
+
+.submit > input:hover {
+    background-color: dodgerblue;
+}
+
+.chart-line {
+    fill: none;
+    stroke-width: 1.5pt;
+}
+
+.chart-circle {
+    fill: none;
+    stroke: rgba(0, 0, 0, .125);
+    stroke-width: 1px;
+    opacity: 0;
+}
+
+.chart-text {
+    alignment-baseline: middle;
+    text-anchor: start;
+    opacity: 0;
+}

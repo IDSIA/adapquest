@@ -5,16 +5,16 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>ch.idsia.adaptive</groupId>
-	<artifactId>adaptive-survey</artifactId>
+	<artifactId>adapquest</artifactId>
 	<packaging>pom</packaging>
 	<version>1.0</version>
 	<modules>
-		<module>AdaptiveSurveyBackend</module>
-		<module>AdaptiveSurveyExchange</module>
-		<module>AdaptiveSurveyExperiments</module>
+		<module>AdapQuestBackend</module>
+		<module>AdapQuestExchange</module>
+		<module>AdapQuestExperiments</module>
 	</modules>
 
-	<name>AdaptiveSurvey</name>
+	<name>AdapQuest</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -55,7 +55,7 @@
 		<dependency>
 			<groupId>ch.idsia</groupId>
 			<artifactId>crema</artifactId>
-			<version>0.1.7.RC4</version>
+			<version>0.1.7.a</version>
 			<scope>compile</scope>
 		</dependency>
 

@@ -1,0 +1,36 @@
+<svg id="svg" class="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="240"
+     height="80">
+	<style>
+		.st1 { font: bold 20pt sans-serif; fill: orange; stroke: black; }
+		.st2 { font: italic bold 16pt sans-serif; fill: white; stroke: black; }
+		.st3 { font: bold 26pt monospace; fill: red; stroke: black; }
+	</style>
+	<defs>
+		<path id="edge" d="M 0 20 L 20 0 L 35 15 L 0 50 L0 20"/>
+		<linearGradient id="grad1" x1="50%" y1="50%" x2="100%" y2="0%">
+			<stop offset="0%" style="stop-color:rgb(255,255,0);stop-opacity:1"/>
+			<stop offset="100%" style="stop-color:rgb(255,0,0);stop-opacity:1"/>
+		</linearGradient>
+		<linearGradient id="grad2" x1="60%" y1="40%" x2="100%" y2="0%">
+			<stop offset="0%" style="stop-color:rgb(255,0,0);stop-opacity:1"/>
+			<stop offset="100%" style="stop-color:rgb(255,255,0);stop-opacity:1"/>
+		</linearGradient>
+		<radialGradient id="grad3" fx="50%" fy="50%" r="50%">
+			<stop offset="0%" style="stop-color:rgb(255,255,0);stop-opacity:1"/>
+			<stop offset="100%" style="stop-color:rgb(255,0,0);stop-opacity:1"/>
+		</radialGradient>
+	</defs>
+
+	<g transform="translate(50,50)">
+		<rect x="-20" y="-5" width="10" height="10" fill="url(#grad3)" stroke="black" transform="rotate(45)"/>
+		<use xlink:href="#edge" x="-45" y="-45" stroke="black" fill="url(#grad2)" transform="rotate(0)"/>
+		<use xlink:href="#edge" x="-45" y="-25" stroke="black" fill="url(#grad1)" transform="rotate(90)"/>
+		<use xlink:href="#edge" x="-25" y="-25" stroke="black" fill="url(#grad2)" transform="rotate(180)"/>
+		<use xlink:href="#edge" x="-25" y="-45" stroke="black" fill="url(#grad1)" transform="rotate(270)"/>
+	</g>
+	<g transform="translate(80,36)">
+		<text class="st1" x="0" y="0">ADAP</text>
+		<text class="st2" x="75" y="0">tive</text>
+		<text class="st3" x="40" y="25">Quest</text>
+	</g>
+</svg>
