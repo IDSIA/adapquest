@@ -108,24 +108,24 @@ public class Survey {
 	private Integer questionPerSkillMax = Integer.MAX_VALUE;
 
 	/**
-	 * Stop the skill query when the entropy of the node is above this threshold.
+	 * Stop the skill query when the score of the node is above this threshold.
 	 */
-	private Double entropyUpperThreshold = 1.0;
+	private Double scoreUpperThreshold = 1.0;
 
 	/**
-	 * Stop the skill query when the entropy of the node is below this threshold.
+	 * Stop the skill query when the score of the node is below this threshold.
 	 */
-	private Double entropyLowerThreshold = 0.0;
+	private Double scoreLowerThreshold = 0.0;
 
 	/**
-	 * Upper threshold for mean entropy of all skills. If the value is above this threshold, the survey is considered completed.
+	 * Upper threshold for mean score of all skills. If the value is above this threshold, the survey is considered completed.
 	 */
-	public Double globalMeanEntropyUpperThreshold = 1.;
+	public Double globalMeanScoreUpperThreshold = 1.;
 
 	/**
-	 * Lower threshold for mean entropy of all skills. If the value is below this threshold, the survey is considered completed.
+	 * Lower threshold for mean score of all skills. If the value is below this threshold, the survey is considered completed.
 	 */
-	public Double globalMeanEntropyLowerThreshold = 0.;
+	public Double globalMeanScoreLowerThreshold = 0.;
 
 
 	/**

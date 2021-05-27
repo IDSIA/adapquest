@@ -14,7 +14,7 @@ d3.json('/survey/states/' + token)
         data.sort((a, b) => a.totalAnswers - b.totalAnswers)
             .forEach(d => {
                 d.skills.forEach(s => {
-                    entropies.push({'answers': d.totalAnswers, 'skill': s.name, 'value': d.entropyDistribution[s.name]})
+                    entropies.push({'answers': d.totalAnswers, 'skill': s.name, 'value': d.scoreDistribution[s.name]})
                 });
             });
         return entropies;

@@ -5,7 +5,6 @@ import ch.idsia.adaptive.backend.persistence.model.Skill;
 import ch.idsia.adaptive.backend.persistence.model.Survey;
 import ch.idsia.adaptive.backend.services.commons.SurveyException;
 import ch.idsia.adaptive.backend.services.commons.scoring.Scoring;
-import ch.idsia.crema.entropy.BayesianEntropy;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
@@ -28,7 +27,7 @@ public class AgentPreciseAdaptive extends AgentPrecise {
 
 	public boolean isSkillValid(Skill skill) {
 		final BayesianFactor PS = inference.query(model, observations, skill.getVariable());
-		final double HS = BayesianEntropy.H(PS); // skill entropy
+		final double HS = scoring.score(PS);
 		return isSkillValid(skill, HS);
 	}
 
@@ -42,7 +41,7 @@ public class AgentPreciseAdaptive extends AgentPrecise {
 	 * @param skill the skill to test
 	 * @return true if the skill is valid, otherwise false.
 	 */
-	public boolean isSkillValid(Skill skill, double entropy) {
+	public boolean isSkillValid(Skill skill, double score) {
 		final Long questionsDone = (long) questionsDonePerSkill.get(skill).size();
 
 		if (questionsAvailablePerSkill.get(skill).isEmpty()) {
@@ -65,15 +64,15 @@ public class AgentPreciseAdaptive extends AgentPrecise {
 			return true;
 		}
 
-		if (entropy > survey.getEntropyUpperThreshold()) {
-			// skill entropy level achieved
-			logger.debug("skill={} has too low entropy={} (upper={})", skill.getName(), entropy, survey.getEntropyUpperThreshold());
+		if (score > survey.getScoreUpperThreshold()) {
+			// skill score level achieved
+			logger.debug("skill={} has too low score={} (upper={})", skill.getName(), score, survey.getScoreUpperThreshold());
 			return false;
 		}
 
-		if (entropy < survey.getEntropyLowerThreshold()) {
-			// skill entropy level achieved
-			logger.debug("skill={} has too low entropy={} (lower={})", skill.getName(), entropy, survey.getEntropyLowerThreshold());
+		if (score < survey.getScoreLowerThreshold()) {
+			// skill score level achieved
+			logger.debug("skill={} has too low score={} (lower={})", skill.getName(), score, survey.getScoreLowerThreshold());
 			return false;
 		}
 
@@ -99,7 +98,7 @@ public class AgentPreciseAdaptive extends AgentPrecise {
 			return false;
 		}
 
-		// check entropy levels
+		// check score levels
 		double h = 0;
 		for (Skill skill : skills) {
 			Integer S = skill.getVariable();
@@ -112,9 +111,9 @@ public class AgentPreciseAdaptive extends AgentPrecise {
 
 		h /= skills.size();
 
-		if (h < survey.getGlobalMeanEntropyLowerThreshold() || h > survey.getGlobalMeanEntropyUpperThreshold()) {
-			logger.debug("survey finished because the mean global entropy threshold was reached (H={}, lower={}, upper={})",
-					h, survey.getGlobalMeanEntropyLowerThreshold(), survey.getGlobalMeanEntropyUpperThreshold());
+		if (h < survey.getGlobalMeanScoreLowerThreshold() || h > survey.getGlobalMeanScoreUpperThreshold()) {
+			logger.debug("survey finished because the mean global score threshold reached (H={}, lower={}, upper={})",
+					h, survey.getGlobalMeanScoreLowerThreshold(), survey.getGlobalMeanScoreUpperThreshold());
 			return true;
 		}
 
@@ -159,7 +158,7 @@ public class AgentPreciseAdaptive extends AgentPrecise {
 					double HSqi = scoring.score(PSqi);
 					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
 
-					HSQ += HSqi * Pqi; // conditional entropy
+					HSQ += HSqi * Pqi; // conditional score
 				}
 
 				final double infoGain = Math.max(0, HS - HSQ);

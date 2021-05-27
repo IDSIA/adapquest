@@ -5,8 +5,8 @@
     "accessCode": "Alloy-Adaptive-Example",
     "duration": 3600,
     "adaptive": true,
-    "entropyLowerThreshold": 0.5,
-    "globalMeanEntropyLowerThreshold": 0.5,
+    "scoreLowerThreshold": 0.5,
+    "globalMeanScoreLowerThreshold": 0.5,
     "questionTotalMin": 5,
     "questionTotalMax": 20
   },

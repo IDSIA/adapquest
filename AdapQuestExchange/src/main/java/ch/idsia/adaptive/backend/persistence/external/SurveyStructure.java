@@ -85,24 +85,24 @@ public class SurveyStructure {
 	public Integer questionPerSkillMax = Integer.MAX_VALUE;
 
 	/**
-	 * Upper threshold for skill entropy. If the entropy for the skill is above this threshold, the skill is considered completed.
+	 * Upper threshold for skill score. If the score for the skill is above this threshold, the skill is considered completed.
 	 */
-	public Double entropyUpperThreshold = 1.;
+	public Double scoreUpperThreshold = 1.;
 
 	/**
-	 * Lower threshold for skill entropy. If the entropy for the skill is below this threshold, the skill is considered completed.
+	 * Lower threshold for skill score. If the score for the skill is below this threshold, the skill is considered completed.
 	 */
-	public Double entropyLowerThreshold = 0.;
+	public Double scoreLowerThreshold = 0.;
 
 	/**
-	 * Upper threshold for mean entropy of all skills. If the value is above this threshold, the survey is considered completed.
+	 * Upper threshold for mean score of all skills. If the value is above this threshold, the survey is considered completed.
 	 */
-	public Double globalMeanEntropyUpperThreshold = 1.;
+	public Double globalMeanScoreUpperThreshold = 1.;
 
 	/**
-	 * Lower threshold for mean entropy of all skills. If the value is below this threshold, the survey is considered completed.
+	 * Lower threshold for mean score of all skills. If the value is below this threshold, the survey is considered completed.
 	 */
-	public Double globalMeanEntropyLowerThreshold = 0.;
+	public Double globalMeanScoreLowerThreshold = 0.;
 
 	/**
 	 * Minimum number of question to start check for the validity of a skill.

@@ -14,7 +14,7 @@ public class Consts {
 	/**
 	 * Stop the multi skill query when its precision is below this threshold.
 	 */
-	public static double ENTROPY_LEVEL = 0.35;
+	public static double SCORE_LEVEL = 0.35;
 
 	/**
 	 * Minimal number of questions for each skill.
