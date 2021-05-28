@@ -191,11 +191,10 @@ public class InitializationService {
 				.setQuestionsAreRandom(structure.survey.randomQuestions)
 				.setQuestionPerSkillMin(structure.survey.questionPerSkillMin)
 				.setQuestionPerSkillMax(structure.survey.questionPerSkillMax)
-				.setEntropyUpperThreshold(structure.survey.entropyUpperThreshold)
-				.setEntropyLowerThreshold(structure.survey.entropyLowerThreshold)
-				.setGlobalMeanEntropyUpperThreshold(structure.survey.globalMeanEntropyUpperThreshold)
-				.setGlobalMeanEntropyLowerThreshold(structure.survey.globalMeanEntropyLowerThreshold)
-				.setQuestionValidityCheckMin(structure.survey.questionValidityCheckMin)
+				.setScoreUpperThreshold(structure.survey.scoreUpperThreshold)
+				.setScoreLowerThreshold(structure.survey.scoreLowerThreshold)
+				.setGlobalMeanScoreUpperThreshold(structure.survey.globalMeanScoreUpperThreshold)
+				.setGlobalMeanScoreLowerThreshold(structure.survey.globalMeanScoreLowerThreshold)
 				.setQuestionTotalMin(structure.survey.questionTotalMin)
 				.setQuestionTotalMax(structure.survey.questionTotalMax);
 

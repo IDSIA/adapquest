@@ -40,7 +40,7 @@ public abstract class AgentPrecise extends AgentGeneric<BayesianFactor> {
 
 			state.getSkills().put(skill.getName(), skill);
 			state.getState().put(s, f.getData());
-			state.getEntropy().put(s, h);
+			state.getScore().put(s, h);
 
 			if (questionsDonePerSkill.containsKey(skill)) {
 				final long qdps = questionsDonePerSkill.get(skill).size();

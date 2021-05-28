@@ -1,0 +1,35 @@
+package ch.idsia.adaptive.experiments;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+/**
+ * Author:  Claudio "Dna" Bonesana
+ * Project: AdapQuest
+ * Date:    23.02.2021 14:57
+ */
+public class ToolLocalhost extends Tool {
+	private static final Logger logger = LogManager.getLogger(ToolLocalhost.class);
+
+	/**
+	 * Creates an object that can connect to the remote application.
+	 */
+	public ToolLocalhost() {
+		super("localhost", 8080, "", "");
+	}
+
+	@Override
+	public void newApiKey(String magic) throws Exception {
+		// requesting a new key to access the remote application using our MAGIC key
+		if (magic.isEmpty())
+			super.newApiKey("QWRhcHRpdmUgU3VydmV5");
+		else
+			super.newApiKey(magic);
+
+		logger.info("Key: {}", getKey());
+		Files.write(Paths.get(".apikey"), getKey().getBytes()); // key saved to file .apikey
+	}
+}

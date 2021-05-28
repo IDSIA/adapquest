@@ -75,8 +75,8 @@ public abstract class AbstractAdaptiveModel {
 	public SurveyStructure survey() {
 		return new SurveyStructure()
 				.setAccessCode(accessCode)
-				.setEntropyLowerThreshold(ENTROPY_STOP_THRESHOLD_MIN)
-				.setEntropyUpperThreshold(ENTROPY_STOP_THRESHOLD_MAX);
+				.setScoreLowerThreshold(ENTROPY_STOP_THRESHOLD_MIN)
+				.setScoreUpperThreshold(ENTROPY_STOP_THRESHOLD_MAX);
 	}
 
 	/**

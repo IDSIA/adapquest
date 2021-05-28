@@ -77,7 +77,7 @@ public class TestAdaptiveEngine {
 	@Test
 	public void getEntropyDirection() throws Exception {
 		final ImportStructure structure = SurveyStructureRepository.structure2S10Q("test");
-		structure.survey.entropyLowerThreshold = 0.;
+		structure.survey.scoreLowerThreshold = 0.;
 		tool.consoleSurveyAdd(key, structure);
 
 		ResponseQuestion question;
@@ -89,8 +89,8 @@ public class TestAdaptiveEngine {
 
 		logger.info("\n");
 		state = tool.state(data.token);
-		logger.info("Entropy S0: {}\t{}", state.entropyDistribution.get("S0"), state.skillDistribution.get("S0"));
-		logger.info("Entropy S1: {}\t{}\n", state.entropyDistribution.get("S1"), state.skillDistribution.get("S1"));
+		logger.info("Entropy S0: {}\t{}", state.scoreDistribution.get("S0"), state.skillDistribution.get("S0"));
+		logger.info("Entropy S1: {}\t{}\n", state.scoreDistribution.get("S1"), state.skillDistribution.get("S1"));
 
 		for (int i = 0; i < 10; i++) {
 			question = tool.next(data.token);
@@ -101,8 +101,8 @@ public class TestAdaptiveEngine {
 			state = tool.state(data.token);
 			sequence.add(question.name);
 			logger.info("Question:   {}", question.id);
-			logger.info("Entropy S0: {}\t{}", state.entropyDistribution.get("S0"), state.skillDistribution.get("S0"));
-			logger.info("Entropy S1: {}\t{}\n", state.entropyDistribution.get("S1"), state.skillDistribution.get("S1"));
+			logger.info("Entropy S0: {}\t{}", state.scoreDistribution.get("S0"), state.skillDistribution.get("S0"));
+			logger.info("Entropy S1: {}\t{}\n", state.scoreDistribution.get("S1"), state.skillDistribution.get("S1"));
 
 			rqsList.add(state);
 		}
@@ -114,9 +114,9 @@ public class TestAdaptiveEngine {
 
 		logger.info("Sequence:   {}\n", String.join(" ", sequence));
 
-		rqsList.forEach(s0 -> logger.info("Entropy S0: {}\t{}", s0.entropyDistribution.get("S0"), s0.skillDistribution.get("S0")));
+		rqsList.forEach(s0 -> logger.info("Entropy S0: {}\t{}", s0.scoreDistribution.get("S0"), s0.skillDistribution.get("S0")));
 		logger.info("\n");
-		rqsList.forEach(s0 -> logger.info("Entropy S1: {}\t{}", s0.entropyDistribution.get("S1"), s0.skillDistribution.get("S1")));
+		rqsList.forEach(s0 -> logger.info("Entropy S1: {}\t{}", s0.scoreDistribution.get("S1"), s0.skillDistribution.get("S1")));
 		logger.info("\n");
 	}
 
@@ -138,7 +138,7 @@ public class TestAdaptiveEngine {
 		for (double th : thresholds) {
 			logger.info("Threshold: {}", th);
 
-			structure.survey.entropyLowerThreshold = th;
+			structure.survey.scoreLowerThreshold = th;
 			tool.consoleSurveyAdd(key, structure);
 
 			data = tool.init(code);
@@ -165,7 +165,7 @@ public class TestAdaptiveEngine {
 			logger.info("Threshold:      {}", thresholds[i]);
 			logger.info("Questions done: {}", questionsDone.get(i));
 			logger.info("Sequence:       {}", sequences.get(i));
-			logger.info("Entropy:        {}", states.get(i).entropyDistribution.get("S0"));
+			logger.info("Entropy:        {}", states.get(i).scoreDistribution.get("S0"));
 			logger.info("Distribution:   {}", states.get(i).skillDistribution.get("S0"));
 			logger.info("\n");
 		}
@@ -178,7 +178,7 @@ public class TestAdaptiveEngine {
 		ResponseQuestion question;
 		ResponseData data;
 
-		structure.survey.entropyLowerThreshold = .1;
+		structure.survey.scoreLowerThreshold = .1;
 		structure.survey.questionPerSkillMin = 3;
 		tool.consoleSurveyAdd(key, structure);
 

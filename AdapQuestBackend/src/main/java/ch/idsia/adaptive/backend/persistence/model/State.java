@@ -31,11 +31,11 @@ public class State {
 	public Map<String, Skill> skills = new HashMap<>();
 
 	/**
-	 * Mapping skill name to entropy.
+	 * Mapping skill name to score.
 	 */
 	@Convert(converter = MapStringDoubleConverter.class)
-	@Column(name = "entropy", length = 1023)
-	public Map<String, Double> entropy = new HashMap<>();
+	@Column(name = "score", length = 1023)
+	public Map<String, Double> score = new HashMap<>();
 
 	/**
 	 * If a skill is completed (no more questions) its name should be saved there there.

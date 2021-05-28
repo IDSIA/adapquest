@@ -89,7 +89,7 @@ public class Convert {
 		ResponseState rs = new ResponseState();
 
 		rs.skillDistribution = state.getState();
-		rs.entropyDistribution = state.getEntropy();
+		rs.scoreDistribution = state.getScore();
 		rs.skillCompleted = state.getSkillCompleted();
 		rs.questionsPerSkill = state.getQuestionsPerSkill();
 		rs.creationTime = state.getCreation();
