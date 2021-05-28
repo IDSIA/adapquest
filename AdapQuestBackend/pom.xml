@@ -5,12 +5,12 @@
 	<parent>
 		<artifactId>adapquest</artifactId>
 		<groupId>ch.idsia.adaptive</groupId>
-		<version>1.0</version>
+		<version>1.2</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>adapquest-backend</artifactId>
-	<version>1.0</version>
+	<version>1.2</version>
 	<packaging>jar</packaging>
 
 	<name>AdapQuestBackend</name>
@@ -66,7 +66,7 @@
 		<dependency>
 			<groupId>ch.idsia.adaptive</groupId>
 			<artifactId>adapquest-exchange</artifactId>
-			<version>1.0</version>
+			<version>${adapquest.version}</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->

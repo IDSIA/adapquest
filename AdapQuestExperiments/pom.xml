@@ -5,15 +5,15 @@
 	<parent>
 		<artifactId>adapquest</artifactId>
 		<groupId>ch.idsia.adaptive</groupId>
-		<version>1.0</version>
+		<version>1.2</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>adapquest-experiments</artifactId>
-	<version>1.0</version>
+	<version>1.2</version>
 	<packaging>jar</packaging>
 
-	<name>AdapQuestExchange</name>
+	<name>AdapQuestExperiments</name>
 
 	<properties>
 		<maven.compiler.source>11</maven.compiler.source>
@@ -38,12 +38,12 @@
 		<dependency>
 			<groupId>ch.idsia.adaptive</groupId>
 			<artifactId>adapquest-exchange</artifactId>
-			<version>1.0</version>
+			<version>${adapquest.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.idsia.adaptive</groupId>
 			<artifactId>adapquest-backend</artifactId>
-			<version>1.0</version>
+			<version>${adapquest.version}</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
