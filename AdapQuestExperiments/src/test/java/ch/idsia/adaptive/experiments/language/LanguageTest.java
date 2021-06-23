@@ -3,6 +3,7 @@ package ch.idsia.adaptive.experiments.language;
 import ch.idsia.adaptive.backend.persistence.external.*;
 import ch.idsia.adaptive.experiments.models.AbstractAdaptiveModel;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
+import ch.idsia.crema.factor.bayesian.BayesianFactorFactory;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
 import org.apache.logging.log4j.LogManager;
@@ -54,28 +55,44 @@ public class LanguageTest extends AbstractAdaptiveModel {
 		bn.addParent(S3, S2);
 
 		// CPT for the skills
-		bn.setFactor(S0, new BayesianFactor(bn.getDomain(S0), new double[]{
-				.15, .35, .35, .15
-		}));
-		bn.setFactor(S1, new BayesianFactor(bn.getDomain(S0, S1), new double[]{
-				.40, .30, .20, .10,
-				.25, .35, .25, .15,
-				.15, .25, .35, .25,
-				.10, .20, .30, .40
-		}));
-		bn.setFactor(S2, new BayesianFactor(bn.getDomain(S1, S2), new double[]{
-				.40, .30, .20, .10,
-				.25, .35, .25, .15,
-				.15, .25, .35, .25,
-				.10, .20, .30, .40
-		}));
-		bn.setFactor(S3, new BayesianFactor(bn.getDomain(S2, S3), new double[]{
-				.40, .30, .20, .10,
-				.25, .35, .25, .15,
-				.15, .25, .35, .25,
-				.10, .20, .30, .40
-		}));
+		final BayesianFactor bf0 = BayesianFactorFactory.factory()
+				.domain(bn.getDomain(S0))
+				.data(new double[]{
+						.15, .35, .35, .15
+				})
+				.get();
+		final BayesianFactor bf1 = BayesianFactorFactory.factory()
+				.domain(bn.getDomain(S0, S1))
+				.data(new double[]{
+						.40, .30, .20, .10,
+						.25, .35, .25, .15,
+						.15, .25, .35, .25,
+						.10, .20, .30, .40
+				})
+				.get();
+		final BayesianFactor bf2 = BayesianFactorFactory.factory()
+				.domain(bn.getDomain(S1, S2))
+				.data(new double[]{
+						.40, .30, .20, .10,
+						.25, .35, .25, .15,
+						.15, .25, .35, .25,
+						.10, .20, .30, .40
+				})
+				.get();
+		final BayesianFactor bf3 = BayesianFactorFactory.factory()
+				.domain(bn.getDomain(S2, S3))
+				.data(new double[]{
+						.40, .30, .20, .10,
+						.25, .35, .25, .15,
+						.15, .25, .35, .25,
+						.10, .20, .30, .40
+				})
+				.get();
 
+		bn.setFactor(S0, bf0);
+		bn.setFactor(S1, bf1);
+		bn.setFactor(S2, bf2);
+		bn.setFactor(S3, bf3);
 
 		// CPT for questions
 		int A2 = 1, B1 = 2, B2 = 3; // there are no question of A1 difficulty...
@@ -187,9 +204,14 @@ public class LanguageTest extends AbstractAdaptiveModel {
 	 */
 	private Question addQuestion(BayesianNetwork bn, int idx, int skill, int difficulty, double[][] data) {
 		logger.info("Adding to network question node={} difficulty={} for skill={}", idx, difficulty, skill);
-		int q = bn.addVariable(2);
+		final int q = bn.addVariable(2);
+		final BayesianFactor f = BayesianFactorFactory.factory()
+				.domain(bn.getDomain(skill, q))
+				.data(data[difficulty])
+				.get();
+
 		bn.addParent(q, skill);
-		bn.setFactor(q, new BayesianFactor(bn.getDomain(skill, q), data[difficulty]));
+		bn.setFactor(q, f);
 		return new Question(q, skill, difficulty, "Q" + idx);
 	}
 

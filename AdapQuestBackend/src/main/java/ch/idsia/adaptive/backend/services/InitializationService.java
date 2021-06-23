@@ -5,6 +5,7 @@ import ch.idsia.adaptive.backend.persistence.external.ImportStructure;
 import ch.idsia.adaptive.backend.persistence.external.ModelStructure;
 import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
+import ch.idsia.crema.factor.bayesian.BayesianFactorFactory;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -108,7 +109,7 @@ public class InitializationService {
 						x[i] = variables.get(s.parents.get(i - 1));
 
 					// build factor
-					final BayesianFactor bf = new BayesianFactor((bn.getDomain(x)), s.data);
+					final BayesianFactor bf = BayesianFactorFactory.factory().domain(bn.getDomain(x)).data(s.data).get();
 					bn.setFactor(x[0], bf);
 				});
 
