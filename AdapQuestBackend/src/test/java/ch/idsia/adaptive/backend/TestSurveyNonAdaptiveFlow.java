@@ -14,6 +14,7 @@ import ch.idsia.adaptive.backend.services.SessionService;
 import ch.idsia.adaptive.backend.services.SurveyManagerService;
 import ch.idsia.adaptive.backend.utils.TestTool;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
+import ch.idsia.crema.factor.bayesian.BayesianFactorFactory;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -89,15 +90,10 @@ public class TestSurveyNonAdaptiveFlow {
 		bn.addParent(H, A);
 
 		BayesianFactor[] factors = new BayesianFactor[4];
-		factors[A] = new BayesianFactor(bn.getDomain(A));
-		factors[L] = new BayesianFactor(bn.getDomain(A, L));
-		factors[M] = new BayesianFactor(bn.getDomain(A, M));
-		factors[H] = new BayesianFactor(bn.getDomain(A, H));
-
-		factors[A].setData(new double[]{.4, .6});
-		factors[L].setData(new double[]{.2, .4, .7, .8, .6, .3});
-		factors[M].setData(new double[]{.4, .6, .6, .4});
-		factors[H].setData(new double[]{.8, .6, .3, .2, .4, .7});
+		factors[A] = BayesianFactorFactory.factory().domain(bn.getDomain(A)).data(new double[]{.4, .6}).get();
+		factors[L] = BayesianFactorFactory.factory().domain(bn.getDomain(A, L)).data(new double[]{.2, .4, .7, .8, .6, .3}).get();
+		factors[M] = BayesianFactorFactory.factory().domain(bn.getDomain(A, M)).data(new double[]{.4, .6, .6, .4}).get();
+		factors[H] = BayesianFactorFactory.factory().domain(bn.getDomain(A, H)).data(new double[]{.8, .6, .3, .2, .4, .7}).get();
 
 		bn.setFactors(factors);
 

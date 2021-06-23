@@ -2,6 +2,7 @@ package ch.idsia.adaptive.backend;
 
 import ch.idsia.adaptive.backend.persistence.external.*;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
+import ch.idsia.crema.factor.bayesian.BayesianFactorFactory;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
 
@@ -39,9 +40,13 @@ public class SurveyStructureRepository {
 		bn.addParent(q0, s0);
 		bn.addParent(q1, s0);
 
-		bn.setFactor(s0, new BayesianFactor(bn.getDomain(s0), new double[]{.5, .5}));
-		bn.setFactor(q0, new BayesianFactor(bn.getDomain(s0, q0), new double[]{.1, .9, .9, .1}));
-		bn.setFactor(q1, new BayesianFactor(bn.getDomain(s0, q1), new double[]{.51, .49, .49, .51}));
+		final BayesianFactor fS0 = BayesianFactorFactory.factory().domain(bn.getDomain(s0)).data(new double[]{.5, .5}).get();
+		final BayesianFactor fQ0 = BayesianFactorFactory.factory().domain(bn.getDomain(s0, q0)).data(new double[]{.1, .9, .9, .1}).get();
+		final BayesianFactor fQ1 = BayesianFactorFactory.factory().domain(bn.getDomain(s0, q1)).data(new double[]{.51, .49, .49, .51}).get();
+
+		bn.setFactor(s0, fS0);
+		bn.setFactor(q0, fQ0);
+		bn.setFactor(q1, fQ1);
 
 		final String modelData = String.join("\n", new BayesUAIWriter(bn, "").serialize());
 
@@ -71,10 +76,15 @@ public class SurveyStructureRepository {
 		bn.addParent(q0, s0);
 		bn.addParent(q1, s1);
 
-		bn.setFactor(s0, new BayesianFactor(bn.getDomain(s0), new double[]{.4, .6}));
-		bn.setFactor(s1, new BayesianFactor(bn.getDomain(s0, s1), new double[]{.3, .7, .6, .4}));
-		bn.setFactor(q0, new BayesianFactor(bn.getDomain(s0, q0), new double[]{.2, .8, .3, .7}));
-		bn.setFactor(q1, new BayesianFactor(bn.getDomain(s1, q1), new double[]{.6, .4, .4, .6}));
+		final BayesianFactor fS0 = BayesianFactorFactory.factory().domain(bn.getDomain(s0)).data(new double[]{.4, .6}).get();
+		final BayesianFactor fS1 = BayesianFactorFactory.factory().domain(bn.getDomain(s0, s1)).data(new double[]{.3, .7, .6, .4}).get();
+		final BayesianFactor fQ0 = BayesianFactorFactory.factory().domain(bn.getDomain(s0, q0)).data(new double[]{.2, .8, .3, .7}).get();
+		final BayesianFactor fQ1 = BayesianFactorFactory.factory().domain(bn.getDomain(s1, q1)).data(new double[]{.6, .4, .4, .6}).get();
+
+		bn.setFactor(s0, fS0);
+		bn.setFactor(s1, fS1);
+		bn.setFactor(q0, fQ0);
+		bn.setFactor(q1, fQ1);
 
 		final String modelData = String.join("\n", new BayesUAIWriter(bn, "").serialize());
 
@@ -102,8 +112,12 @@ public class SurveyStructureRepository {
 		final int s0 = bn.addVariable(2);
 		final int s1 = bn.addVariable(2);
 		bn.addParent(s1, s0);
-		bn.setFactor(s0, new BayesianFactor(bn.getDomain(s0), new double[]{.51, .49}));
-		bn.setFactor(s1, new BayesianFactor(bn.getDomain(s0, s1), new double[]{.4, .6, .7, .3}));
+
+		final BayesianFactor fS0 = BayesianFactorFactory.factory().domain(bn.getDomain(s0)).data(new double[]{.51, .49}).get();
+		final BayesianFactor fS1 = BayesianFactorFactory.factory().domain(bn.getDomain(s0, s1)).data(new double[]{.4, .6, .7, .3}).get();
+
+		bn.setFactor(s0, fS0);
+		bn.setFactor(s1, fS1);
 
 		final List<SkillStructure> skillStructure = List.of(skill(s0, "S0"), skill(s1, "S1"));
 
@@ -114,7 +128,9 @@ public class SurveyStructureRepository {
 			bn.addParent(q, s0);
 			double r = i * .05;
 			double w = i * .08;
-			bn.setFactor(q, new BayesianFactor(bn.getDomain(s0, q), new double[]{r, 1 - r, 1 - w, w}));
+
+			final BayesianFactor f = BayesianFactorFactory.factory().domain(bn.getDomain(s0, q)).data(new double[]{r, 1 - r, 1 - w, w}).get();
+			bn.setFactor(q, f);
 
 			questionStructure.add(question(q, "Q" + i, "S0"));
 		}
@@ -123,7 +139,9 @@ public class SurveyStructureRepository {
 			bn.addParent(q, s0);
 			double r = i * .08;
 			double w = i * .05;
-			bn.setFactor(q, new BayesianFactor(bn.getDomain(s0, q), new double[]{r, 1 - r, 1 - w, w}));
+
+			final BayesianFactor f = BayesianFactorFactory.factory().domain(bn.getDomain(s0, q)).data(new double[]{r, 1 - r, 1 - w, w}).get();
+			bn.setFactor(q, f);
 
 			questionStructure.add(question(q, "Q" + i, "S1"));
 		}
@@ -141,7 +159,9 @@ public class SurveyStructureRepository {
 	public static ImportStructure structure1S20Q(String code) {
 		final BayesianNetwork bn = new BayesianNetwork();
 		final int s0 = bn.addVariable(2);
-		bn.setFactor(s0, new BayesianFactor(bn.getDomain(s0), new double[]{.51, .49}));
+
+		final BayesianFactor fS0 = BayesianFactorFactory.factory().domain(bn.getDomain(s0)).data(new double[]{.51, .49}).get();
+		bn.setFactor(s0, fS0);
 
 		final List<SkillStructure> skillStructure = List.of(skill(s0, "S0"));
 
@@ -154,7 +174,9 @@ public class SurveyStructureRepository {
 			bn.addParent(q, s0);
 			double v = r.nextDouble();
 			double w = r.nextDouble();
-			bn.setFactor(q, new BayesianFactor(bn.getDomain(s0, q), new double[]{v, 1 - v, 1 - w, w}));
+
+			final BayesianFactor f = BayesianFactorFactory.factory().domain(bn.getDomain(s0, q)).data(new double[]{v, 1 - v, 1 - w, w}).get();
+			bn.setFactor(q, f);
 
 			questionStructure.add(question(q, "Q" + i, "S0"));
 		}
