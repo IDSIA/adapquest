@@ -66,7 +66,13 @@ public class Question implements Comparable<Question> {
 	/**
 	 * If true, this question will be forced to be asked before the adaptive engine starts.
 	 */
-	public Boolean mandatory = false;
+	private Boolean mandatory = false;
+
+	/**
+	 * If true, this will be considered a multiple-choice question. The relative {@link QuestionAnswer} should have
+	 * their own model variable associated.
+	 */
+	private Boolean multipleChoice = false;
 
 	/**
 	 * Score assigned to this question.
@@ -91,6 +97,7 @@ public class Question implements Comparable<Question> {
 	/**
 	 * Skill associated with this question.
 	 */
+	// TODO: support for multi-skill
 	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "fk_question_skill")
 	private Skill skill;

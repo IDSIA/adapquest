@@ -63,6 +63,12 @@ public class QuestionStructure {
 	public Boolean mandatory = false;
 
 	/**
+	 * If true, this will be considered a multiple-choice question. The relative {@link AnswerStructure} should have
+	 * their own model variable associated.
+	 */
+	public Boolean multipleChoice = false;
+
+	/**
 	 * List of available answers.
 	 */
 	public List<AnswerStructure> answers = new ArrayList<>();

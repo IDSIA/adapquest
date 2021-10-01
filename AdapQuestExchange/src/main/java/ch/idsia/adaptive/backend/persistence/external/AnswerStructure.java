@@ -22,14 +22,20 @@ public class AnswerStructure {
 	public String text = "";
 
 	/**
+	 * If the survey is intended as a assessment test, this can be used to mark one answer as "correct".
+	 */
+	public Boolean correct = false;
+
+	/**
 	 * State index in the model associated with this answer.
 	 */
 	public Integer state = 1;
 
 	/**
-	 * If the survey is intended as a assessment test, this can be used to mark one answer as "correct".
+	 * If the {@link QuestionStructure} is a multiple-choice, this will be the reference of the variable in the model.
+	 * Note that for multiple-choice answers, state 1 is checked true while state 0 is checked false.
 	 */
-	public Boolean correct = false;
+	public Integer variable = -1;
 
 	public AnswerStructure(String text, Integer state) {
 		this.text = text;

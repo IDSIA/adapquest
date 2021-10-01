@@ -40,7 +40,13 @@ public class QuestionAnswer {
 	/**
 	 * Refers to the state of the the model associated with this answer.
 	 */
-	private Integer state;
+	private Integer state = -1;
+
+	/**
+	 * If the {@link Question} is a multiple-choice, this will be the reference of the variable in the model. Note that
+	 * for multiple-choice answers, state 1 is checked true while state 0 is checked false.
+	 */
+	private Integer variable = -1;
 
 	@OneToMany(mappedBy = "questionAnswer", fetch = FetchType.EAGER)
 	private List<Answer> answers;

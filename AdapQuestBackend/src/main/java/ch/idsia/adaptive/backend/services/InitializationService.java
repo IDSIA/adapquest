@@ -43,7 +43,7 @@ public class InitializationService {
 	}
 
 	public void init() {
-		long surveysNum = surveys.count();
+		final long surveysNum = surveys.count();
 
 		if (surveysNum > 0) {
 			logger.info("Data already initialized: {} surveys found(s)", surveysNum);
@@ -56,7 +56,7 @@ public class InitializationService {
 	}
 
 	void readDataFolder() {
-		Path cwd = Paths.get("");
+		final Path cwd = Paths.get("");
 		try (Stream<Path> paths = Files.walk(cwd.resolve("data"))) {
 			paths
 					.filter(Files::isRegularFile)
@@ -165,11 +165,13 @@ public class InitializationService {
 						.setIsExample(q.example)
 						.setRandomAnswers(q.randomAnswers)
 						.setMandatory(q.mandatory)
+						.setMultipleChoice(q.multipleChoice)
 						.addAnswersAvailable(q.answers.stream()
 								.map(a -> new QuestionAnswer()
 										.setText(a.text)
 										.setState(a.state)
 										.setIsCorrect(a.correct)
+										.setVariable(a.variable)
 								)
 								.toArray(QuestionAnswer[]::new)
 						)
@@ -177,7 +179,7 @@ public class InitializationService {
 		logger.info("Found {} question(s)", questions.size());
 
 		// build survey
-		Survey survey = new Survey()
+		final Survey survey = new Survey()
 				.setLanguage(structure.survey.language)
 				.setAccessCode(structure.survey.accessCode)
 				.setDescription(structure.survey.description)
