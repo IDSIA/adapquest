@@ -7,13 +7,13 @@ import java.util.Objects;
  * Project: adapquest
  * Date:    29.09.2021 17:15
  */
-public class Answer {
+public class KAnswer {
 
 	final int questionId;
 	final int answerId;
 	final String text;
 
-	public Answer(int questionId, int answerId, String text) {
+	public KAnswer(int questionId, int answerId, String text) {
 		this.questionId = questionId;
 		this.answerId = answerId;
 		this.text = text;
@@ -23,7 +23,7 @@ public class Answer {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		Answer answer = (Answer) o;
+		KAnswer answer = (KAnswer) o;
 		return answerId == answer.answerId && text.equals(answer.text);
 	}
 

@@ -9,17 +9,21 @@ import java.util.Objects;
  * Project: adapquest
  * Date:    29.09.2021 17:48
  */
-public class BinaryQuestion {
+public class KBinaryQuestion {
 
 	final int questionId;
+	final int answerId;
+	final int binaryQuestionId;
 	final boolean mandatory;
 	final String questionText;
 	final String binaryQuestionText;
 
 	final Map<String, Double> values = new HashMap<>();
 
-	public BinaryQuestion(int questionId, boolean mandatory, String questionText, String binaryQuestionText) {
+	public KBinaryQuestion(int questionId, int answerId, int binaryQuestionId, boolean mandatory, String questionText, String binaryQuestionText) {
 		this.questionId = questionId;
+		this.answerId = answerId;
+		this.binaryQuestionId = binaryQuestionId;
 		this.mandatory = mandatory;
 		this.questionText = questionText;
 		this.binaryQuestionText = binaryQuestionText;
@@ -29,7 +33,7 @@ public class BinaryQuestion {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		BinaryQuestion that = (BinaryQuestion) o;
+		KBinaryQuestion that = (KBinaryQuestion) o;
 		return Objects.equals(binaryQuestionText, that.binaryQuestionText);
 	}
 
@@ -42,6 +46,7 @@ public class BinaryQuestion {
 	public String toString() {
 		return "BinaryQuestion{" +
 				"questionId=" + questionId +
+				", answerId=" + answerId +
 				", mandatory=" + mandatory +
 				", questionText=" + questionText +
 				", binaryQuestionText=" + binaryQuestionText +

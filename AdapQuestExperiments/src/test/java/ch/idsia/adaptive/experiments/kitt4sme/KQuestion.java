@@ -7,14 +7,14 @@ import java.util.Objects;
  * Project: adapquest
  * Date:    29.09.2021 17:11
  */
-public class Question {
+public class KQuestion {
 	final int questionId;
 	final int sectionId;
 	final boolean mandatory;
 	final boolean exclusivity;
 	final String questionText;
 
-	public Question(int questionId, int sectionId, boolean mandatory, boolean exclusivity, String questionText) {
+	public KQuestion(int questionId, int sectionId, boolean mandatory, boolean exclusivity, String questionText) {
 		this.questionId = questionId;
 		this.sectionId = sectionId;
 		this.mandatory = mandatory;
@@ -26,7 +26,7 @@ public class Question {
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
-		Question question = (Question) o;
+		KQuestion question = (KQuestion) o;
 		return questionText.equals(question.questionText);
 	}
 
