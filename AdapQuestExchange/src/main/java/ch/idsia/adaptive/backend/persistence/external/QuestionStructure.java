@@ -5,7 +5,9 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -18,9 +20,9 @@ import java.util.List;
 public class QuestionStructure {
 
 	/**
-	 * Name of the skill.
+	 * Names of the skills.
 	 */
-	public String skill = "";
+	public Set<String> skills = new HashSet<>();
 
 	/**
 	 * Question for the final subject.
@@ -69,8 +71,18 @@ public class QuestionStructure {
 	public Boolean multipleChoice = false;
 
 	/**
+	 * If true, this question influence a number of {@link SkillStructure} greater than 1.
+	 */
+	public Boolean multipleSkills = false;
+
+	/**
 	 * List of available answers.
 	 */
 	public List<AnswerStructure> answers = new ArrayList<>();
+
+	public QuestionStructure setSkill(String skill) {
+		skills.add(skill);
+		return this;
+	}
 
 }

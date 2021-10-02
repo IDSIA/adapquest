@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -58,12 +59,12 @@ public class Answer {
 		return question.getId();
 	}
 
-	public Skill getSkill() {
-		return question.getSkill();
+	public Set<Skill> getSkills() {
+		return question.getSkills();
 	}
 
 	@Override
 	public String toString() {
-		return String.format("Answer to Question %d %s %s: %s", getQuestionId(), getSkill(), getQuestion().getName(), isCorrect);
+		return String.format("Answer to Question %d %s %s: %s", getQuestionId(), getSkills(), getQuestion().getName(), isCorrect);
 	}
 }

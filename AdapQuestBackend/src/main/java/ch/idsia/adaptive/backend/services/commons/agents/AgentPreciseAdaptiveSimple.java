@@ -1,6 +1,7 @@
 package ch.idsia.adaptive.backend.services.commons.agents;
 
 import ch.idsia.adaptive.backend.persistence.model.Question;
+import ch.idsia.adaptive.backend.persistence.model.QuestionAnswer;
 import ch.idsia.adaptive.backend.persistence.model.Skill;
 import ch.idsia.adaptive.backend.persistence.model.Survey;
 import ch.idsia.adaptive.backend.services.commons.SurveyException;
@@ -19,6 +20,9 @@ import java.util.Map;
  * Author:  Claudio "Dna" Bonesana
  * Project: AdapQuest
  * Date:    14.12.2020 17:17
+ * <p>
+ * This {@link Agent} is compatible with any precise model. {@link Question}s with multiple skills or multi-choice are
+ * also supported.
  */
 public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 	private static final Logger logger = LogManager.getLogger(AgentPreciseAdaptiveSimple.class);
@@ -89,34 +93,12 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 		}
 
 		for (Question question : questions) {
-			final Integer Q = question.getVariable();
-			final int size = model.getSize(Q);
+			final double meanInfoGain;
 
-			final BayesianFactor PQ = inference.query(model, observations, Q);
-
-			double meanInfoGain = 0;
-			for (Skill skill : skills) {
-				final Integer S = skill.getVariable();
-				final Double HS = HSs.get(skill);
-
-				double HSQ = 0;
-
-				for (int i = 0; i < size; i++) {
-					final TIntIntMap qi = new TIntIntHashMap(observations);
-					qi.put(Q, i);
-
-					final BayesianFactor PSqi = inference.query(model, qi, S);
-					final double Pqi = PQ.getValue(i);
-					double HSqi = scoring.score(PSqi);
-					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
-
-					HSQ += HSqi * Pqi; // conditional score
-				}
-
-//				logger.debug("question={} skill={} with HSQ={}", question.getName(), skill.getName(), HSQ);
-
-				meanInfoGain += Math.max(0, HS - HSQ) / skills.size();
-			}
+			if (question.getMultipleChoice())
+				meanInfoGain = questionMultipleChoiceScore(HSs, question);
+			else
+				meanInfoGain = questionScore(HSs, question);
 
 			logger.debug("question={} with average infoGain={}", question.getName(), meanInfoGain);
 
@@ -137,5 +119,74 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 		}
 
 		return nextQuestion;
+	}
+
+	private double questionScore(Map<Skill, Double> HSs, Question question) {
+		final Integer Q = question.getVariable();
+		final int size = model.getSize(Q);
+
+		final BayesianFactor PQ = inference.query(model, observations, Q);
+
+		double meanInfoGain = 0;
+		for (Skill skill : skills) {
+			final Integer S = skill.getVariable();
+			final Double HS = HSs.get(skill);
+
+			double HSQ = 0;
+
+			for (int i = 0; i < size; i++) {
+				final TIntIntMap qi = new TIntIntHashMap(observations);
+				qi.put(Q, i);
+
+				final BayesianFactor PSqi = inference.query(model, qi, S);
+				final double Pqi = PQ.getValue(i);
+				double HSqi = scoring.score(PSqi);
+				HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
+
+				HSQ += HSqi * Pqi; // conditional score
+			}
+
+//				logger.debug("question={} skill={} with HSQ={}", question.getName(), skill.getName(), HSQ);
+
+			meanInfoGain += Math.max(0, HS - HSQ) / skills.size();
+		}
+		return meanInfoGain;
+	}
+
+	private double questionMultipleChoiceScore(Map<Skill, Double> HSs, Question question) {
+		double meanInfoGain = 0;
+
+		// mean of all possible answers
+		for (QuestionAnswer answer : question.getAnswersAvailable()) {
+			final Integer Q = answer.getVariable();
+			final int size = model.getSize(Q);
+
+			final BayesianFactor PQ = inference.query(model, observations, Q);
+
+			// mean of gain for each skill
+			for (Skill skill : skills) {
+				final Integer S = skill.getVariable();
+				final Double HS = HSs.get(skill);
+
+				double HSQ = 0;
+
+				for (int i = 0; i < size; i++) {
+					final TIntIntMap qi = new TIntIntHashMap(observations);
+					qi.put(Q, i);
+
+					final BayesianFactor PSqi = inference.query(model, qi, S);
+					final double Pqi = PQ.getValue(i);
+					double HSqi = scoring.score(PSqi);
+					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
+
+					HSQ += HSqi * Pqi; // conditional score
+				}
+
+//				logger.debug("question={} skill={} answer={} with HSQ={}", question.getName(), skill.getName(), answer.getVariable(), HSQ);
+
+				meanInfoGain += Math.max(0, HS - HSQ) / skills.size();
+			}
+		}
+		return meanInfoGain / question.getAnswersAvailable().size();
 	}
 }

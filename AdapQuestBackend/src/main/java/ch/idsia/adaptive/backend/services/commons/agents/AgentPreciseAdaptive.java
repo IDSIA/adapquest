@@ -17,6 +17,9 @@ import java.util.Collection;
  * Author:  Claudio "Dna" Bonesana
  * Project: AdapQuest
  * Date:    14.12.2020 17:17
+ * <p>
+ * This specific {@link Agent} works on a model that have a single parent skill for each available question.
+ * For a multi-skill model, consider using the {@link AgentPreciseAdaptiveSimple} agent.
  */
 public class AgentPreciseAdaptive extends AgentPrecise {
 	private static final Logger logger = LogManager.getLogger(AgentPreciseAdaptive.class);

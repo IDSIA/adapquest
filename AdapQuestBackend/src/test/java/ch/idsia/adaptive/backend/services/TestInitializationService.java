@@ -86,7 +86,7 @@ public class TestInitializationService {
 		assertNotNull(survey);
 		survey.getQuestions().forEach(q -> {
 					assertTrue(q.getVariable() >= 0);
-					assertTrue(q.getSkill().getVariable() >= 0);
+			q.getSkills().forEach(s -> assertTrue(s.getVariable() >= 0));
 				}
 		);
 	}

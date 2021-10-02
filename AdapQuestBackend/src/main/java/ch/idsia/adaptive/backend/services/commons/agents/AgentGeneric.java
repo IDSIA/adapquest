@@ -102,8 +102,7 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 	}
 
 	public void addQuestions(Set<Question> questions) {
-		questions.forEach(q -> {
-			Skill skill = q.getSkill();
+		questions.forEach(q -> q.getSkills().forEach(skill -> {
 			this.questions.add(q);
 			this.questionsDonePerSkill.putIfAbsent(skill, new LinkedList<>());
 			this.questionsAvailablePerSkill.computeIfAbsent(skill, x -> new LinkedList<>()).add(q);
@@ -113,7 +112,7 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 			if (q.getMandatory()) {
 				this.mandatoryQuestions.add(q);
 			}
-		});
+		}));
 		this.questions.sort(Comparator.comparingInt(Question::getVariable));
 	}
 
@@ -123,22 +122,29 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 			return;
 		}
 
-		Skill s = q.getSkill();
+		q.getSkills().forEach(s -> {
+			// remove from possible questions per skill
+			questionsAvailablePerSkill.get(s).remove(q);
+
+			// add to done per skill slacks
+			questionsDonePerSkill.get(s).add(q);
+		});
 
 		// remove from possible questions
-		questionsAvailablePerSkill.get(s).remove(q);
 		questions.remove(q);
 		if (q.getMandatory())
 			mandatoryQuestions.remove(q);
 
 		// add to done slacks
-		questionsDonePerSkill.get(s).add(q);
 		questionsDone.add(q);
 
 		// update current question
 		currentQuestion = q;
 
-		logger.debug("next question is skill={} question={}", s.getName(), q.getName());
+		logger.debug("next question is skill={} question={}",
+				q.getSkills().stream().map(Skill::getName).collect(Collectors.joining(",")),
+				q.getName()
+		);
 		answered = false;
 	}
 

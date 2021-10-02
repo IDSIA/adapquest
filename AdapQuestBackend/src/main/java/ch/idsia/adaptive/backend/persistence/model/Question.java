@@ -6,10 +6,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -75,6 +72,11 @@ public class Question implements Comparable<Question> {
 	private Boolean multipleChoice = false;
 
 	/**
+	 * If true, this question influence a number of {@link Skill} greater than 1.
+	 */
+	private Boolean multipleSkills = false;
+
+	/**
 	 * Score assigned to this question.
 	 */
 	@Transient
@@ -95,12 +97,11 @@ public class Question implements Comparable<Question> {
 	private Set<Answer> answers;
 
 	/**
-	 * Skill associated with this question.
+	 * Skills associated with this question.
 	 */
-	// TODO: support for multi-skill
-	@ManyToOne(cascade = CascadeType.PERSIST)
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "fk_question_skill")
-	private Skill skill;
+	private Set<Skill> skills;
 
 	/**
 	 * Survey that include this question.
@@ -117,6 +118,22 @@ public class Question implements Comparable<Question> {
 		return this;
 	}
 
+	public Question addSkills(Collection<Skill> skills) {
+		if (Objects.isNull(this.skills))
+			this.skills = new HashSet<>();
+
+		this.skills.addAll(skills);
+		return this;
+	}
+
+	public Question setSkill(Skill skill) {
+		if (Objects.isNull(this.skills))
+			this.skills = new HashSet<>();
+
+		this.skills.add(skill);
+		return this;
+	}
+
 	@Override
 	public int compareTo(Question other) {
 		return Double.compare(this.weight, other.weight);
@@ -126,7 +143,7 @@ public class Question implements Comparable<Question> {
 	public String toString() {
 		return "Question{" +
 				"id=" + id +
-				", skill=" + skill +
+				", skill=" + skills +
 				", name=" + name +
 				", weight=" + weight +
 				'}';
@@ -144,4 +161,5 @@ public class Question implements Comparable<Question> {
 	public int hashCode() {
 		return Objects.hash(question, name, variable);
 	}
+
 }

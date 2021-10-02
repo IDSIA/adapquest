@@ -29,7 +29,7 @@ public class Skill implements Comparable<Skill> {
 	private Long id;
 
 	/**
-	 * Skill name;
+	 * Skill name.
 	 */
 	private String name;
 
