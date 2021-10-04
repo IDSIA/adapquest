@@ -59,10 +59,10 @@ public class Experiments {
 
 					for (int o = 0; o < nodesPerQuestion[k]; o++) {
 						final int v = sample.get(j);
-						if (v == 1) {
-							System.out.printf("%2d = %d ", j, v);
-							obs.put(j, v);
-						}
+//						if (v == 1) {
+						System.out.printf("%2d = %d ", j, v);
+						obs.put(j, v);
+//						}
 						j++;
 					}
 					System.out.println();
@@ -84,8 +84,8 @@ public class Experiments {
 			} else {
 				for (int j = N_SKILLS; j < N_QUESTIONS; j++) {
 					final int o = sample.get(j);
-					if (o == 0)
-						continue;
+//					if (o == 0)
+//						continue;
 
 					obs.put(j, o);
 

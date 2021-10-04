@@ -17,6 +17,8 @@ import java.util.*;
  */
 public class KModelMultiple extends AbstractAdaptiveModel {
 
+	final static double eps = 0.01;
+
 	final BayesianNetwork model = new BayesianNetwork();
 	final List<BayesianFactor> factors = new ArrayList<>();
 
@@ -69,7 +71,7 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 				bq.values.forEach((k, v) -> {
 					if (v > 0) {
 						parents.add(nameVariables.get(k));
-						inhibitors.add(1.0 - v);
+						inhibitors.add(1.0 - v + eps);
 					} else if (v < 0) {
 						ko.add(k);
 					}
