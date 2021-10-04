@@ -39,8 +39,8 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 				.setName(name)
 				.setVariable(q)
 				.setStates(List.of(
-						new StateStructure("0", 0),
-						new StateStructure("1", 1)
+						new StateStructure("no", 0),
+						new StateStructure("yes", 1)
 				));
 		skills.add(s);
 		skillNames.add(name);
@@ -82,6 +82,7 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 				final double[] i = inhibitors.stream().mapToDouble(x -> x).toArray();
 
 				parents.add(nor);
+				model.addParents(nor, p);
 
 				final KAnswer a = as.get(bq.questionId + "$" + bq.answerId);
 

@@ -39,8 +39,8 @@ public class KModelSingle extends AbstractAdaptiveModel {
 				.setName(name)
 				.setVariable(q)
 				.setStates(List.of(
-						new StateStructure("0", 0),
-						new StateStructure("1", 1)
+						new StateStructure("no", 0),
+						new StateStructure("yes", 1)
 				));
 		skills.add(s);
 		skillNames.add(name);
@@ -72,6 +72,8 @@ public class KModelSingle extends AbstractAdaptiveModel {
 
 			final int[] p = parents.stream().mapToInt(x -> x).toArray();
 			final double[] i = inhibitors.stream().mapToDouble(x -> x).toArray();
+
+			model.addParents(nor, p);
 
 			parents.add(nor);
 

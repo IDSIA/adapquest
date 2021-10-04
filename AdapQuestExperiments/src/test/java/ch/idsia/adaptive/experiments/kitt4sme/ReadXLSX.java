@@ -166,7 +166,7 @@ public class ReadXLSX {
 		variables.forEach(modelMultiple::addSkill);
 		modelMultiple.addQuestion(questions, ansMap, bqMap);
 
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter("AdaptiveQuestionnaire.multiple.model.txt"))) {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter("AdaptiveQuestionnaire.multiple.model.uai"))) {
 			bw.write(modelMultiple.model());
 		}
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter("AdaptiveQuestionnaire.multiple.survey.json"))) {
@@ -177,7 +177,7 @@ public class ReadXLSX {
 		variables.forEach(modelSingle::addSkill);
 		bqMap.forEach((k, v) -> modelSingle.addQuestion(v));
 
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter("AdaptiveQuestionnaire.single.model.txt"))) {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter("AdaptiveQuestionnaire.single.model.uai"))) {
 			bw.write(modelSingle.model());
 		}
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter("AdaptiveQuestionnaire.single.survey.json"))) {
