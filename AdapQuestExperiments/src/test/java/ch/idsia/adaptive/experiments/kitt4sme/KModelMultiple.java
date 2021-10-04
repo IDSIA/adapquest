@@ -1,9 +1,6 @@
 package ch.idsia.adaptive.experiments.kitt4sme;
 
-import ch.idsia.adaptive.backend.persistence.external.AnswerStructure;
-import ch.idsia.adaptive.backend.persistence.external.QuestionStructure;
-import ch.idsia.adaptive.backend.persistence.external.SkillStructure;
-import ch.idsia.adaptive.backend.persistence.external.StateStructure;
+import ch.idsia.adaptive.backend.persistence.external.*;
 import ch.idsia.adaptive.experiments.models.AbstractAdaptiveModel;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import ch.idsia.crema.factor.bayesian.BayesianFactorFactory;
@@ -61,10 +58,13 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 			if (bqlist == null)
 				continue;
 
+			final Set<String> skills = new HashSet<>();
 			for (KBinaryQuestion bq : bqlist) {
 				final List<Integer> parents = new ArrayList<>();
 				final List<Double> inhibitors = new ArrayList<>();
 				final List<String> ko = new ArrayList<>();
+
+				skills.addAll(bq.values.keySet());
 
 				bq.values.forEach((k, v) -> {
 					if (v > 0) {
@@ -85,9 +85,17 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 
 				final KAnswer a = as.get(bq.questionId + "$" + bq.answerId);
 
+				// displayed in multiple choice
 				answers.add(new AnswerStructure()
 						.setText(a.text)
 						.setVariable(nor)
+						.setState(1)
+				);
+				// hidden state
+				answers.add(new AnswerStructure()
+						.setText("no")
+						.setVariable(nor)
+						.setState(0)
 				);
 
 				final int[] vars = parents.stream().mapToInt(x -> x).toArray();
@@ -101,6 +109,8 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 							.setQuestion(question.questionText)
 							.setMandatory(question.mandatory)
 							.setMultipleChoice(true)
+							.setMultipleSkills(true)
+							.setSkills(skills)
 							.setAnswers(answers)
 			);
 
@@ -123,5 +133,11 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 	@Override
 	public List<QuestionStructure> questions() {
 		return questions;
+	}
+
+	@Override
+	public SurveyStructure survey() {
+		return super.survey()
+				.setSimple(true);
 	}
 }

@@ -1,9 +1,6 @@
 package ch.idsia.adaptive.experiments.kitt4sme;
 
-import ch.idsia.adaptive.backend.persistence.external.AnswerStructure;
-import ch.idsia.adaptive.backend.persistence.external.QuestionStructure;
-import ch.idsia.adaptive.backend.persistence.external.SkillStructure;
-import ch.idsia.adaptive.backend.persistence.external.StateStructure;
+import ch.idsia.adaptive.backend.persistence.external.*;
 import ch.idsia.adaptive.experiments.models.AbstractAdaptiveModel;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import ch.idsia.crema.factor.bayesian.BayesianFactorFactory;
@@ -57,6 +54,7 @@ public class KModelSingle extends AbstractAdaptiveModel {
 			final List<Integer> parents = new ArrayList<>();
 			final List<Double> inhibitors = new ArrayList<>();
 			final List<String> ko = new ArrayList<>();
+			final Set<String> skills = bq.values.keySet();
 
 			bq.values.forEach((k, v) -> {
 				if (v > 0) {
@@ -84,6 +82,7 @@ public class KModelSingle extends AbstractAdaptiveModel {
 							.setMandatory(bq.mandatory)
 							.setMultipleChoice(false)
 							.setVariable(nor)
+							.setSkills(skills)
 							.setAnswers(List.of(
 									new AnswerStructure().setState(0).setText("no"),
 									new AnswerStructure().setState(1).setText("yes")
@@ -113,5 +112,11 @@ public class KModelSingle extends AbstractAdaptiveModel {
 	@Override
 	public List<QuestionStructure> questions() {
 		return questions;
+	}
+
+	@Override
+	public SurveyStructure survey() {
+		return super.survey()
+				.setSimple(true);
 	}
 }
