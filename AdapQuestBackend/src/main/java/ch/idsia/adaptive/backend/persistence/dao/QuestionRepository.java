@@ -1,7 +1,6 @@
 package ch.idsia.adaptive.backend.persistence.dao;
 
 import ch.idsia.adaptive.backend.persistence.model.Question;
-import ch.idsia.adaptive.backend.persistence.model.Survey;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +12,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface QuestionRepository extends CrudRepository<Question, Long> {
 
-	Question findQuestionBySurveyAndId(Survey survey, Long id);
+	Question findQuestionBySurveyIdAndId(Long survey, Long id);
 
 }

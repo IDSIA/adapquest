@@ -33,7 +33,7 @@ public abstract class AgentPrecise extends AgentGeneric<BayesianFactor> {
 		final State state = new State();
 
 		for (Skill skill : skills) {
-			String s = skill.getName();
+			final String s = skill.getName();
 
 			final BayesianFactor f = inference.query(model, observations, skill.getVariable());
 			final double h = scoring.score(f);

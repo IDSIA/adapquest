@@ -36,6 +36,12 @@ svg {
     flex-wrap: wrap;
 }
 
+.answers.multi {
+    justify-content: left;
+    flex-direction: column;
+    padding-left: 10rem;
+}
+
 .radio-custom {
     display: none;
 }
@@ -55,6 +61,30 @@ svg {
 }
 
 .radio-custom:checked ~ label {
+    background-color: dodgerblue;
+    color: white;
+}
+
+.check-custom {
+    transform: scale(1.41);
+    margin: 0 4pt;
+}
+
+.check-custom-label {
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: .25rem;
+    background-color: white;
+    padding: 2pt 4pt;
+    min-width: 5em;
+    flex-grow: 1;
+    text-align: left;
+}
+
+.check-custom-label:hover {
+    background-color: dodgerblue;
+}
+
+.check-custom:checked ~ label {
     background-color: dodgerblue;
     color: white;
 }

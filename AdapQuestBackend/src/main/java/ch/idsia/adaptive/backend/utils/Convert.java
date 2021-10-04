@@ -26,6 +26,7 @@ public class Convert {
 
 		rq.isExample = question.getIsExample();
 		rq.randomAnswers = question.getRandomAnswers();
+		rq.multipleChoice = question.getMultipleChoice();
 
 		rq.answers = question.getAnswersAvailable().stream()
 				.map(Convert::toResponse)

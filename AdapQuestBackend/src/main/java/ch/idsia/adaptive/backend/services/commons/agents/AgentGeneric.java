@@ -102,17 +102,20 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 	}
 
 	public void addQuestions(Set<Question> questions) {
-		questions.forEach(q -> q.getSkills().forEach(skill -> {
+		questions.forEach(q -> {
 			this.questions.add(q);
-			this.questionsDonePerSkill.putIfAbsent(skill, new LinkedList<>());
-			this.questionsAvailablePerSkill.computeIfAbsent(skill, x -> new LinkedList<>()).add(q);
 			if (q.getIsExample()) {
 				this.mandatoryQuestions.addFirst(q);
 			}
 			if (q.getMandatory()) {
 				this.mandatoryQuestions.add(q);
 			}
-		}));
+
+			q.getSkills().forEach(skill -> {
+				this.questionsDonePerSkill.putIfAbsent(skill, new LinkedList<>());
+				this.questionsAvailablePerSkill.computeIfAbsent(skill, x -> new LinkedList<>()).add(q);
+			});
+		});
 		this.questions.sort(Comparator.comparingInt(Question::getVariable));
 	}
 
@@ -161,7 +164,12 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 	public boolean check(Answer answer) {
 		if (currentQuestion != null && currentQuestion.getVariable().equals(answer.getQuestion().getVariable())) {
 			if (!answer.getQuestion().getIsExample()) {
-				final Integer variable = answer.getQuestion().getVariable();
+				final Integer variable;
+				if (currentQuestion.getMultipleChoice()) {
+					variable = answer.getQuestionAnswer().getVariable();
+				} else {
+					variable = answer.getQuestion().getVariable();
+				}
 				final Integer state = answer.getQuestionAnswer().getState();
 				observations.put(variable, state);
 			}

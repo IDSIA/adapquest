@@ -27,12 +27,13 @@ public class AnswerStructure {
 	public Boolean correct = false;
 
 	/**
-	 * State index in the model associated with this answer.
+	 * If the parent {@link QuestionStructure} is NOT a multiple-choice question, this state index refers to the index
+	 * in the model associated with this answer on the parent question node.
 	 */
 	public Integer state = 1;
 
 	/**
-	 * If the {@link QuestionStructure} is a multiple-choice, this will be the reference of the variable in the model.
+	 * If the parent {@link QuestionStructure} is a multiple-choice, this will be the reference of the variable in the model.
 	 * Note that for multiple-choice answers, state 1 is checked true while state 0 is checked false.
 	 */
 	public Integer variable = -1;

@@ -41,6 +41,12 @@ public class ResponseQuestion {
 	public Boolean isExample = false;
 
 	/**
+	 * If true, this will be considered a multiple-choice question. The relative {@link ResponseAnswer}s should have
+	 * their own model variable associated.
+	 */
+	public Boolean multipleChoice = false;
+
+	/**
 	 * If tree, the possible answers should be showed in a random order.
 	 */
 	public Boolean randomAnswers = false;
@@ -49,4 +55,5 @@ public class ResponseQuestion {
 	 * Score assigned to the question by the adaptive engine.
 	 */
 	public Double score;
+
 }

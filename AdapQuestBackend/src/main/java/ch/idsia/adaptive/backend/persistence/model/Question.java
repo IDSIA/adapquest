@@ -66,7 +66,7 @@ public class Question implements Comparable<Question> {
 	private Boolean mandatory = false;
 
 	/**
-	 * If true, this will be considered a multiple-choice question. The relative {@link QuestionAnswer} should have
+	 * If true, this will be considered a multiple-choice question. The relative {@link QuestionAnswer}s should have
 	 * their own model variable associated.
 	 */
 	private Boolean multipleChoice = false;

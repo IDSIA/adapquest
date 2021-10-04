@@ -1,9 +1,6 @@
 package ch.idsia.adaptive.backend.controller;
 
-import ch.idsia.adaptive.backend.persistence.dao.AnswerRepository;
-import ch.idsia.adaptive.backend.persistence.dao.QuestionAnswerRepository;
-import ch.idsia.adaptive.backend.persistence.dao.StatesRepository;
-import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
+import ch.idsia.adaptive.backend.persistence.dao.*;
 import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.persistence.requests.RequestAnswer;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
@@ -25,8 +22,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -44,7 +40,8 @@ public class SurveyController {
 
 	final SurveyRepository surveys;
 	final StatesRepository statuses;
-	final QuestionAnswerRepository questions;
+	final QuestionAnswerRepository questionAnswers;
+	final QuestionRepository questions;
 	final AnswerRepository answers;
 
 	@Autowired
@@ -53,7 +50,8 @@ public class SurveyController {
 			SurveyManagerService manager,
 			SurveyRepository surveys,
 			StatesRepository statuses,
-			QuestionAnswerRepository questions,
+			QuestionRepository questions,
+			QuestionAnswerRepository questionAnswers,
 			AnswerRepository answers
 	) {
 		this.sessions = sessions;
@@ -61,6 +59,7 @@ public class SurveyController {
 		this.surveys = surveys;
 		this.statuses = statuses;
 		this.questions = questions;
+		this.questionAnswers = questionAnswers;
 		this.answers = answers;
 	}
 
@@ -188,7 +187,7 @@ public class SurveyController {
 	) {
 		final Long questionId = answer.question;
 		final Long answerId = answer.answer;
-		return checkAnswer(token, questionId, answerId, request);
+		return checkAnswer(token, questionId, new Long[]{answerId}, request);
 	}
 
 	/**
@@ -196,7 +195,7 @@ public class SurveyController {
 	 *
 	 * @param token      unique session token id
 	 * @param questionId question the user answer
-	 * @param answerId   answer given by the user
+	 * @param answersId  answers given by the user
 	 * @param request    servlet request component
 	 * @return 500 if there is an internal error, otherwise 200
 	 */
@@ -204,10 +203,10 @@ public class SurveyController {
 	public ResponseEntity<SurveyData> checkAnswer(
 			@PathVariable("token") String token,
 			@RequestParam("question") Long questionId,
-			@RequestParam("answer") Long answerId,
+			@RequestParam("answers") Long[] answersId,
 			HttpServletRequest request
 	) {
-		logger.info("User with token={} gave answer={}", token, answerId);
+		logger.info("User with token={} gave answers={}", token, Arrays.toString(answersId));
 
 		try {
 			final Session session = sessions.getSession(token);
@@ -220,27 +219,69 @@ public class SurveyController {
 			if (questionId == null)
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-			if (answerId == null)
+			if (answersId == null)
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-			final QuestionAnswer qa = questions.findByIdAndQuestionId(answerId, questionId);
+			final Question q = questions.findQuestionBySurveyIdAndId(data.getSurveyId(), questionId);
 
-			if (qa == null)
-				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			if (q.getMultipleChoice()) {
+				// multiple answers
+				final Set<Long> positiveAnswers = new HashSet<>(Arrays.asList(answersId));
+				final Set<Integer> positiveVariables = q.getAnswersAvailable().stream()
+						.filter(x -> positiveAnswers.contains(x.getId()))
+						.map(QuestionAnswer::getVariable)
+						.collect(Collectors.toSet());
 
-			final Answer answer = new Answer()
-					.setSession(session)
-					.setQuestionAnswer(qa)
-					.setIsCorrect(qa.getIsCorrect())
-					.setQuestion(qa.getQuestion());
+				for (QuestionAnswer qa : q.getAnswersAvailable()) {
+					// if the answer is checked, we want a 1, else we want a 0
+					if (positiveVariables.contains(qa.getVariable()) ? qa.getState() == 1 : qa.getState() == 0) {
 
-			final boolean b = manager.checkAnswer(data, answer);
-			if (b) {
-				answers.save(answer);
+						logger.info("Multiple choice answer: id={} state={} variable={}", qa.getId(), qa.getState(), qa.getVariable());
+
+						final Answer answer = new Answer()
+								.setSession(session)
+								.setQuestionAnswer(qa)
+								.setIsCorrect(qa.getIsCorrect())
+								.setQuestion(qa.getQuestion());
+
+						final boolean b = manager.checkAnswer(data, answer);
+						if (b) {
+							answers.save(answer);
+						}
+					}
+				}
+
 				sessions.setLastAnswerTime(session);
 
-				State s = manager.getState(data).setSession(session);
+				final State s = manager.getState(data).setSession(session);
 				statuses.save(s);
+
+			} else {
+				// single answers
+				if (answersId.length != 1)
+					return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+				final long answerId = answersId[0];
+
+				final QuestionAnswer qa = questionAnswers.findByIdAndQuestionId(answerId, questionId);
+
+				if (qa == null)
+					return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+				final Answer answer = new Answer()
+						.setSession(session)
+						.setQuestionAnswer(qa)
+						.setIsCorrect(qa.getIsCorrect())
+						.setQuestion(qa.getQuestion());
+
+				final boolean b = manager.checkAnswer(data, answer);
+				if (b) {
+					answers.save(answer);
+					sessions.setLastAnswerTime(session);
+
+					final State s = manager.getState(data).setSession(session);
+					statuses.save(s);
+				}
 			}
 
 			return new ResponseEntity<>(HttpStatus.OK);
@@ -286,7 +327,7 @@ public class SurveyController {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
-			Question q = manager.nextQuestion(data);
+			final Question q = manager.nextQuestion(data);
 			return new ResponseEntity<>(Convert.toResponse(q), HttpStatus.OK);
 		} catch (SessionException e) {
 			logger.error(e);
