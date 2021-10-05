@@ -224,7 +224,7 @@ public class SurveyController {
 
 			final Question q = questions.findQuestionBySurveyIdAndId(data.getSurveyId(), questionId);
 
-			if (q.getMultipleChoice()) {
+			if (Objects.nonNull(q) && q.getMultipleChoice()) {
 				// multiple answers
 				final Set<Long> positiveAnswers = new HashSet<>(Arrays.asList(answersId));
 				final Set<Integer> positiveVariables = q.getAnswersAvailable().stream()

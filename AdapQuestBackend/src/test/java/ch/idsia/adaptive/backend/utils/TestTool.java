@@ -118,7 +118,7 @@ public class TestTool {
 				.perform(post("/survey/answer/" + token)
 						.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 						.param("question", "" + questionId)
-						.param("answer", "" + answerId)
+						.param("answers", "" + answerId)
 				).andExpect(status().isOk());
 	}
 
