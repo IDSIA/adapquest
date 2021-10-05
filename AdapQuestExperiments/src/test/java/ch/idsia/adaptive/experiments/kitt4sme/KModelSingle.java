@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class KModelSingle extends AbstractAdaptiveModel {
 
-	final static double eps = 0.01;
+	final static double eps = 0.1;
 
 	final BayesianNetwork model = new BayesianNetwork();
 	final List<BayesianFactor> factors = new ArrayList<>();
