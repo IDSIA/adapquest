@@ -1,5 +1,6 @@
 package ch.idsia.adaptive.experiments.kitt4sme;
 
+import ch.idsia.adaptive.experiments.utils.ProgressBar;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import ch.idsia.crema.inference.bp.BeliefPropagation;
 import ch.idsia.crema.inference.sampling.BayesianNetworkSampling;
@@ -8,17 +9,16 @@ import ch.idsia.crema.model.io.uai.UAIParser;
 import ch.idsia.crema.utility.RandomUtil;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -28,44 +28,6 @@ import java.util.stream.IntStream;
  * Date:    04.10.2021 16:33
  */
 public class Experiments {
-
-	static class Progress {
-		private final int total;
-		private int completed;
-		private long time;
-
-		private long lastPrint = 0;
-
-		public Progress(int total) {
-			this.total = total;
-			completed = 0;
-			time = 0;
-		}
-
-		void print() {
-			final long now = System.currentTimeMillis();
-			if (now - lastPrint < 1000)
-				return;
-
-			lastPrint = now;
-
-			if (completed > 0)
-				System.out.print("\r");
-
-			final double perc = 1.0 * time / completed;
-
-			System.out.printf("%10d/%10d %4.2f it/s", completed, total, perc);
-		}
-
-		synchronized void update(long time) {
-			completed += 1;
-			this.time += time;
-
-			print();
-		}
-	}
-
-	static final String filename = "adaptive.results.tsv";
 
 	static final int PARALLEL_COUNT = Runtime.getRuntime().availableProcessors();
 
@@ -89,7 +51,16 @@ public class Experiments {
 			9, 4, 9, 3, 3, 8, 5, 5, 7, 6, 5, 3, 2, 13, 4, 6, 5, 8
 	};
 
-	private static int[] generateProfile(int i) {
+
+	private Map<String, Random> randoms;
+
+	private ExecutorService es;
+
+	private BayesianNetwork model;
+
+	private String filename;
+
+	private int[] generateProfile(int i) {
 		final int[] profile = new int[N_SKILLS];
 
 		for (int j = 0; j < N_SKILLS; j++) {
@@ -100,7 +71,7 @@ public class Experiments {
 		return profile;
 	}
 
-	private static TIntIntMap obsSkills(int... v) {
+	private TIntIntMap obsSkills(int... v) {
 		final TIntIntMap obs = new TIntIntHashMap();
 		for (int i = 0; i < v.length; i++) {
 			obs.put(i, v[i]);
@@ -108,7 +79,7 @@ public class Experiments {
 		return obs;
 	}
 
-	private static synchronized void write(List<String> lines) {
+	private synchronized void write(List<String> lines) {
 		try {
 			Files.write(Paths.get(filename), lines, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
 		} catch (Exception e) {
@@ -117,39 +88,149 @@ public class Experiments {
 		}
 	}
 
-	public static void main(String[] args) throws Exception {
-		Files.write(Paths.get(filename), new ArrayList<String>(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-
-		// both models are the same
-		final BayesianNetwork model = UAIParser.read("AdaptiveQuestionnaire.multiple.model.uai");
-
-		final Random random = new Random(42);
-		RandomUtil.setRandom(random);
-
-		//	TintIntMap profile = obsSkills(0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0);
-
-		final BayesianNetworkSampling bns = new BayesianNetworkSampling();
-
-		final List<TIntIntMap> samples = IntStream.range(0, (int) Math.pow(2, N_SKILLS))
-				.mapToObj(Experiments::generateProfile)
-				.map(Experiments::obsSkills)
-				.map(profile -> bns.samples(model, profile, N_SAMPLES_PER_PROFILE))
-				.flatMap(Arrays::stream)
-				.collect(Collectors.toList());
+	@BeforeEach
+	void setUp() throws Exception {
+		randoms = new ConcurrentHashMap<>();
+		RandomUtil.setRandom(() -> randoms.get(Thread.currentThread().getName()));
 
 		System.out.println("Cores used:  " + PARALLEL_COUNT);
-		System.out.println("Total tasks: " + samples.size());
+		es = Executors.newFixedThreadPool(PARALLEL_COUNT);
 
-		final Progress p = new Progress(samples.size());
+		// both models are the same
+		model = UAIParser.read("AdaptiveQuestionnaire.model.uai");
+	}
+
+	@AfterEach
+	void tearDown() {
+		RandomUtil.reset();
+		es.shutdown();
+	}
+
+	@Test
+	void sampleSingleProfile() throws Exception {
+		filename = "adaptive.results.single_profile_1.0.tsv";
+		model = UAIParser.read("AdaptiveQuestionnaire.model.1.0.uai");
+
+		Files.write(Paths.get(filename), new ArrayList<String>(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+
+		final TIntIntMap profile = obsSkills(0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0);
+
+		final ProgressBar p = new ProgressBar(N_SAMPLES_PER_PROFILE);
 		p.print();
 
-		final ExecutorService es = Executors.newFixedThreadPool(PARALLEL_COUNT);
+		final List<Callable<Void>> tasks = IntStream.range(0, N_SAMPLES_PER_PROFILE)
+				.mapToObj(i -> (Callable<Void>) () -> {
+					final String tName = "Thread" + i;
+					Thread.currentThread().setName(tName);
+					randoms.put(tName, new Random(i));
 
-		final List<Callable<List<Void>>> tasks = IntStream.range(0, samples.size())
-				.mapToObj(i -> (Callable<List<Void>>) () -> {
+					final BayesianNetworkSampling bns = new BayesianNetworkSampling();
+					final TIntIntMap sample = bns.samples(model, profile, 1)[0];
+
 					final long startTime = System.currentTimeMillis();
 
-					final TIntIntMap sample = samples.get(i);
+					final BeliefPropagation<BayesianFactor> inf = new BeliefPropagation<>();
+
+					final TIntIntMap obs = new TIntIntHashMap();
+					final List<String> content = new ArrayList<>();
+
+					for (int k = 0; k < NODES_PER_QUESTION.length; k++) {
+						int j = N_SKILLS + k;
+
+						for (int o = 0; o < NODES_PER_QUESTION[k]; o++) {
+							final int v = sample.get(j);
+							obs.put(j, v);
+							j++;
+						}
+
+						final List<String> output = new ArrayList<>();
+						output.add("" + i);
+						output.add("" + k);
+						for (int s = 0; s < N_SKILLS; s++) {
+							output.add("" + sample.get(s));
+						}
+						for (int s = 0; s < N_SKILLS; s++) {
+							final BayesianFactor q = inf.query(model, obs, s);
+							final double d = q.getValue(1);
+							output.add("" + d);
+						}
+
+						content.add(String.join("\t", output));
+					}
+
+					final long endTime = System.currentTimeMillis();
+
+					p.update(endTime - startTime);
+
+					write(content);
+
+					randoms.remove(tName);
+					return null;
+				})
+				.collect(Collectors.toList());
+
+		es.invokeAll(tasks);
+	}
+
+	@Disabled // This will take SO MUCH time...
+	@Test
+	public void sampleAllProfiles() throws Exception {
+		filename = "adaptive.results.all_profiles.tsv";
+		Files.write(Paths.get(filename), new ArrayList<String>(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+
+		final List<TIntIntMap> profiles = IntStream
+				.range(0, (int) Math.pow(2, N_SKILLS))
+				.mapToObj(this::generateProfile)
+				.map(this::obsSkills)
+				.collect(Collectors.toList());
+
+		System.out.println("Total tasks: " + profiles.size());
+
+		final ProgressBar p1 = new ProgressBar(profiles.size()).setPrefix("Sampling");
+		p1.print();
+
+		final List<Callable<TIntIntMap[]>> tasksSampling = IntStream.range(0, profiles.size())
+				.mapToObj(i -> (Callable<TIntIntMap[]>) () -> {
+					final String tName = "Thread" + i;
+					Thread.currentThread().setName(tName);
+					randoms.put(tName, new Random(i));
+
+					final TIntIntMap profile = profiles.get(i);
+
+					final long startTime = System.currentTimeMillis();
+
+					final BayesianNetworkSampling bns = new BayesianNetworkSampling();
+					final TIntIntMap[] samples = bns.samples(model, profile, N_SAMPLES_PER_PROFILE);
+
+					final long endTime = System.currentTimeMillis();
+					p1.update(endTime - startTime);
+
+					randoms.remove(tName);
+					return samples;
+				})
+				.collect(Collectors.toList());
+
+		final List<Future<TIntIntMap[]>> futSampling = es.invokeAll(tasksSampling);
+
+		final List<TIntIntMap> samples = new ArrayList<>();
+
+		for (Future<TIntIntMap[]> future : futSampling) {
+			final TIntIntMap[] sample = future.get();
+			Collections.addAll(samples, sample);
+		}
+
+		final ProgressBar p2 = new ProgressBar(samples.size()).setPrefix("Process ");
+		p2.print();
+
+		final List<Callable<Void>> tasks = IntStream.range(0, samples.size())
+				.mapToObj(i -> (Callable<Void>) () -> {
+					final String tName = "Thread" + i;
+					Thread.currentThread().setName(tName);
+					randoms.put(tName, new Random(i));
+
+					final long startTime = System.currentTimeMillis();
+
+					final TIntIntMap sample = profiles.get(i);
 					final BeliefPropagation<BayesianFactor> inf = new BeliefPropagation<>();
 
 					final TIntIntMap obs = new TIntIntHashMap();
@@ -183,16 +264,16 @@ public class Experiments {
 
 					final long endTime = System.currentTimeMillis();
 
-					p.update(endTime - startTime);
+					p2.update(endTime - startTime);
 
 					write(content);
 
+					randoms.remove(tName);
 					return null;
 				})
 				.collect(Collectors.toList());
 
 		es.invokeAll(tasks);
-		es.shutdown();
 	}
 
 }

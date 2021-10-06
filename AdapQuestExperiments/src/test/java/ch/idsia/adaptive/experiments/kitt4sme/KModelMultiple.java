@@ -10,6 +10,9 @@ import ch.idsia.crema.model.io.uai.BayesUAIWriter;
 
 import java.util.*;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 /**
  * Author:  Claudio "Dna" Bonesana
  * Project: adapquest
@@ -17,7 +20,9 @@ import java.util.*;
  */
 public class KModelMultiple extends AbstractAdaptiveModel {
 
-	final static double eps = 0.1;
+	static double eps = 0.1;
+	final static double INHIBITOR_MAX_VALUE = 0.95;
+	final static double INHIBITOR_MIN_VALUE = 0.05;
 
 	final BayesianNetwork model = new BayesianNetwork();
 	final List<BayesianFactor> factors = new ArrayList<>();
@@ -71,7 +76,7 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 				bq.values.forEach((k, v) -> {
 					if (v > 0) {
 						parents.add(nameVariables.get(k));
-						inhibitors.add(1.0 - v + eps);
+						inhibitors.add(min(INHIBITOR_MAX_VALUE, max(INHIBITOR_MIN_VALUE, 1.0 - v + eps)));
 					} else if (v < 0) {
 						ko.add(k);
 					}
