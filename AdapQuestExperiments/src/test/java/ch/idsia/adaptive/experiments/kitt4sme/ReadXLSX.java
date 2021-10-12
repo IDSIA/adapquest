@@ -40,11 +40,8 @@ public class ReadXLSX {
 		final List<String> variables = new ArrayList<>();
 		final List<KBinaryQuestion> binaryQuestions = new ArrayList<>();
 
-		int i;
-
-		i = 0;
 		for (Row row : sheetSections) {
-			if (i++ == 0)
+			if (row.getRowNum() == 0)
 				continue;
 
 			if (row.getCell(0) == null || row.getCell(0).toString().isEmpty())
@@ -55,9 +52,8 @@ public class ReadXLSX {
 			sections.add(new KSection(id, section));
 		}
 
-		i = 0;
 		for (Row row : sheetAllQuestions) {
-			if (i++ == 0)
+			if (row.getRowNum() == 0)
 				continue;
 
 			if (row.getCell(0) == null || row.getCell(0).toString().isEmpty())
@@ -72,10 +68,9 @@ public class ReadXLSX {
 			questions.add(new KQuestion(qid, sid, man, exc, text));
 		}
 
-		i = 0;
 		int limit = 0;
 		for (Row row : sheetAnswers) {
-			if (i++ == 0) {
+			if (row.getRowNum() == 0) {
 				limit = row.getLastCellNum();
 				continue;
 			}
@@ -111,12 +106,11 @@ public class ReadXLSX {
 			}
 		}
 
-		i = 0;
 		int bqid = 0;
 		limit = 0;
 		for (Row row : sheetBinaryQuestions) {
+			final int i = row.getRowNum();
 			if (i == 0) {
-				i++;
 				continue;
 			}
 			if (i == 1) {
@@ -125,7 +119,6 @@ public class ReadXLSX {
 						variables.add(row.getCell(j).getStringCellValue());
 				}
 				limit = variables.size();
-				i++;
 				continue;
 			}
 
@@ -137,18 +130,17 @@ public class ReadXLSX {
 				continue;
 
 			final int qid = Double.valueOf(regions.get(i).get(0).getNumericCellValue()).intValue();
-			final boolean man = Double.valueOf(regions.get(i).get(1).getNumericCellValue()).intValue() == 1;
-			final String qText = regions.get(i).get(2).getStringCellValue();
-			final int aid = Double.valueOf(row.getCell(3).getNumericCellValue()).intValue();
-			final String bqText = row.getCell(4).getStringCellValue();
+			final boolean man = Double.valueOf(regions.get(i).get(2).getNumericCellValue()).intValue() == 1;
+			final String qText = regions.get(i).get(3).getStringCellValue();
+			final int aid = Double.valueOf(row.getCell(4).getNumericCellValue()).intValue();
+			final String bqText = row.getCell(5).getStringCellValue();
 
 			bqid++;
-			i++;
 
 			final KBinaryQuestion bq = new KBinaryQuestion(qid, aid, bqid, man, qText, bqText);
 			binaryQuestions.add(bq);
 
-			for (int j = 5, k = 0; k < limit; j++, k++) {
+			for (int j = 6, k = 0; k < limit; j++, k++) {
 				final Cell c = row.getCell(j);
 				final double v = c.toString().equals("KO") ? -1.0 : c.getNumericCellValue();
 				bq.values.put(variables.get(k), v);
