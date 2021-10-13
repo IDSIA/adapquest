@@ -6,9 +6,9 @@ import ch.idsia.crema.factor.bayesian.BayesianFactorFactory;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -191,4 +191,99 @@ public class SurveyStructureRepository {
 				.setModelData(modelData);
 	}
 
+	public static ImportStructure structure3S3QMultiChoice(String code) {
+		final BayesianNetwork bn = new BayesianNetwork();
+		// skill nodes
+		final int[] s = {
+				bn.addVariable(2), // s0
+				bn.addVariable(2), // s1
+				bn.addVariable(2), // s2
+		};
+		// answer nodes, a question is composed by answers
+		final int[] a = {
+				bn.addVariable(2), // a0 q0
+				bn.addVariable(2), // a1 q0
+				bn.addVariable(2), // a2 q1
+				bn.addVariable(2), // a3 q1
+				bn.addVariable(2), // a4 q1
+				bn.addVariable(2), // a5 q2
+				bn.addVariable(2), // a6 q2
+		};
+		// parents for answer nodes
+		final int[][] p = {
+				{s[0], s[1]}, // Pa(a0)
+				{s[0], s[1]}, // Pa(a1)
+				{s[1], s[2]}, // Pa(a2)
+				{s[1], s[2]}, // Pa(a3)
+				{s[1], s[2]}, // Pa(a4)
+				{s[0], s[2]}, // Pa(a5)
+				{s[1], s[2]}, // Pa(a6)
+		};
+		// set parents
+		for (int i = 0; i < a.length; i++)
+			bn.addParents(a[i], p[i]);
+		final double[][] inh = {
+				{.1, .2}, // Inh(a0)
+				{.3, .4}, // Inh(a1)
+				{.2, .3}, // Inh(a2)
+				{.1, .2}, // Inh(a3)
+				{.5, .6}, // Inh(a4)
+				{.1, .4}, // Inh(a5)
+				{.5, .7}, // Inh(a6)
+		};
+		// answer nodes for each question
+		final int[][] q = {
+				{0, 1},     // q0
+				{2, 3, 4},  // q1
+				{5, 6},     // q2
+		};
+
+		final BayesianFactor[] f = new BayesianFactor[s.length + a.length];
+
+		for (int i = 0; i < s.length; i++)
+			f[i] = BayesianFactorFactory.factory().domain(bn.getDomain(s[i])).data(new double[]{.5, .5}).get();
+		for (int i = 0, j = s.length; i < a.length; i++, j++)
+			f[j] = BayesianFactorFactory.factory().domain(bn.getDomain(a[i], p[i][0], p[i][1])).noisyOr(bn.getParents(a[i]), inh[i]);
+
+		bn.setFactors(f);
+
+		// build survey model structure
+		final List<SkillStructure> skillStructures = IntStream.range(0, s.length)
+				.mapToObj(i -> skill(i, "S" + i))
+				.collect(Collectors.toList());
+
+		final List<QuestionStructure> questionStructures = IntStream.range(0, q.length)
+				.mapToObj(i -> {
+							final Set<String> skills = new HashSet<>();
+							final List<AnswerStructure> answers = new ArrayList<>();
+
+							for (int aq : q[i]) {
+								for (int pa : p[aq])
+									skills.add(skillStructures.get(pa).getName());
+								answers.add(new AnswerStructure("no", 0).setVariable(aq));
+								answers.add(new AnswerStructure("yes", 1).setVariable(aq));
+							}
+
+							return new QuestionStructure()
+									.setName("Q" + i)
+									.setMultipleChoice(true)
+									.setMultipleSkills(true)
+									.setSkills(skills)
+									.setAnswers(answers);
+						}
+				)
+				.collect(Collectors.toList());
+
+		final String modelData = String.join("\n", new BayesUAIWriter(bn, "").serialize());
+		final SurveyStructure surveyStructure = new SurveyStructure()
+				.setAccessCode(code)
+				.setAdaptive(true)
+				.setSimple(true);
+
+		return new ImportStructure()
+				.setSurvey(surveyStructure)
+				.setSkills(skillStructures)
+				.setQuestions(questionStructures)
+				.setModelData(modelData);
+	}
 }

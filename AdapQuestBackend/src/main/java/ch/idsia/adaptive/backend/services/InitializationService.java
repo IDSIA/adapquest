@@ -179,7 +179,8 @@ public class InitializationService {
 								)
 								.toArray(QuestionAnswer[]::new)
 						)
-				).collect(Collectors.toCollection(LinkedHashSet::new));
+				)
+				.collect(Collectors.toCollection(LinkedHashSet::new));
 		logger.info("Found {} question(s)", questions.size());
 
 		// build survey

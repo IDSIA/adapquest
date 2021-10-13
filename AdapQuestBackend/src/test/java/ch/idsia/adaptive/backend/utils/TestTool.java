@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.TestComponent;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import java.util.List;
 
@@ -112,14 +113,17 @@ public class TestTool {
 		return om.readValue(result.getResponse().getContentAsString(), ResponseQuestion.class);
 	}
 
-	public void answer(String token, Long questionId, Long answerId) throws Exception {
+	public void answer(String token, Long questionId, Long... answerId) throws Exception {
 		logger.info("Survey: answer=({}, {}) for token={}", questionId, answerId, token);
-		mvc
-				.perform(post("/survey/answer/" + token)
-						.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-						.param("question", "" + questionId)
-						.param("answers", "" + answerId)
-				).andExpect(status().isOk());
+		final MockHttpServletRequestBuilder req = post("/survey/answer/" + token)
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				.param("question", "" + questionId);
+
+		for (Long aid : answerId) {
+			req.param("answers", "" + aid);
+		}
+
+		mvc.perform(req).andExpect(status().isOk());
 	}
 
 	public ResponseState state(String token) throws Exception {
