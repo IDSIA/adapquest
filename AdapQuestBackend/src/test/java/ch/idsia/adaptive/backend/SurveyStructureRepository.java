@@ -191,7 +191,7 @@ public class SurveyStructureRepository {
 				.setModelData(modelData);
 	}
 
-	public static ImportStructure structure3S3QMultiChoice(String code) {
+	public static ImportStructure structure3S7QMultiChoice(String code) {
 		final BayesianNetwork bn = new BayesianNetwork();
 		// skill nodes
 		final int[] s = {
@@ -222,6 +222,8 @@ public class SurveyStructureRepository {
 		// set parents
 		for (int i = 0; i < a.length; i++)
 			bn.addParents(a[i], p[i]);
+
+		// noisy-or inhibitors
 		final double[][] inh = {
 				{.1, .2}, // Inh(a0)
 				{.3, .4}, // Inh(a1)
@@ -241,8 +243,10 @@ public class SurveyStructureRepository {
 		final BayesianFactor[] f = new BayesianFactor[s.length + a.length];
 
 		for (int i = 0; i < s.length; i++)
+			// factors for skills
 			f[i] = BayesianFactorFactory.factory().domain(bn.getDomain(s[i])).data(new double[]{.5, .5}).get();
 		for (int i = 0, j = s.length; i < a.length; i++, j++)
+			// factors for answer/questions
 			f[j] = BayesianFactorFactory.factory().domain(bn.getDomain(a[i], p[i][0], p[i][1])).noisyOr(bn.getParents(a[i]), inh[i]);
 
 		bn.setFactors(f);
@@ -257,11 +261,12 @@ public class SurveyStructureRepository {
 							final Set<String> skills = new HashSet<>();
 							final List<AnswerStructure> answers = new ArrayList<>();
 
+					// each question is composed by N*2 answers
 							for (int aq : q[i]) {
 								for (int pa : p[aq])
 									skills.add(skillStructures.get(pa).getName());
-								answers.add(new AnswerStructure("no", 0).setVariable(aq));
-								answers.add(new AnswerStructure("yes", 1).setVariable(aq));
+								answers.add(new AnswerStructure("no", 0).setVariable(a[aq]));
+								answers.add(new AnswerStructure("yes", 1).setVariable(a[aq]));
 							}
 
 							return new QuestionStructure()
@@ -278,7 +283,8 @@ public class SurveyStructureRepository {
 		final SurveyStructure surveyStructure = new SurveyStructure()
 				.setAccessCode(code)
 				.setAdaptive(true)
-				.setSimple(true);
+				.setSimple(true)
+				.setQuestionTotalMin(3);
 
 		return new ImportStructure()
 				.setSurvey(surveyStructure)

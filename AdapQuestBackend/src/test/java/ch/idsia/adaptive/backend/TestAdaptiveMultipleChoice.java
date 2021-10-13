@@ -63,7 +63,7 @@ public class TestAdaptiveMultipleChoice {
 
 	@Test
 	void getQuestionMultipleChoice() throws Exception {
-		final ImportStructure structure = SurveyStructureRepository.structure3S3QMultiChoice(key);
+		final ImportStructure structure = SurveyStructureRepository.structure3S7QMultiChoice(key);
 		tool.consoleSurveyAdd(key, structure);
 
 		final ResponseData data = tool.init(key);
@@ -73,10 +73,9 @@ public class TestAdaptiveMultipleChoice {
 
 		// request first question
 		question = tool.next(data.token);
-		logger.info("next question: {}", question.id);
-		Assertions.assertEquals(3, question.id);
+		logger.info("1st question: {}", question.id); // 1
 		// choices available: no(0), yes(1), no(2) yes(3)
-		tool.answer(data.token, question.id, question.answers.get(1).id); // note: expected YES answer only!
+		tool.answer(data.token, question.id, question.answers.get(1).id); // NOTE: the controller expects YES answer only!
 		answers = ar.findAllBySessionTokenOrderByCreationAsc(data.token);
 		Assertions.assertEquals(2, answers.size());
 		Assertions.assertEquals("yes", answers.get(0).getQuestionAnswer().getText());
@@ -84,33 +83,33 @@ public class TestAdaptiveMultipleChoice {
 
 		// request second question
 		question = tool.next(data.token);
-		logger.info("next question: {}", question.id);
-		// choices available: no(0), yes(1), no(2) yes(3), no(4) yes(5)
-		tool.answer(data.token, question.id, question.answers.get(3).id, question.answers.get(5).id);
-		answers = ar.findAllBySessionTokenOrderByCreationAsc(data.token);
-		Assertions.assertEquals(5, answers.size());
-		Assertions.assertEquals("no", answers.get(2).getQuestionAnswer().getText());
-		Assertions.assertEquals("yes", answers.get(3).getQuestionAnswer().getText());
-		Assertions.assertEquals("yes", answers.get(4).getQuestionAnswer().getText());
-
-		// request third question
-		question = tool.next(data.token);
-		logger.info("next question: {}", question.id);
+		logger.info("2nd question: {}", question.id); // 3
 		// choices available: no(0), yes(1), no(2) yes(3)
 		tool.answer(data.token, question.id, question.answers.get(1).id, question.answers.get(3).id);
 		answers = ar.findAllBySessionTokenOrderByCreationAsc(data.token);
+		Assertions.assertEquals(4, answers.size());
+		Assertions.assertEquals("yes", answers.get(2).getQuestionAnswer().getText());
+		Assertions.assertEquals("yes", answers.get(3).getQuestionAnswer().getText());
+
+		// request third question
+		question = tool.next(data.token);
+		logger.info("3rd question: {}", question.id); // 2
+		// choices available: no(0), yes(1), no(2) yes(3), no(4) yes(5)
+		tool.answer(data.token, question.id, question.answers.get(3).id, question.answers.get(5).id);
+		answers = ar.findAllBySessionTokenOrderByCreationAsc(data.token);
 		Assertions.assertEquals(7, answers.size());
+		Assertions.assertEquals("no", answers.get(4).getQuestionAnswer().getText());
 		Assertions.assertEquals("yes", answers.get(5).getQuestionAnswer().getText());
 		Assertions.assertEquals("yes", answers.get(6).getQuestionAnswer().getText());
 
 		// request last question, no more available
 		question = tool.next(data.token);
-		logger.info("next question: {}", question);
-//		Assertions.assertEquals(, question);
+		logger.info("end question: {}", question);
+		Assertions.assertNull(question);
 
 		List<ResponseState> states = tool.states(data.token);
 
-		Assertions.assertEquals(3, states.size());
+		Assertions.assertEquals(4, states.size()); // 1 initial + 3 questions
 
 		final ResponseState state = states.get(2);
 		logger.info("S0: {} S1: {} S2: {}",

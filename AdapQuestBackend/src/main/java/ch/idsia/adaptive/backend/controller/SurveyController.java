@@ -226,16 +226,18 @@ public class SurveyController {
 
 			if (Objects.nonNull(q) && q.getMultipleChoice()) {
 				// multiple answers
-				final Set<Long> positiveAnswers = new HashSet<>(Arrays.asList(answersId));
-				final Set<Integer> positiveVariables = q.getAnswersAvailable().stream()
-						.filter(x -> positiveAnswers.contains(x.getId()))
+				final Set<Long> checkedAnswers = new HashSet<>(Arrays.asList(answersId));
+				final Set<Integer> checkedVariables = q.getAnswersAvailable().stream()
+						.filter(x -> checkedAnswers.contains(x.getId()))
 						.map(QuestionAnswer::getVariable)
 						.collect(Collectors.toSet());
 
 				for (QuestionAnswer qa : q.getAnswersAvailable()) {
 					// if the answer is checked, we want a 1, else we want a 0
-					if (positiveVariables.contains(qa.getVariable()) ? qa.getState() == 1 : qa.getState() == 0) {
-
+					final boolean qaIsChecked = checkedVariables.contains(qa.getVariable());
+					final boolean positiveAnswer = qa.getState() == 1;
+					final boolean negativeAnswer = qa.getState() == 0;
+					if (qaIsChecked ? positiveAnswer : negativeAnswer) {
 						logger.info("Multiple choice answer: id={} state={} variable={}", qa.getId(), qa.getState(), qa.getVariable());
 
 						final Answer answer = new Answer()
