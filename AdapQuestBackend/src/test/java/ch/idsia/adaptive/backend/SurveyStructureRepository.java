@@ -18,9 +18,9 @@ import java.util.stream.IntStream;
 public class SurveyStructureRepository {
 
 	private static QuestionStructure question(int variable, String name, String skill) {
-		return new QuestionStructure().setSkill(skill).setName(name).setVariable(variable).setAnswers(List.of(
-				new AnswerStructure("0", 0),
-				new AnswerStructure("1", 1)
+		return new QuestionStructure().setSkill(skill).setName(name).setAnswers(List.of(
+				new AnswerStructure("0", variable, 0),
+				new AnswerStructure("1", variable, 1)
 		));
 	}
 
@@ -265,12 +265,13 @@ public class SurveyStructureRepository {
 							for (int aq : q[i]) {
 								for (int pa : p[aq])
 									skills.add(skillStructures.get(pa).getName());
-								answers.add(new AnswerStructure("no", 0).setVariable(a[aq]));
-								answers.add(new AnswerStructure("yes", 1).setVariable(a[aq]));
+								answers.add(new AnswerStructure("no", a[aq], 0));
+								answers.add(new AnswerStructure("yes", a[aq], 1));
 							}
 
 							return new QuestionStructure()
 									.setName("Q" + i)
+									.setQuestion("Q" + i)
 									.setMultipleChoice(true)
 									.setMultipleSkills(true)
 									.setSkills(skills)

@@ -21,7 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityManagerFactory;
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,6 +46,8 @@ public class SurveyController {
 	final QuestionRepository questions;
 	final AnswerRepository answers;
 
+	final EntityManagerFactory emf;
+
 	@Autowired
 	public SurveyController(
 			SessionService sessions,
@@ -52,7 +56,8 @@ public class SurveyController {
 			StatesRepository statuses,
 			QuestionRepository questions,
 			QuestionAnswerRepository questionAnswers,
-			AnswerRepository answers
+			AnswerRepository answers,
+			EntityManagerFactory emf
 	) {
 		this.sessions = sessions;
 		this.manager = manager;
@@ -61,6 +66,7 @@ public class SurveyController {
 		this.questions = questions;
 		this.questionAnswers = questionAnswers;
 		this.answers = answers;
+		this.emf = emf;
 	}
 
 	@GetMapping("/codes")
@@ -179,6 +185,7 @@ public class SurveyController {
 	 * @param request servlet request component
 	 * @return 500 if there is an internal error, otherwise 200
 	 */
+	@Transactional
 	@PostMapping(value = "/answer/{token}", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SurveyData> checkAnswer(
 			@PathVariable("token") String token,
@@ -199,6 +206,7 @@ public class SurveyController {
 	 * @param request    servlet request component
 	 * @return 500 if there is an internal error, otherwise 200
 	 */
+	@Transactional
 	@PostMapping(value = "/answer/{token}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public ResponseEntity<SurveyData> checkAnswer(
 			@PathVariable("token") String token,
@@ -219,11 +227,12 @@ public class SurveyController {
 			if (questionId == null)
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-			if (answersId == null)
+			if (answersId == null || answersId.length <= 0)
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-			final Question q = questions.findQuestionBySurveyIdAndId(data.getSurveyId(), questionId);
+			final Question q = questions.findQuestionBySurveyIdAndId(data.getSurveyId(), questionId); // TODO: check for null?
 
+			// parse answers
 			if (Objects.nonNull(q) && q.getMultipleChoice()) {
 				// multiple answers
 				final Set<Long> checkedAnswers = new HashSet<>(Arrays.asList(answersId));
@@ -243,8 +252,7 @@ public class SurveyController {
 						final Answer answer = new Answer()
 								.setSession(session)
 								.setQuestionAnswer(qa)
-								.setIsCorrect(qa.getIsCorrect())
-								.setQuestion(qa.getQuestion());
+								.setIsCorrect(qa.getIsCorrect());
 
 						final boolean b = manager.checkAnswer(data, answer);
 						if (b) {
@@ -273,8 +281,7 @@ public class SurveyController {
 				final Answer answer = new Answer()
 						.setSession(session)
 						.setQuestionAnswer(qa)
-						.setIsCorrect(qa.getIsCorrect())
-						.setQuestion(qa.getQuestion());
+						.setIsCorrect(qa.getIsCorrect());
 
 				final boolean b = manager.checkAnswer(data, answer);
 				if (b) {
@@ -290,6 +297,8 @@ public class SurveyController {
 		} catch (SessionException e) {
 			logger.error(e);
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -301,6 +310,7 @@ public class SurveyController {
 	 * @return 500 if there is an internal error, 204 if the survey has ended, otherwise 200 with the data of the
 	 * question to pose
 	 */
+	@Transactional
 	@GetMapping("/question/{token}")
 	public ResponseEntity<ResponseQuestion> nextQuestion(@PathVariable("token") String token, HttpServletRequest request) {
 		logger.info("User with token={} request a new question", token);

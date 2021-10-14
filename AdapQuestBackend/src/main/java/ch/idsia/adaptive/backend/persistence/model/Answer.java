@@ -42,25 +42,22 @@ public class Answer {
 	private QuestionAnswer questionAnswer;
 
 	/**
-	 * Question of which this answer is for.
-	 */
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "fk_answer_question")
-	private Question question;
-
-	/**
 	 * Session associated with this answer.
 	 */
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "fk_answer_session")
 	private Session session;
 
+	public Question getQuestion() {
+		return questionAnswer.getQuestion();
+	}
+
 	public Long getQuestionId() {
-		return question.getId();
+		return getQuestion().getId();
 	}
 
 	public Set<Skill> getSkills() {
-		return question.getSkills();
+		return getQuestion().getSkills();
 	}
 
 	@Override

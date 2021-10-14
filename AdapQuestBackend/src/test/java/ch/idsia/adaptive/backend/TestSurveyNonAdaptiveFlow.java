@@ -113,30 +113,27 @@ public class TestSurveyNonAdaptiveFlow {
 				.setQuestion("Question 1")
 				.setSkill(skill)
 				.setName("Low interest")
-				.setVariable(L)
 				.addAnswersAvailable(
-						new QuestionAnswer().setText("a").setState(0),
-						new QuestionAnswer().setText("b").setState(1),
-						new QuestionAnswer().setText("c").setState(2)
+						new QuestionAnswer("a", L, 0),
+						new QuestionAnswer("b", L, 1),
+						new QuestionAnswer("c", L, 2)
 				);
 		q2 = new Question()
 				.setQuestion("Question 2")
 				.setSkill(skill)
 				.setName("Medium interest")
-				.setVariable(M)
 				.addAnswersAvailable(
-						new QuestionAnswer().setText("1").setState(0),
-						new QuestionAnswer().setText("2").setState(1)
+						new QuestionAnswer("1", M, 0),
+						new QuestionAnswer("2", M, 1)
 				);
 		q3 = new Question()
 				.setQuestion("Question 3")
 				.setSkill(skill)
 				.setName("High interest")
-				.setVariable(H)
 				.addAnswersAvailable(
-						new QuestionAnswer().setText("*").setState(0),
-						new QuestionAnswer().setText("**").setState(1),
-						new QuestionAnswer().setText("***").setState(2)
+						new QuestionAnswer("*", H, 0),
+						new QuestionAnswer("**", H, 1),
+						new QuestionAnswer("***", H, 2)
 				);
 
 		questions.saveAll(List.of(q1, q2, q3));

@@ -90,11 +90,10 @@ public class KModelSingle extends AbstractAdaptiveModel {
 							.setQuestion(bq.binaryQuestionText)
 							.setMandatory(bq.mandatory)
 							.setMultipleChoice(false)
-							.setVariable(nor)
 							.setSkills(skills)
 							.setAnswers(List.of(
-									new AnswerStructure().setState(0).setText("no"),
-									new AnswerStructure().setState(1).setText("yes")
+									new AnswerStructure("no", nor, 0),
+									new AnswerStructure("yes", nor, 1)
 							))
 			);
 

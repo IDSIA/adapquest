@@ -61,13 +61,12 @@ public class AlloyModel extends AbstractAdaptiveModel {
 	void addQuestion(String name) {
 		final List<AnswerStructure> answers = bif.variableStates.entrySet().stream()
 				.filter(e -> e.getKey().startsWith(name))
-				.map(e -> new AnswerStructure(e.getKey().split("\\$")[1], e.getValue()))
+				.map(e -> new AnswerStructure(e.getKey().split("\\$")[1], bif.variableName.get(name), e.getValue()))
 				.collect(Collectors.toList());
 
 		final QuestionStructure q = new QuestionStructure()
 				.setQuestion(name)
 				.setName(name)
-				.setVariable(bif.variableName.get(name))
 				.setAnswers(answers);
 		questions.add(q);
 

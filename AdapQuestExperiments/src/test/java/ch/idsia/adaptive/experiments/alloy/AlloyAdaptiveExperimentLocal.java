@@ -93,7 +93,7 @@ public class AlloyAdaptiveExperimentLocal {
 				logger.info("student={} answered questionId={} ({}) with answerId={} ({})",
 						ans.id, qid, nextQuestion.getQuestion(), aid, qaid.getText());
 
-				final Answer a = new Answer().setQuestion(nextQuestion).setQuestionAnswer(qaid);
+				final Answer a = new Answer().setQuestionAnswer(qaid);
 				as.check(a);
 
 				Record r = new Record();

@@ -154,7 +154,7 @@ public class AgentPreciseAdaptive extends AgentPrecise {
 
 				for (int i = 0; i < size; i++) {
 					final TIntIntMap qi = new TIntIntHashMap(observations);
-					qi.put(Q, i);
+					question.getQuestionAnswer(Q, i).observe(qi);
 
 					final BayesianFactor PSqi = inference.query(model, qi, S);
 					final double Pqi = PQ.getValue(i);

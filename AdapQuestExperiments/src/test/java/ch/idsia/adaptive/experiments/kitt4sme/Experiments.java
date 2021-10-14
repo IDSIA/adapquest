@@ -275,7 +275,7 @@ public class Experiments {
 	}
 
 	@Test
-	public void testPilotProfiles() throws Exception {
+	public void testPilotProfiles18() throws Exception {
 		// reading answers and profiles
 		final Map<Integer, String> names = new HashMap<>();
 		final Map<String, int[]> profiles = new HashMap<>();
@@ -353,7 +353,7 @@ public class Experiments {
 //			}
 //		}
 
-		filename = "adaptive.results.given_profiles.tsv";
+		filename = "adaptive.results.given_profiles_18.tsv";
 		model = UAIParser.read("AdaptiveQuestionnaire.model.uai");
 
 		Files.write(Paths.get(filename), new ArrayList<String>(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -371,6 +371,19 @@ public class Experiments {
 					final TIntIntMap obs = new TIntIntHashMap();
 					final List<String> content = new ArrayList<>();
 
+					List<String> output = new ArrayList<>();
+					output.add("" + name);
+					output.add("" + -1);
+					output.add("" + -1);
+					for (int s = 0; s < N_SKILLS; s++)
+						output.add("" + profile[s]);
+					for (int s = 0; s < N_SKILLS; s++) {
+						final BayesianFactor f = inf.query(model, obs, s);
+						final double d = f.getValue(1);
+						output.add("" + d);
+					}
+					content.add(String.join("\t", output));
+
 					for (int q = 0; q < NODES_PER_QUESTION.length; q++) {
 						int j = N_SKILLS + q;
 
@@ -380,7 +393,7 @@ public class Experiments {
 							j++;
 						}
 
-						final List<String> output = new ArrayList<>();
+						output = new ArrayList<>();
 						output.add("" + name);
 						output.add("" + q);
 						for (int s = 0; s < N_SKILLS; s++) {
@@ -398,6 +411,154 @@ public class Experiments {
 					final long endTime = System.currentTimeMillis();
 
 					p.update(endTime - startTime);
+
+					write(content);
+
+					return null;
+				})
+				.collect(Collectors.toList());
+
+		es.invokeAll(tasks);
+	}
+
+
+	@Test
+	public void testPilotProfiles105() throws Exception {
+		// reading answers and profiles
+		final Map<Integer, String> names = new HashMap<>();
+		final Map<String, int[]> profiles = new HashMap<>();
+		final Map<String, int[][]> answers = new HashMap<>();
+
+		final File file = new File("AdaptiveQuestionnaire.xlsx");
+
+		final Workbook workbook = new XSSFWorkbook(file);
+
+		final Sheet sheetSkills = workbook.getSheet("Pilot Skill");
+		final Sheet sheetPilotAnswers = workbook.getSheet("Pilot Answers");
+
+		// profiles parsing
+		for (Row row : sheetSkills) {
+			if (row.getRowNum() == 0) {
+				for (int j = 2; j < row.getLastCellNum(); j++) {
+					final String profile = row.getCell(j).getStringCellValue();
+					names.put(j, profile);
+					profiles.put(profile, new int[N_SKILLS]);
+				}
+
+				continue;
+			}
+
+			for (int j = 2, k = 0; k < names.size(); j++, k++) { // two columns on the left
+				final int s = Double.valueOf(row.getCell(j).getNumericCellValue()).intValue();
+				profiles.get(names.get(j))[row.getRowNum() - 1] = s;
+			}
+		}
+
+		// answers parsing
+		names.clear();
+		int Q = -1;
+		for (Row row : sheetPilotAnswers) {
+			if (row.getRowNum() == 0)
+				continue;
+
+			if (row.getRowNum() == 1) {
+				for (int j = 5, k = 0; k < profiles.size(); j++, k++) {
+					final String profile = row.getCell(j).getStringCellValue();
+					names.put(j, profile);
+					int[][] ans = new int[NODES_PER_QUESTION.length][];
+					for (int m = 0; m < NODES_PER_QUESTION.length; m++) {
+						ans[m] = new int[NODES_PER_QUESTION[m]];
+					}
+					answers.put(profile, ans);
+				}
+
+				continue;
+			}
+
+			if (row.getRowNum() == 107) {
+				break;
+			}
+
+			final int A = Double.valueOf(row.getCell(3).getNumericCellValue()).intValue();
+			if (A == 1) {
+				Q = Double.valueOf(row.getCell(0).getNumericCellValue()).intValue();
+			}
+
+			final int a = A - 1;
+			final int q = Q - 1;
+
+			for (int j = 5, k = 0; k < names.size(); j++, k++) {
+				answers.get(names.get(j))[q][a] = Double.valueOf(row.getCell(j).getNumericCellValue()).intValue();
+			}
+		}
+
+//		for (String name : names.values()) {
+//			System.out.println(name);
+//			System.out.println("Skills: " + Arrays.toString(profiles.get(name)));
+//			final int[][] ans = answers.get(name);
+//			for (int[] an : ans) {
+//				System.out.println(Arrays.toString(an));
+//			}
+//		}
+
+		filename = "adaptive.results.given_profiles_105.tsv";
+		model = UAIParser.read("AdaptiveQuestionnaire.model.uai");
+
+		Files.write(Paths.get(filename), new ArrayList<String>(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+
+		final ProgressBar p = new ProgressBar(names.size() * 105);
+		p.print();
+
+		final List<Callable<Void>> tasks = names.values().stream()
+				.map(name -> (Callable<Void>) () -> {
+					final int[] profile = profiles.get(name);
+
+					final BeliefPropagation<BayesianFactor> inf = new BeliefPropagation<>();
+
+					final TIntIntMap obs = new TIntIntHashMap();
+					final List<String> content = new ArrayList<>();
+
+					List<String> output = new ArrayList<>();
+					output.add("" + name);
+					output.add("" + -1);
+					output.add("" + -1);
+					for (int s = 0; s < N_SKILLS; s++)
+						output.add("" + profile[s]);
+					for (int s = 0; s < N_SKILLS; s++) {
+						final BayesianFactor f = inf.query(model, obs, s);
+						final double d = f.getValue(1);
+						output.add("" + d);
+					}
+					content.add(String.join("\t", output));
+
+					for (int q = 0; q < NODES_PER_QUESTION.length; q++) {
+						final long startTime = System.currentTimeMillis();
+
+						int j = N_SKILLS + q;
+
+						for (int a = 0; a < NODES_PER_QUESTION[q]; a++) {
+							final int v = answers.get(name)[q][a];
+							obs.put(j, v);
+							j++;
+
+							output = new ArrayList<>();
+							output.add("" + name);
+							output.add("" + q);
+							output.add("" + a);
+							for (int s = 0; s < N_SKILLS; s++)
+								output.add("" + profile[s]);
+							for (int s = 0; s < N_SKILLS; s++) {
+								final BayesianFactor f = inf.query(model, obs, s);
+								final double d = f.getValue(1);
+								output.add("" + d);
+							}
+
+							content.add(String.join("\t", output));
+
+							final long endTime = System.currentTimeMillis();
+							p.update(endTime - startTime);
+						}
+					}
 
 					write(content);
 

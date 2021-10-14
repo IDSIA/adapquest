@@ -122,14 +122,13 @@ public class InitializationService {
 
 	public static Survey parseSurveyStructure(ImportStructure structure) {
 		// build model
-		final Map<String, Integer> v = new HashMap<>();
+		final Map<String, Integer> v = new HashMap<>(); // this is used only for skill mapping
 		String modelData = "";
 
 		if (structure.modelData != null) {
 			logger.info("Using serialized model structure.");
 			modelData = structure.modelData;
 			structure.skills.forEach(skill -> v.put(skill.name, skill.variable));
-			structure.questions.forEach(question -> v.put(question.name, question.variable));
 		} else if (structure.model != null) {
 			modelData = parseModelStructure(structure.model, v);
 		}
@@ -163,7 +162,6 @@ public class InitializationService {
 								.collect(Collectors.toList())
 						)
 						.setName(q.name)
-						.setVariable(v.computeIfAbsent(q.name, i -> -1))
 						.setWeight(q.weight)
 						.setIsExample(q.example)
 						.setRandomAnswers(q.randomAnswers)
@@ -180,6 +178,7 @@ public class InitializationService {
 								.toArray(QuestionAnswer[]::new)
 						)
 				)
+				// .peek(q -> {}) TODO: check if all variables and states are covered, if not add padding hidden elements
 				.collect(Collectors.toCollection(LinkedHashSet::new));
 		logger.info("Found {} question(s)", questions.size());
 

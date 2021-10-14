@@ -162,16 +162,9 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 
 	@Override
 	public boolean check(Answer answer) {
-		if (currentQuestion != null && currentQuestion.getVariable().equals(answer.getQuestion().getVariable())) {
+		if (currentQuestion != null && currentQuestion.getName().equals(answer.getQuestion().getName())) {
 			if (!answer.getQuestion().getIsExample()) {
-				final Integer variable;
-				if (currentQuestion.getMultipleChoice()) {
-					variable = answer.getQuestionAnswer().getVariable();
-				} else {
-					variable = answer.getQuestion().getVariable();
-				}
-				final Integer state = answer.getQuestionAnswer().getState();
-				observations.put(variable, state);
+				answer.getQuestionAnswer().observe(observations);
 			}
 			answered = true;
 			return true;

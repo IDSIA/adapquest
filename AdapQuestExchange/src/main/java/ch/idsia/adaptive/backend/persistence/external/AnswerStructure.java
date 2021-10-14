@@ -38,8 +38,9 @@ public class AnswerStructure {
 	 */
 	public Integer variable = -1;
 
-	public AnswerStructure(String text, Integer state) {
+	public AnswerStructure(String text, Integer variable, Integer state) {
 		this.text = text;
+		this.variable = variable;
 		this.state = state;
 	}
 }

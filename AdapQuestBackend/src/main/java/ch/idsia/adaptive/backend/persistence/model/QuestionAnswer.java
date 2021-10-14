@@ -1,12 +1,15 @@
 package ch.idsia.adaptive.backend.persistence.model;
 
+import ch.idsia.adaptive.backend.persistence.utils.ListIntegerConverter;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import gnu.trove.map.TIntIntMap;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,6 +41,11 @@ public class QuestionAnswer {
 	private Boolean isCorrect = false;
 
 	/**
+	 * If true, this answer cannot be selected.
+	 */
+	private Boolean hidden = false;
+
+	/**
 	 * Refers to the state of the the model associated with this answer.
 	 */
 	private Integer state = -1;
@@ -47,6 +55,26 @@ public class QuestionAnswer {
 	 * for multiple-choice answers, state 1 is checked true while state 0 is checked false.
 	 */
 	private Integer variable = -1;
+
+	/**
+	 * If true, this will generate an evidence directly on the nodes specified by {@link #directEvidenceVariables} in the
+	 * state specified by {@link #directEvidenceStates}.
+	 */
+	private Boolean isDirectEvidence = false;
+
+	/**
+	 * If {@link #isDirectEvidence} is true, then this will also set an evidence on the nodes identified by these
+	 * variables with the states specified in {@link #directEvidenceStates}.
+	 */
+	@Convert(converter = ListIntegerConverter.class)
+	private List<Integer> directEvidenceVariables = new ArrayList<>();
+
+	/**
+	 * If {@link #isDirectEvidence} is true, then this will also set an evidence on the nodes identified by
+	 * {@link #directEvidenceVariables} with these states.
+	 */
+	@Convert(converter = ListIntegerConverter.class)
+	private List<Integer> directEvidenceStates = new ArrayList<>();
 
 	@OneToMany(mappedBy = "questionAnswer", fetch = FetchType.EAGER)
 	private List<Answer> answers;
@@ -64,4 +92,25 @@ public class QuestionAnswer {
 		this.text = text;
 		this.isCorrect = isCorrect;
 	}
+
+	public QuestionAnswer(String text, Integer variable, Integer state) {
+		this.text = text;
+		this.state = state;
+		this.variable = variable;
+	}
+
+	public void observe(TIntIntMap observations) {
+		if (variable >= 0)
+			observations.put(variable, state);
+
+		if (isDirectEvidence) {
+			final List<Integer> vars = getDirectEvidenceVariables();
+			final List<Integer> states = getDirectEvidenceStates();
+
+			for (int i = 0; i < vars.size(); i++) {
+				observations.put(vars.get(i), states.get(i));
+			}
+		}
+	}
+
 }

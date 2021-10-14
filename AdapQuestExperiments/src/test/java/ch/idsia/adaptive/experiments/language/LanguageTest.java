@@ -166,11 +166,10 @@ public class LanguageTest extends AbstractAdaptiveModel {
 						.setQuestion(q.toString()) // this is just a dummy
 						.setExplanation(q.idx) // this is just an hack, can be omitted
 						.setName(q.idx) // Q# where # is just an identifier, not related with the Bayesian model
-						.setVariable(q.q) // variable index of the Bayesian model
 						.setAnswers(List.of(
 								// same number of states as the question nodes in the Bayesian model
-								new AnswerStructure("0", 0),
-								new AnswerStructure("1", 1)
+								new AnswerStructure("0", q.q, 0), // q.q is the variable index of the Bayesian model
+								new AnswerStructure("1", q.q, 1)
 						))
 				)
 				.collect(Collectors.toList());

@@ -1,7 +1,6 @@
 package ch.idsia.adaptive.backend.services.commons.agents;
 
 import ch.idsia.adaptive.backend.persistence.model.Question;
-import ch.idsia.adaptive.backend.persistence.model.QuestionAnswer;
 import ch.idsia.adaptive.backend.persistence.model.Skill;
 import ch.idsia.adaptive.backend.persistence.model.Survey;
 import ch.idsia.adaptive.backend.services.commons.SurveyException;
@@ -136,7 +135,7 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 
 			for (int i = 0; i < size; i++) {
 				final TIntIntMap qi = new TIntIntHashMap(observations);
-				qi.put(Q, i);
+				question.getQuestionAnswer(Q, i).observe(qi);
 
 				final BayesianFactor PSqi = inference.query(model, qi, S);
 				final double Pqi = PQ.getValue(i);
@@ -155,10 +154,10 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 
 	private double questionMultipleChoiceScore(Map<Skill, Double> HSs, Question question) {
 		double meanInfoGain = 0;
+		int n = 0;
 
 		// mean of all possible answers
-		for (QuestionAnswer answer : question.getAnswersAvailable()) {
-			final Integer Q = answer.getVariable();
+		for (Integer Q : question.getVariables()) {
 			final int size = model.getSize(Q);
 
 			final BayesianFactor PQ = inference.query(model, observations, Q);
@@ -170,9 +169,9 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 
 				double HSQ = 0;
 
-				for (int i = 0; i < size; i++) {
+				for (int i = 0; i < size; i++, n++) {
 					final TIntIntMap qi = new TIntIntHashMap(observations);
-					qi.put(Q, i);
+					question.getQuestionAnswer(Q, i).observe(qi);
 
 					final BayesianFactor PSqi = inference.query(model, qi, S);
 					final double Pqi = PQ.getValue(i);
@@ -187,6 +186,6 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 				meanInfoGain += Math.max(0, HS - HSQ) / skills.size();
 			}
 		}
-		return meanInfoGain / question.getAnswersAvailable().size();
+		return meanInfoGain / n;
 	}
 }

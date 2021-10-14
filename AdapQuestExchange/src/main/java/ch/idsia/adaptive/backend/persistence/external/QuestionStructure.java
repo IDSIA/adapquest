@@ -40,11 +40,6 @@ public class QuestionStructure {
 	public String name = "";
 
 	/**
-	 * Index of the variable node in the model.
-	 */
-	public Integer variable = -1;
-
-	/**
 	 * If the question need a weight (also intended as points) for final results.
 	 */
 	public Double weight = 1.;
