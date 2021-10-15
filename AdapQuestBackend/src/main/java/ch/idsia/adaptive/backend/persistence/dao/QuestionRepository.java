@@ -14,4 +14,6 @@ public interface QuestionRepository extends CrudRepository<Question, Long> {
 
 	Question findQuestionBySurveyIdAndId(Long survey, Long id);
 
+	Question findQuestionBySurveyAccessCodeAndName(String key, String name);
+
 }

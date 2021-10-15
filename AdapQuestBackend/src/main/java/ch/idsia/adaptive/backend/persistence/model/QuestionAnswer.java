@@ -38,7 +38,7 @@ public class QuestionAnswer {
 	/**
 	 * True if this is a correct answer.
 	 */
-	private Boolean isCorrect = false;
+	private Boolean correct = false;
 
 	/**
 	 * If true, this answer cannot be selected.
@@ -60,17 +60,17 @@ public class QuestionAnswer {
 	 * If true, this will generate an evidence directly on the nodes specified by {@link #directEvidenceVariables} in the
 	 * state specified by {@link #directEvidenceStates}.
 	 */
-	private Boolean isDirectEvidence = false;
+	private Boolean directEvidence = false;
 
 	/**
-	 * If {@link #isDirectEvidence} is true, then this will also set an evidence on the nodes identified by these
+	 * If {@link #directEvidence} is true, then this will also set an evidence on the nodes identified by these
 	 * variables with the states specified in {@link #directEvidenceStates}.
 	 */
 	@Convert(converter = ListIntegerConverter.class)
 	private List<Integer> directEvidenceVariables = new ArrayList<>();
 
 	/**
-	 * If {@link #isDirectEvidence} is true, then this will also set an evidence on the nodes identified by
+	 * If {@link #directEvidence} is true, then this will also set an evidence on the nodes identified by
 	 * {@link #directEvidenceVariables} with these states.
 	 */
 	@Convert(converter = ListIntegerConverter.class)
@@ -88,9 +88,9 @@ public class QuestionAnswer {
 		this.text = text;
 	}
 
-	public QuestionAnswer(String text, Boolean isCorrect) {
+	public QuestionAnswer(String text, Boolean correct) {
 		this.text = text;
-		this.isCorrect = isCorrect;
+		this.correct = correct;
 	}
 
 	public QuestionAnswer(String text, Integer variable, Integer state) {
@@ -103,7 +103,7 @@ public class QuestionAnswer {
 		if (variable >= 0)
 			observations.put(variable, state);
 
-		if (isDirectEvidence) {
+		if (directEvidence) {
 			final List<Integer> vars = getDirectEvidenceVariables();
 			final List<Integer> states = getDirectEvidenceStates();
 

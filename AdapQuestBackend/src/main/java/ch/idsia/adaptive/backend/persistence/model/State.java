@@ -55,7 +55,7 @@ public class State {
 	 */
 	@Convert(converter = MapStringDoubleArrayConverter.class)
 	@Column(name = "state", length = 2047)
-	public Map<String, double[]> state = new HashMap<>();
+	public Map<String, double[]> probabilities = new HashMap<>();
 	@Id
 	@GeneratedValue
 	@EqualsAndHashCode.Include

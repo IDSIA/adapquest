@@ -236,30 +236,29 @@ public class SurveyController {
 			if (Objects.nonNull(q) && q.getMultipleChoice()) {
 				// multiple answers
 				final Set<Long> checkedAnswers = new HashSet<>(Arrays.asList(answersId));
-				final Set<Integer> checkedVariables = q.getAnswersAvailable().stream()
-						.filter(x -> checkedAnswers.contains(x.getId()))
-						.map(QuestionAnswer::getVariable)
-						.collect(Collectors.toSet());
+				final Set<Integer> variables = new HashSet<>(q.getVariables());
 
-				for (QuestionAnswer qa : q.getAnswersAvailable()) {
-					// if the answer is checked, we want a 1, else we want a 0
-					final boolean qaIsChecked = checkedVariables.contains(qa.getVariable());
-					final boolean positiveAnswer = qa.getState() == 1;
-					final boolean negativeAnswer = qa.getState() == 0;
-					if (qaIsChecked ? positiveAnswer : negativeAnswer) {
-						logger.info("Multiple choice answer: id={} state={} variable={}", qa.getId(), qa.getState(), qa.getVariable());
+				final List<QuestionAnswer> answers = q.getAnswersAvailable().stream()
+						.filter(qa -> checkedAnswers.contains(qa.getId()))
+						.peek(qa -> variables.remove(qa.getVariable()))
+						.collect(Collectors.toCollection(ArrayList::new));
 
-						final Answer answer = new Answer()
+				// these are variables not covered by the checked answers
+				variables.forEach(v -> answers.add(q.getQuestionAnswer(v, 0)));
+
+				answers.stream()
+						.sorted(Comparator.comparingLong(QuestionAnswer::getId))
+						.map(qa -> new Answer()
 								.setSession(session)
 								.setQuestionAnswer(qa)
-								.setIsCorrect(qa.getIsCorrect());
-
-						final boolean b = manager.checkAnswer(data, answer);
-						if (b) {
-							answers.save(answer);
-						}
-					}
-				}
+								.setIsCorrect(qa.getCorrect())
+						)
+						.forEach(answer -> {
+							final boolean b = manager.checkAnswer(data, answer);
+							if (b) {
+								this.answers.save(answer);
+							}
+						});
 
 				sessions.setLastAnswerTime(session);
 
@@ -281,7 +280,7 @@ public class SurveyController {
 				final Answer answer = new Answer()
 						.setSession(session)
 						.setQuestionAnswer(qa)
-						.setIsCorrect(qa.getIsCorrect());
+						.setIsCorrect(qa.getCorrect());
 
 				final boolean b = manager.checkAnswer(data, answer);
 				if (b) {

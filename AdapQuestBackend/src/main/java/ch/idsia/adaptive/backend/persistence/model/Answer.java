@@ -2,6 +2,7 @@ package ch.idsia.adaptive.backend.persistence.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
@@ -15,6 +16,7 @@ import java.util.Set;
  */
 @Entity
 @Data
+@NoArgsConstructor
 @Accessors(chain = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Answer {
@@ -47,6 +49,10 @@ public class Answer {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "fk_answer_session")
 	private Session session;
+
+	public Answer(QuestionAnswer questionAnswer) {
+		this.questionAnswer = questionAnswer;
+	}
 
 	public Question getQuestion() {
 		return questionAnswer.getQuestion();

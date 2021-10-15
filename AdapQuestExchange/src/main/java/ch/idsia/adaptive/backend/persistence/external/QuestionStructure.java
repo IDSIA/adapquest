@@ -20,19 +20,14 @@ import java.util.Set;
 public class QuestionStructure {
 
 	/**
-	 * Names of the skills.
+	 * Explanation of the question, if needed.
 	 */
-	public Set<String> skills = new HashSet<>();
+	public String explanation = "";
 
 	/**
 	 * Question for the final subject.
 	 */
 	public String question = "";
-
-	/**
-	 * Explanation of the question, if needed.
-	 */
-	public String explanation = "";
 
 	/**
 	 * Name of the variable node.
@@ -74,6 +69,11 @@ public class QuestionStructure {
 	 * List of available answers.
 	 */
 	public List<AnswerStructure> answers = new ArrayList<>();
+
+	/**
+	 * Names of the skills.
+	 */
+	public Set<String> skills = new HashSet<>();
 
 	public QuestionStructure setSkill(String skill) {
 		skills.add(skill);

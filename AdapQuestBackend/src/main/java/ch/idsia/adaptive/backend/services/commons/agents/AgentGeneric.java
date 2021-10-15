@@ -162,13 +162,23 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 
 	@Override
 	public boolean check(Answer answer) {
-		if (currentQuestion != null && currentQuestion.getName().equals(answer.getQuestion().getName())) {
+		if (currentQuestion != null && currentQuestion.equals(answer.getQuestion())) {
 			if (!answer.getQuestion().getIsExample()) {
+				logger.debug("checking answer: variable={} state={} question={} direct={}",
+						answer.getQuestionAnswer().getVariable(),
+						answer.getQuestionAnswer().getState(),
+						answer.getQuestionAnswer().getDirectEvidence(),
+						answer.getQuestion()
+				);
 				answer.getQuestionAnswer().observe(observations);
 			}
 			answered = true;
 			return true;
 		}
+		logger.warn("invalid answer: expected={} received={}",
+				answer.getQuestion(),
+				currentQuestion
+		);
 		return false;
 	}
 

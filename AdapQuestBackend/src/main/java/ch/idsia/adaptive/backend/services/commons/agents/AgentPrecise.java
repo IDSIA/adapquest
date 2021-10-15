@@ -6,6 +6,7 @@ import ch.idsia.adaptive.backend.persistence.model.Survey;
 import ch.idsia.adaptive.backend.services.commons.inference.precise.InferenceLBP;
 import ch.idsia.adaptive.backend.services.commons.scoring.Scoring;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
+import ch.idsia.crema.factor.bayesian.BayesianFactorFactory;
 import ch.idsia.crema.model.io.uai.BayesUAIParser;
 
 import java.util.Arrays;
@@ -35,11 +36,18 @@ public abstract class AgentPrecise extends AgentGeneric<BayesianFactor> {
 		for (Skill skill : skills) {
 			final String s = skill.getName();
 
-			final BayesianFactor f = inference.query(model, observations, skill.getVariable());
+			final Integer v = skill.getVariable();
+			final BayesianFactor f;
+
+			if (observations.containsKey(v))
+				f = BayesianFactorFactory.factory().domain(model.getDomain(v)).set(1.0, observations.get(v)).get();
+			else
+				f = inference.query(model, observations, v);
+
 			final double h = scoring.score(f);
 
 			state.getSkills().put(skill.getName(), skill);
-			state.getState().put(s, f.getData());
+			state.getProbabilities().put(s, f.getData());
 			state.getScore().put(s, h);
 
 			if (questionsDonePerSkill.containsKey(skill)) {
