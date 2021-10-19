@@ -84,17 +84,30 @@ public class KModelSingle extends AbstractAdaptiveModel {
 
 			parents.add(nor);
 
+			final AnswerStructure neg = new AnswerStructure("no", nor, 0);
+			final AnswerStructure pos = new AnswerStructure("yes", nor, 1);
+			if (ko.size() > 0) {
+				// direct evidence
+				final List<Integer> evVars = new ArrayList<>();
+				final List<Integer> evStates = new ArrayList<>();
+				for (String s : ko) {
+					evVars.add(nameVariables.get(s));
+					evStates.add(0);
+				}
+				pos.setDirectEvidence(true)
+						.setDirectEvidenceVariables(evVars)
+						.setDirectEvidenceStates(evStates);
+			}
+
 			// question text
 			questions.add(
 					new QuestionStructure()
+							.setName("Q" + bq.questionId + "." + bq.answerId)
 							.setQuestion(bq.binaryQuestionText)
 							.setMandatory(bq.mandatory)
 							.setMultipleChoice(false)
 							.setSkills(skills)
-							.setAnswers(List.of(
-									new AnswerStructure("no", nor, 0),
-									new AnswerStructure("yes", nor, 1)
-							))
+							.setAnswers(List.of(neg, pos))
 			);
 
 			// factor
@@ -125,6 +138,7 @@ public class KModelSingle extends AbstractAdaptiveModel {
 	@Override
 	public SurveyStructure survey() {
 		return super.survey()
-				.setSimple(true);
+				.setSimple(true)
+				.setNoSkill(false);
 	}
 }

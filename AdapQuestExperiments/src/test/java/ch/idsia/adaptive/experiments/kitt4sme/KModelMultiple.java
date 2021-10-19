@@ -94,17 +94,24 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 				final KAnswer a = as.get(bq.questionId + "$" + bq.answerId);
 
 				// displayed in multiple choice
-				answers.add(new AnswerStructure()
-						.setText(a.text)
-						.setVariable(nor)
-						.setState(1)
-				);
-				// hidden state
-				answers.add(new AnswerStructure()
-						.setText("no")
-						.setVariable(nor)
-						.setState(0)
-				);
+				final AnswerStructure neg = new AnswerStructure("no", nor, 0).setName("A" + bq.answerId);
+				final AnswerStructure pos = new AnswerStructure(a.text, nor, 1).setName("A" + bq.answerId);
+
+				if (ko.size() > 0) {
+					// direct evidence
+					final List<Integer> evVars = new ArrayList<>();
+					final List<Integer> evStates = new ArrayList<>();
+					for (String s : ko) {
+						evVars.add(nameVariables.get(s));
+						evStates.add(0);
+					}
+					pos.setDirectEvidence(true)
+							.setDirectEvidenceVariables(evVars)
+							.setDirectEvidenceStates(evStates);
+				}
+
+				answers.add(neg);
+				answers.add(pos);
 
 				final int[] vars = parents.stream().mapToInt(x -> x).toArray();
 
@@ -114,6 +121,7 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 
 			questions.add(
 					new QuestionStructure()
+							.setName("Q" + question.questionId)
 							.setQuestion(question.questionText)
 							.setMandatory(question.mandatory)
 							.setMultipleChoice(true)
@@ -121,8 +129,6 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 							.setSkills(skills)
 							.setAnswers(answers)
 			);
-
-			// TODO: killer features
 		}
 
 	}
@@ -146,6 +152,7 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 	@Override
 	public SurveyStructure survey() {
 		return super.survey()
-				.setSimple(true);
+				.setSimple(true)
+				.setNoSkill(false);
 	}
 }

@@ -130,14 +130,17 @@ public class ReadXLSX {
 				continue;
 
 			final int qid = Double.valueOf(regions.get(i).get(0).getNumericCellValue()).intValue();
-			final boolean man = Double.valueOf(regions.get(i).get(2).getNumericCellValue()).intValue() == 1;
+			final int man = Double.valueOf(regions.get(i).get(2).getNumericCellValue()).intValue();
 			final String qText = regions.get(i).get(3).getStringCellValue();
 			final int aid = Double.valueOf(row.getCell(4).getNumericCellValue()).intValue();
 			final String bqText = row.getCell(5).getStringCellValue();
 
+			if (man < 0)
+				continue;
+
 			bqid++;
 
-			final KBinaryQuestion bq = new KBinaryQuestion(qid, aid, bqid, man, qText, bqText);
+			final KBinaryQuestion bq = new KBinaryQuestion(qid, aid, bqid, man == 1, qText, bqText);
 			binaryQuestions.add(bq);
 
 			for (int j = 6, k = 0; k < limit; j++, k++) {

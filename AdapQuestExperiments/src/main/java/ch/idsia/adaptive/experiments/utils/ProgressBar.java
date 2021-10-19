@@ -13,7 +13,7 @@ public class ProgressBar {
 	private int completed;
 
 	private long time;
-	private long delay = 1000; // ms
+	private long delay = 100; // ms
 	private long lastPrint = 0L;
 	private long startTime = 0L;
 

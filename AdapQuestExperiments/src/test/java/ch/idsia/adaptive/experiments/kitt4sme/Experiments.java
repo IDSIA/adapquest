@@ -1,14 +1,20 @@
 package ch.idsia.adaptive.experiments.kitt4sme;
 
+import ch.idsia.adaptive.backend.persistence.model.*;
+import ch.idsia.adaptive.backend.services.commons.agents.AgentPreciseAdaptiveSimple;
+import ch.idsia.adaptive.backend.services.commons.scoring.precise.ScoringFunctionExpectedEntropy;
 import ch.idsia.adaptive.experiments.utils.ProgressBar;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import ch.idsia.crema.inference.bp.BeliefPropagation;
 import ch.idsia.crema.inference.sampling.BayesianNetworkSampling;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
+import ch.idsia.crema.model.io.uai.BayesUAIParser;
 import ch.idsia.crema.model.io.uai.UAIParser;
 import ch.idsia.crema.utility.RandomUtil;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -33,6 +39,7 @@ import java.util.stream.IntStream;
  * Date:    04.10.2021 16:33
  */
 public class Experiments {
+	private static final Logger logger = LogManager.getLogger(Experiments.class);
 
 	static final int PARALLEL_COUNT = Runtime.getRuntime().availableProcessors();
 
@@ -276,143 +283,166 @@ public class Experiments {
 
 	@Test
 	public void testPilotProfiles18() throws Exception {
-		// reading answers and profiles
-		final Map<Integer, String> names = new HashMap<>();
-		final Map<String, int[]> profiles = new HashMap<>();
-		final Map<String, int[][]> answers = new HashMap<>();
+		final Survey survey = InitSurvey.init("AdaptiveQuestionnaire.multiple.survey.json");
+		final List<String> lines = Arrays.stream(survey.getModelData().split("\n")).collect(Collectors.toList());
+		final Set<Skill> skills = survey.getSkills();
 
-		final File file = new File("AdaptiveQuestionnaire.xlsx");
-
-		final Workbook workbook = new XSSFWorkbook(file);
-
-		final Sheet sheetSkills = workbook.getSheet("Pilot Skill");
-		final Sheet sheetPilotAnswers = workbook.getSheet("Pilot Answers");
-
-		// profiles parsing
-		for (Row row : sheetSkills) {
-			if (row.getRowNum() == 0) {
-				for (int j = 2; j < row.getLastCellNum(); j++) {
-					final String profile = row.getCell(j).getStringCellValue();
-					names.put(j, profile);
-					profiles.put(profile, new int[N_SKILLS]);
-				}
-
-				continue;
-			}
-
-			for (int j = 2, k = 0; k < names.size(); j++, k++) { // two columns on the left
-				final int s = Double.valueOf(row.getCell(j).getNumericCellValue()).intValue();
-				profiles.get(names.get(j))[row.getRowNum() - 1] = s;
-			}
-		}
-
-		// answers parsing
-		names.clear();
-		int Q = -1;
-		for (Row row : sheetPilotAnswers) {
-			if (row.getRowNum() == 0)
-				continue;
-
-			if (row.getRowNum() == 1) {
-				for (int j = 5, k = 0; k < profiles.size(); j++, k++) {
-					final String profile = row.getCell(j).getStringCellValue();
-					names.put(j, profile);
-					int[][] ans = new int[NODES_PER_QUESTION.length][];
-					for (int m = 0; m < NODES_PER_QUESTION.length; m++) {
-						ans[m] = new int[NODES_PER_QUESTION[m]];
-					}
-					answers.put(profile, ans);
-				}
-
-				continue;
-			}
-
-			if (row.getRowNum() == 107) {
-				break;
-			}
-
-			final int A = Double.valueOf(row.getCell(3).getNumericCellValue()).intValue();
-			if (A == 1) {
-				Q = Double.valueOf(row.getCell(0).getNumericCellValue()).intValue();
-			}
-
-			final int a = A - 1;
-			final int q = Q - 1;
-
-			for (int j = 5, k = 0; k < names.size(); j++, k++) {
-				answers.get(names.get(j))[q][a] = Double.valueOf(row.getCell(j).getNumericCellValue()).intValue();
-			}
-		}
-
-//		for (String name : names.values()) {
-//			System.out.println(name);
-//			System.out.println("Skills: " + Arrays.toString(profiles.get(name)));
-//			final int[][] ans = answers.get(name);
-//			for (int[] an : ans) {
-//				System.out.println(Arrays.toString(an));
-//			}
-//		}
+		model = new BayesUAIParser(lines).parse();
+		final List<KProfile> profiles = KProfile.read();
 
 		filename = "adaptive.results.given_profiles_18.tsv";
-		model = UAIParser.read("AdaptiveQuestionnaire.model.uai");
 
 		Files.write(Paths.get(filename), new ArrayList<String>(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
 
-		final ProgressBar p = new ProgressBar(names.size());
+		final ProgressBar p = new ProgressBar(profiles.size() * 18);
 		p.print();
 
-		final List<Callable<Void>> tasks = names.values().stream()
-				.map(name -> (Callable<Void>) () -> {
-					final long startTime = System.currentTimeMillis();
-					final int[] profile = profiles.get(name);
+		final List<Callable<Void>> tasks = profiles.stream()
+				.map(profile -> (Callable<Void>) () -> {
+					try {
+						final BeliefPropagation<BayesianFactor> inf = new BeliefPropagation<>();
 
-					final BeliefPropagation<BayesianFactor> inf = new BeliefPropagation<>();
+						final TIntIntMap obs = new TIntIntHashMap();
+						final List<String> content = new ArrayList<>();
 
-					final TIntIntMap obs = new TIntIntHashMap();
-					final List<String> content = new ArrayList<>();
-
-					List<String> output = new ArrayList<>();
-					output.add("" + name);
-					output.add("" + -1);
-					output.add("" + -1);
-					for (int s = 0; s < N_SKILLS; s++)
-						output.add("" + profile[s]);
-					for (int s = 0; s < N_SKILLS; s++) {
-						final BayesianFactor f = inf.query(model, obs, s);
-						final double d = f.getValue(1);
-						output.add("" + d);
-					}
-					content.add(String.join("\t", output));
-
-					for (int q = 0; q < NODES_PER_QUESTION.length; q++) {
-						int j = N_SKILLS + q;
-
-						for (int a = 0; a < NODES_PER_QUESTION[q]; a++) {
-							final int v = answers.get(name)[q][a];
-							obs.put(j, v);
-							j++;
-						}
-
-						output = new ArrayList<>();
-						output.add("" + name);
-						output.add("" + q);
-						for (int s = 0; s < N_SKILLS; s++) {
-							output.add("" + profile[s]);
-						}
-						for (int s = 0; s < N_SKILLS; s++) {
-							final BayesianFactor f = inf.query(model, obs, s);
+						List<String> output = new ArrayList<>();
+						output.add("" + profile.name);
+						output.add("" + -1);
+						for (Skill skill : skills)
+							output.add("" + profile.skills.get(skill.getName()));
+						for (Skill skill : skills) {
+							final BayesianFactor f = inf.query(model, obs, skill.getVariable());
 							final double d = f.getValue(1);
+							output.add("" + d);
+						}
+						content.add(String.join("\t", output));
+
+						for (int q = 0; q < NODES_PER_QUESTION.length; q++) {
+							final long startTime = System.currentTimeMillis();
+
+							int j = N_SKILLS + q;
+
+							for (int a = 0; a < NODES_PER_QUESTION[q]; a++) {
+								final int v = profile.answer("Q" + (q + 1), "A" + (a + 1));
+								if (v == 1)
+									obs.put(j, v);
+								j++;
+							}
+
+							output = new ArrayList<>();
+							output.add("" + profile.name);
+							output.add("" + q);
+							for (Skill skill : skills)
+								output.add("" + profile.skills.get(skill.getName()));
+							for (Skill skill : skills) {
+								final BayesianFactor f = inf.query(model, obs, skill.getVariable());
+								final double d = f.getValue(1);
+								output.add("" + d);
+							}
+
+							content.add(String.join("\t", output));
+
+							final long endTime = System.currentTimeMillis();
+
+							p.update(endTime - startTime);
+						}
+
+						write(content);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					return null;
+				})
+				.collect(Collectors.toList());
+
+		p.print();
+
+		es.invokeAll(tasks);
+	}
+
+	@Disabled // This will take A LOT of time...
+	@Test
+	public void testPilotProfiles18Adaptive() throws Exception {
+		final List<KProfile> profiles = KProfile.read();
+		final Survey survey = InitSurvey.init("AdaptiveQuestionnaire.multiple.survey.json");
+
+		filename = "adaptive.results.given_profiles_18.tsv";
+
+		Files.write(Paths.get(filename), new ArrayList<String>(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+
+		final ProgressBar p = new ProgressBar(profiles.size() * 18);
+		p.print();
+
+		final List<Callable<Void>> tasks = profiles.stream()
+				.limit(1) // TODO: remove this limit!
+				.map(profile -> (Callable<Void>) () -> {
+					try {
+						final AgentPreciseAdaptiveSimple agent = new AgentPreciseAdaptiveSimple(survey, 42L, new ScoringFunctionExpectedEntropy());
+						agent.addSkills(survey.getSkills());
+						agent.addQuestions(survey.getQuestions());
+
+						Question question;
+						State state;
+
+						final List<String> content = new ArrayList<>();
+
+						List<String> output = new ArrayList<>();
+						output.add("" + profile.name);
+						output.add("" + -1);
+						output.add("" + -1);
+						for (Skill skill : agent.getSkills())
+							output.add("" + profile.skills.get(skill.getName()));
+						for (Skill skill : agent.getSkills()) {
+							final double d = agent.getState().probabilities.get(skill.getName())[1];
 							output.add("" + d);
 						}
 
 						content.add(String.join("\t", output));
+
+						while ((question = agent.next()) != null) {
+							final long startTime = System.currentTimeMillis();
+
+							final String q = question.getName();
+
+							final List<QuestionAnswer> checked = new ArrayList<>();
+							for (QuestionAnswer qa : question.getAnswersAvailable()) {
+								final String a = qa.getName();
+								final int ans = profile.answer(q, a);
+
+								if (ans == qa.getState()) {
+									checked.add(qa);
+//								logger.debug("{} {} {} {}", profile.name, q, a, ans);
+								}
+							}
+
+							checked.forEach(qa -> agent.check(new Answer(qa)));
+
+							state = agent.getState();
+
+							output = new ArrayList<>();
+							output.add("" + profile.name);
+							output.add("" + q);
+							for (String s : profile.skills.keySet()) {
+								output.add("" + profile.skills.get(s));
+							}
+							for (String s : profile.skills.keySet()) {
+								final double d = state.getProbabilities().get(s)[1];
+								output.add("" + d);
+							}
+
+							content.add(String.join("\t", output));
+
+							final long endTime = System.currentTimeMillis();
+							p.update(endTime - startTime);
+						}
+
+						write(content);
+
+						p.print();
+
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-
-					final long endTime = System.currentTimeMillis();
-
-					p.update(endTime - startTime);
-
-					write(content);
 
 					return null;
 				})
@@ -420,7 +450,6 @@ public class Experiments {
 
 		es.invokeAll(tasks);
 	}
-
 
 	@Test
 	public void testPilotProfiles105() throws Exception {
