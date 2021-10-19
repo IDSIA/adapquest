@@ -64,6 +64,11 @@ public class SurveyStructure {
 	public Boolean simple = false;
 
 	/**
+	 * If {@link #simple} is True, then add a "NoSkill" skill.
+	 */
+	public Boolean noSkill = true;
+
+	/**
 	 * Possible scoring functions are:
 	 * <ul>
 	 *     <li><code>mode</code></li>

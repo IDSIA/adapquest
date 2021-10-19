@@ -40,7 +40,7 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 	/**
 	 * Available skill in no specific order.
 	 */
-	protected final Set<Skill> skills = new HashSet<>();
+	protected final List<Skill> skills = new ArrayList<>();
 
 	/**
 	 * List of all the questions available in the survey.
@@ -92,11 +92,16 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 		this.scoring = scoring;
 	}
 
+	public List<Skill> getSkills() {
+		return skills;
+	}
+
 	public void addSkills(Set<Skill> skills) {
 		this.skills.addAll(
 				skills.stream()
 						.filter(Objects::nonNull)
 						.filter(x -> !x.getName().equals(NO_SKILL))
+						.sorted(Comparator.comparingInt(Skill::getVariable))
 						.collect(Collectors.toList())
 		);
 	}

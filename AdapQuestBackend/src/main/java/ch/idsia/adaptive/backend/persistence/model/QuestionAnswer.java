@@ -36,6 +36,12 @@ public class QuestionAnswer {
 	private String text;
 
 	/**
+	 * Name of the variable controlled by this question.
+	 */
+	@EqualsAndHashCode.Include
+	private String name;
+
+	/**
 	 * True if this is a correct answer.
 	 */
 	private Boolean correct = false;

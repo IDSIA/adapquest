@@ -143,14 +143,14 @@ public class InitializationService {
 								.collect(Collectors.toList())
 						)
 				)
-				.collect(Collectors.toMap(Skill::getName, x -> x));
+				.collect(Collectors.toMap(Skill::getName, x -> x, (a, b) -> a, LinkedHashMap::new));
 
-		if (structure.survey.getSimple()) {
+		if (structure.survey.getSimple() && structure.survey.getNoSkill()) {
 			skills.put("", new Skill().setName(NO_SKILL).setStates(new ArrayList<>()));
 			logger.info("Simple survey: added empty skill {}", NO_SKILL);
 		}
 
-		logger.info("Found {} skill(s): {}", skills.size(), skills.values().stream().map(Skill::getName).collect(Collectors.joining(" ")));
+		logger.info("Found {} skill(s): {}", skills.size(), skills.values().stream().map(s -> "[" + s.getName() + "]").collect(Collectors.joining(" ")));
 
 		// build questions
 		final Set<Question> questions = structure.questions.stream()
@@ -170,6 +170,7 @@ public class InitializationService {
 						.setMultipleSkills(q.multipleSkills)
 						.addAnswersAvailable(q.answers.stream()
 								.map(a -> new QuestionAnswer()
+										.setName(a.name)
 										.setText(a.text)
 										.setCorrect(a.correct)
 										.setHidden(a.hidden)
@@ -194,7 +195,7 @@ public class InitializationService {
 				.setDuration(structure.survey.duration)
 				.setQuestions(questions)
 				.setSkillOrder(structure.survey.skillOrder)
-				.setSkills(new HashSet<>(skills.values()))
+				.setSkills(new LinkedHashSet<>(skills.values()))
 				.setModelData(modelData)
 				.setMixedSkillOrder(structure.survey.mixedSkillOrder)
 				.setIsAdaptive(structure.survey.adaptive)

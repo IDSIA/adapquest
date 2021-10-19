@@ -1,6 +1,7 @@
 package ch.idsia.adaptive.backend.services.commons.agents;
 
 import ch.idsia.adaptive.backend.persistence.model.Question;
+import ch.idsia.adaptive.backend.persistence.model.QuestionAnswer;
 import ch.idsia.adaptive.backend.persistence.model.Skill;
 import ch.idsia.adaptive.backend.persistence.model.Survey;
 import ch.idsia.adaptive.backend.services.commons.SurveyException;
@@ -145,7 +146,7 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 				HSQ += HSqi * Pqi; // conditional score
 			}
 
-//				logger.debug("question={} skill={} with HSQ={}", question.getName(), skill.getName(), HSQ);
+//			logger.debug("question={} skill={} with HSQ={}", question.getName(), skill.getName(), HSQ);
 
 			meanInfoGain += Math.max(0, HS - HSQ) / skills.size();
 		}
@@ -171,7 +172,8 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 
 				for (int i = 0; i < size; i++, n++) {
 					final TIntIntMap qi = new TIntIntHashMap(observations);
-					question.getQuestionAnswer(Q, i).observe(qi);
+					final QuestionAnswer answer = question.getQuestionAnswer(Q, i);
+					answer.observe(qi);
 
 					final BayesianFactor PSqi = inference.query(model, qi, S);
 					final double Pqi = PQ.getValue(i);
@@ -179,9 +181,9 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
 
 					HSQ += HSqi * Pqi; // conditional score
-				}
 
-//				logger.debug("question={} skill={} answer={} with HSQ={}", question.getName(), skill.getName(), answer.getVariable(), HSQ);
+//					logger.debug("question={} skill={} Q={} i={} with HSQ={}", question.getName(), skill.getId(), Q, i, HSQ);
+				}
 
 				meanInfoGain += Math.max(0, HS - HSQ) / skills.size();
 			}

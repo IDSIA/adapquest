@@ -113,7 +113,7 @@ public class Question implements Comparable<Question> {
 	private Map<Integer, QuestionAnswer> qaMap = new HashMap<>();
 
 	@Transient
-	private Set<Integer> variables = new HashSet<>();
+	private Set<Integer> variables = new LinkedHashSet<>();
 
 	@PostLoad
 	public void mapVariables() {
@@ -139,7 +139,7 @@ public class Question implements Comparable<Question> {
 
 	public Integer getVariable() {
 		if (variables.size() > 1)
-			logger.warn("requested single variable for multi-variable question: name={} qid={}", name, id);
+			logger.trace("requested single variable for multi-variable question: name={} qid={}", name, id);
 
 		return new ArrayList<>(variables).get(0);
 	}

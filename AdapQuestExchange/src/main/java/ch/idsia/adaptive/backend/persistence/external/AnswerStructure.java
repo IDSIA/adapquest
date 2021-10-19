@@ -20,6 +20,11 @@ import java.util.List;
 public class AnswerStructure {
 
 	/**
+	 * Name of the variable controlled by this question.
+	 */
+	public String name = "";
+
+	/**
 	 * Text of the question.
 	 */
 	public String text = "";
