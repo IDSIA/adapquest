@@ -87,6 +87,13 @@ public class Survey {
 	private Boolean isSimple = false;
 
 	/**
+	 * If true, use the {@link ch.idsia.adaptive.backend.services.commons.agents.AgentPreciseAdaptiveStructural} agent
+	 * for the model.
+	 * Only available when using <code>adaptive=true</code>.
+	 */
+	private Boolean isStructural = false;
+
+	/**
 	 * Possible scoring functions are:
 	 * <ul>
 	 *     <li><code>mode</code> ({@link ScoringFunctionBayesianMode})</li>

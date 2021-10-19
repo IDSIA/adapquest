@@ -1,7 +1,6 @@
 package ch.idsia.adaptive.backend.services.commons.agents;
 
 import ch.idsia.adaptive.backend.persistence.model.Question;
-import ch.idsia.adaptive.backend.persistence.model.QuestionAnswer;
 import ch.idsia.adaptive.backend.persistence.model.Skill;
 import ch.idsia.adaptive.backend.persistence.model.Survey;
 import ch.idsia.adaptive.backend.services.commons.SurveyException;
@@ -9,8 +8,8 @@ import ch.idsia.adaptive.backend.services.commons.scoring.Scoring;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,14 +20,15 @@ import java.util.Map;
  * Project: AdapQuest
  * Date:    14.12.2020 17:17
  * <p>
- * This {@link Agent} is compatible with any precise model. {@link Question}s with multiple skills or multi-choice are
- * also supported.
+ * This {@link Agent} is compatible with any precise model. {@link Question}s with multiple skills are also supported.
  */
 public class AgentPreciseAdaptiveSimple extends AgentPrecise {
-	private static final Logger logger = LogManager.getLogger(AgentPreciseAdaptiveSimple.class);
+	private static final Logger logger = LoggerFactory.getLogger(AgentPreciseAdaptiveSimple.class);
 
 	public AgentPreciseAdaptiveSimple(Survey model, Long seed, Scoring<BayesianFactor> scoring) {
 		super(model, seed, scoring);
+		addSkills(survey.getSkills());
+		addQuestions(survey.getQuestions());
 	}
 
 	@Override
@@ -93,12 +93,34 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 		}
 
 		for (Question question : questions) {
-			final double meanInfoGain;
+			final Integer Q = question.getVariable();
+			final int size = model.getSize(Q);
 
-			if (question.getMultipleChoice())
-				meanInfoGain = questionMultipleChoiceScore(HSs, question);
-			else
-				meanInfoGain = questionScore(HSs, question);
+			final BayesianFactor PQ = inference.query(model, observations, Q);
+
+			double meanInfoGain = 0;
+			for (Skill skill : skills) {
+				final Integer S = skill.getVariable();
+				final Double HS = HSs.get(skill);
+
+				double HSQ = 0;
+
+				for (int i = 0; i < size; i++) {
+					final TIntIntMap qi = new TIntIntHashMap(observations);
+					question.getQuestionAnswer(Q, i).observe(qi);
+
+					final BayesianFactor PSqi = inference.query(model, qi, S);
+					final double Pqi = PQ.getValue(i);
+					double HSqi = scoring.score(PSqi);
+					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
+
+					HSQ += HSqi * Pqi; // conditional score
+				}
+
+//			logger.debug("question={} skill={} with HSQ={}", question.getName(), skill.getName(), HSQ);
+
+				meanInfoGain += Math.max(0, HS - HSQ) / skills.size();
+			}
 
 			logger.debug("question={} with average infoGain={}", question.getName(), meanInfoGain);
 
@@ -121,73 +143,4 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 		return nextQuestion;
 	}
 
-	private double questionScore(Map<Skill, Double> HSs, Question question) {
-		final Integer Q = question.getVariable();
-		final int size = model.getSize(Q);
-
-		final BayesianFactor PQ = inference.query(model, observations, Q);
-
-		double meanInfoGain = 0;
-		for (Skill skill : skills) {
-			final Integer S = skill.getVariable();
-			final Double HS = HSs.get(skill);
-
-			double HSQ = 0;
-
-			for (int i = 0; i < size; i++) {
-				final TIntIntMap qi = new TIntIntHashMap(observations);
-				question.getQuestionAnswer(Q, i).observe(qi);
-
-				final BayesianFactor PSqi = inference.query(model, qi, S);
-				final double Pqi = PQ.getValue(i);
-				double HSqi = scoring.score(PSqi);
-				HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
-
-				HSQ += HSqi * Pqi; // conditional score
-			}
-
-//			logger.debug("question={} skill={} with HSQ={}", question.getName(), skill.getName(), HSQ);
-
-			meanInfoGain += Math.max(0, HS - HSQ) / skills.size();
-		}
-		return meanInfoGain;
-	}
-
-	private double questionMultipleChoiceScore(Map<Skill, Double> HSs, Question question) {
-		double meanInfoGain = 0;
-		int n = 0;
-
-		// mean of all possible answers
-		for (Integer Q : question.getVariables()) {
-			final int size = model.getSize(Q);
-
-			final BayesianFactor PQ = inference.query(model, observations, Q);
-
-			// mean of gain for each skill
-			for (Skill skill : skills) {
-				final Integer S = skill.getVariable();
-				final Double HS = HSs.get(skill);
-
-				double HSQ = 0;
-
-				for (int i = 0; i < size; i++, n++) {
-					final TIntIntMap qi = new TIntIntHashMap(observations);
-					final QuestionAnswer answer = question.getQuestionAnswer(Q, i);
-					answer.observe(qi);
-
-					final BayesianFactor PSqi = inference.query(model, qi, S);
-					final double Pqi = PQ.getValue(i);
-					double HSqi = scoring.score(PSqi);
-					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
-
-					HSQ += HSqi * Pqi; // conditional score
-
-//					logger.debug("question={} skill={} Q={} i={} with HSQ={}", question.getName(), skill.getId(), Q, i, HSQ);
-				}
-
-				meanInfoGain += Math.max(0, HS - HSQ) / skills.size();
-			}
-		}
-		return meanInfoGain / n;
-	}
 }

@@ -1,0 +1,6 @@
+logging:
+
+  level:
+    ch.idsia: debug
+    org.springframework.web: info
+    org.hibernate: info

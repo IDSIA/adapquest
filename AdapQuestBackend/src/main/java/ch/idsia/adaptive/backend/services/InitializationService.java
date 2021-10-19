@@ -9,8 +9,8 @@ import ch.idsia.crema.factor.bayesian.BayesianFactorFactory;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +31,7 @@ import static ch.idsia.adaptive.backend.config.Consts.NO_SKILL;
  */
 @Service
 public class InitializationService {
-	private static final Logger logger = LogManager.getLogger(InitializationService.class);
+	private static final Logger logger = LoggerFactory.getLogger(InitializationService.class);
 
 	private final SurveyRepository surveys;
 
@@ -66,14 +66,14 @@ public class InitializationService {
 							return om.readValue(path.toFile(), ImportStructure.class);
 						} catch (IOException e) {
 							logger.error("Could not import path={}", path);
-							logger.error(e);
+							logger.error(e.getMessage());
 							return null;
 						}
 					})
 					.filter(Objects::nonNull)
 					.forEach(this::parseSurvey);
 		} catch (IOException e) {
-			logger.error(e);
+			logger.error(e.getMessage());
 		}
 	}
 

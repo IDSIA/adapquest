@@ -8,8 +8,8 @@ import ch.idsia.adaptive.backend.services.commons.scoring.Scoring;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
@@ -22,10 +22,12 @@ import java.util.Collection;
  * For a multi-skill model, consider using the {@link AgentPreciseAdaptiveSimple} agent.
  */
 public class AgentPreciseAdaptive extends AgentPrecise {
-	private static final Logger logger = LogManager.getLogger(AgentPreciseAdaptive.class);
+	private static final Logger logger = LoggerFactory.getLogger(AgentPreciseAdaptive.class);
 
 	public AgentPreciseAdaptive(Survey survey, Long seed, Scoring<BayesianFactor> scoring) {
 		super(survey, seed, scoring);
+		addSkills(survey.getSkills());
+		addQuestions(survey.getQuestions());
 	}
 
 	public boolean isSkillValid(Skill skill) {

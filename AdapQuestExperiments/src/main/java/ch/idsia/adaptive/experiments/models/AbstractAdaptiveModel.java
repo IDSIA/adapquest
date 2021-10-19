@@ -5,8 +5,8 @@ import ch.idsia.adaptive.backend.persistence.external.QuestionStructure;
 import ch.idsia.adaptive.backend.persistence.external.SkillStructure;
 import ch.idsia.adaptive.backend.persistence.external.SurveyStructure;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ import java.util.List;
  * remote application.
  */
 public abstract class AbstractAdaptiveModel {
-	private static final Logger logger = LogManager.getLogger(AbstractAdaptiveModel.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractAdaptiveModel.class);
 
 	/**
 	 * Above this threshold, stop query the skill.

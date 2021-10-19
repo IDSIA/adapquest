@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.*;
 import java.util.*;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Accessors(chain = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Question implements Comparable<Question> {
-	private static final Logger logger = LogManager.getLogger(Question.class);
+	private static final Logger logger = LoggerFactory.getLogger(Question.class);
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -129,6 +129,10 @@ public class Question implements Comparable<Question> {
 		return qaMap.get(Objects.hash(variable, state));
 	}
 
+	public QuestionAnswer getQuestionAnswer(Integer index) {
+		return answersAvailable.get(index);
+	}
+
 	public Question addAnswersAvailable(QuestionAnswer... answersAvailable) {
 		this.answersAvailable = Arrays.stream(answersAvailable)
 				.peek(a -> a.setQuestion(this))
@@ -167,12 +171,7 @@ public class Question implements Comparable<Question> {
 
 	@Override
 	public String toString() {
-		return "Question{" +
-				"id=" + id +
-				", skill=" + skills +
-				", name=" + name +
-				", weight=" + weight +
-				'}';
+		return "Question{" + name + " " + skills + "}";
 	}
 
 }

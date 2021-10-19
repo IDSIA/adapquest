@@ -40,15 +40,15 @@ public class SurveyManagerService {
 	 * @throws IllegalArgumentException when the survey id is not valid
 	 */
 	public void init(SurveyData data) {
-		Long surveyId = data.getSurveyId();
-		Survey survey = surveyRepository
+		final Long surveyId = data.getSurveyId();
+		final Survey survey = surveyRepository
 				.findById(surveyId)
 				.orElseThrow(() -> new IllegalArgumentException("No model associated with SurveyId=" + surveyId));
 
-		Long seed = data.getStartTime().toEpochSecond(OffsetDateTime.now().getOffset());
+		final Long seed = data.getStartTime().toEpochSecond(OffsetDateTime.now().getOffset());
 
 		// TODO: allow also imprecise agents
-		AgentPrecise agent;
+		AgentGeneric<BayesianFactor> agent;
 
 		if (survey.getIsAdaptive()) {
 			Scoring<BayesianFactor> scoring;
@@ -58,7 +58,9 @@ public class SurveyManagerService {
 			else
 				scoring = new ScoringFunctionExpectedEntropy();
 
-			if (survey.getIsSimple()) {
+			if (survey.getIsStructural()) {
+				agent = new AgentPreciseAdaptiveStructural(survey, seed, scoring);
+			} else if (survey.getIsSimple()) {
 				agent = new AgentPreciseAdaptiveSimple(survey, seed, scoring);
 			} else {
 				agent = new AgentPreciseAdaptive(survey, seed, scoring);
@@ -66,8 +68,6 @@ public class SurveyManagerService {
 		} else {
 			agent = new AgentPreciseNonAdaptive(survey, seed);
 		}
-		agent.addSkills(survey.getSkills());
-		agent.addQuestions(survey.getQuestions());
 
 		activeSurveys.put(data.getToken(), agent);
 	}

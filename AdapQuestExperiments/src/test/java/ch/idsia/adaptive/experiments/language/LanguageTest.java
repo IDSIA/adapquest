@@ -6,8 +6,8 @@ import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import ch.idsia.crema.factor.bayesian.BayesianFactorFactory;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * Date:    29.01.2021 17:56
  */
 public class LanguageTest extends AbstractAdaptiveModel {
-	private static final Logger logger = LogManager.getLogger(LanguageTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(LanguageTest.class);
 
 	public static final String accessCode = "LanguageTest";
 

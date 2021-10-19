@@ -1,7 +1,7 @@
 package ch.idsia.adaptive.experiments;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -12,7 +12,7 @@ import java.nio.file.Paths;
  * Date:    23.02.2021 14:57
  */
 public class ToolLocalhost extends Tool {
-	private static final Logger logger = LogManager.getLogger(ToolLocalhost.class);
+	private static final Logger logger = LoggerFactory.getLogger(ToolLocalhost.class);
 
 	/**
 	 * Creates an object that can connect to the remote application.

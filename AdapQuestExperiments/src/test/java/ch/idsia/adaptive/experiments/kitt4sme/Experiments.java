@@ -13,8 +13,6 @@ import ch.idsia.crema.model.io.uai.UAIParser;
 import ch.idsia.crema.utility.RandomUtil;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -23,6 +21,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -39,7 +39,7 @@ import java.util.stream.IntStream;
  * Date:    04.10.2021 16:33
  */
 public class Experiments {
-	private static final Logger logger = LogManager.getLogger(Experiments.class);
+	private static final Logger logger = LoggerFactory.getLogger(Experiments.class);
 
 	static final int PARALLEL_COUNT = Runtime.getRuntime().availableProcessors();
 
@@ -378,8 +378,6 @@ public class Experiments {
 				.map(profile -> (Callable<Void>) () -> {
 					try {
 						final AgentPreciseAdaptiveSimple agent = new AgentPreciseAdaptiveSimple(survey, 42L, new ScoringFunctionExpectedEntropy());
-						agent.addSkills(survey.getSkills());
-						agent.addQuestions(survey.getQuestions());
 
 						Question question;
 						State state;

@@ -12,8 +12,8 @@ import ch.idsia.crema.model.graphical.DAGModel;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import lombok.Getter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,7 +26,7 @@ import static ch.idsia.adaptive.backend.config.Consts.NO_SKILL;
  * Date:    14.12.2020 17:18
  */
 public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
-	private static final Logger logger = LogManager.getLogger(AgentGeneric.class);
+	private static final Logger logger = LoggerFactory.getLogger(AgentGeneric.class);
 
 	/**
 	 * Reference survey.

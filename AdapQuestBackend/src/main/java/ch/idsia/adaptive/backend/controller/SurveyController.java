@@ -12,8 +12,8 @@ import ch.idsia.adaptive.backend.services.SessionService;
 import ch.idsia.adaptive.backend.services.SurveyManagerService;
 import ch.idsia.adaptive.backend.services.commons.SurveyException;
 import ch.idsia.adaptive.backend.utils.Convert;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping(value = "/survey", consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class SurveyController {
-	private static final Logger logger = LogManager.getLogger(SurveyController.class);
+	private static final Logger logger = LoggerFactory.getLogger(SurveyController.class);
 
 	final SessionService sessions;
 	final SurveyManagerService manager;
@@ -163,7 +163,7 @@ public class SurveyController {
 			logger.warn("Request test initialization with an invalid accessCode={} from ip={}", accessCode, request.getRemoteAddr());
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
-			logger.error(e);
+			logger.error(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -294,7 +294,7 @@ public class SurveyController {
 
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (SessionException e) {
-			logger.error(e);
+			logger.error(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -341,7 +341,7 @@ public class SurveyController {
 			final Question q = manager.nextQuestion(data);
 			return new ResponseEntity<>(Convert.toResponse(q), HttpStatus.OK);
 		} catch (SessionException e) {
-			logger.error(e);
+			logger.error(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (SurveyException e) {
 			if (e.getMessage().equals("Finished")) {

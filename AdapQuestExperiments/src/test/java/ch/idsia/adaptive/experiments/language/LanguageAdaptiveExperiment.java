@@ -5,11 +5,11 @@ import ch.idsia.adaptive.backend.persistence.responses.ResponseSkill;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import ch.idsia.adaptive.experiments.Tool;
 import ch.idsia.adaptive.experiments.ToolLocalhost;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,7 +32,7 @@ import java.util.stream.IntStream;
  * Date:    28.01.2021 16:02
  */
 public class LanguageAdaptiveExperiment {
-	private static final Logger logger = LogManager.getLogger(LanguageAdaptiveExperiment.class);
+	private static final Logger logger = LoggerFactory.getLogger(LanguageAdaptiveExperiment.class);
 
 	static final Integer CORES = Runtime.getRuntime().availableProcessors() * 2;
 
