@@ -24,8 +24,6 @@ class AgentPreciseAdaptiveSimpleTest {
 		final Survey survey = InitializationService.parseSurveyStructure(structure);
 
 		final AgentPreciseAdaptiveSimple agent = new AgentPreciseAdaptiveSimple(survey, 42L, new ScoringFunctionExpectedEntropy());
-		agent.addSkills(survey.getSkills());
-		agent.addQuestions(survey.getQuestions());
 
 		Question q;
 		State s;

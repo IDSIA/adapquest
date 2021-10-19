@@ -24,6 +24,24 @@ public class SurveyStructureRepository {
 		));
 	}
 
+	private static QuestionStructure question(int[] variables, String name, String[] skills) {
+
+		final List<AnswerStructure> answers = new ArrayList<>();
+		for (int v : variables) {
+			final AnswerStructure neg = new AnswerStructure("A0", v, 0);
+			final AnswerStructure pos = new AnswerStructure("A1", v, 1);
+			answers.add(neg);
+			answers.add(pos);
+		}
+
+		return new QuestionStructure()
+				.setSkills(Set.of(skills))
+				.setName(name)
+				.setMultipleSkills(true)
+				.setMultipleChoice(true)
+				.setAnswers(answers);
+	}
+
 	private static SkillStructure skill(int variable, String name) {
 		return new SkillStructure().setName(name).setVariable(variable).setStates(List.of(
 				new StateStructure(name + 0, 0),
@@ -294,81 +312,69 @@ public class SurveyStructureRepository {
 				.setModelData(modelData);
 	}
 
-	public static ImportStructure structure3S2QMultiChoice(String code) {
+	public static ImportStructure structure3S3Q4C(String code) {
 		final BayesianNetwork bn = new BayesianNetwork();
-		// skill nodes
-		final int[] s = {
-				bn.addVariable(2), // s0
-				bn.addVariable(2), // s1
-				bn.addVariable(2), // s2
-		};
-		// answer nodes, a question is composed by answers
-		final int[] q = {
-				bn.addVariable(2), // q0
-				bn.addVariable(2), // q1
-		};
-		// parents for answer nodes
-		final int[][] p = {
-				{s[0], s[1]}, // Pa(q0)
-				{s[0], s[2]}, // Pa(q1)
-		};
-		// set parents
-		for (int i = 0; i < q.length; i++)
-			bn.addParents(q[i], p[i]);
 
-		// noisy-or inhibitors
-		final double[][] inh = {
-				{.1, .1}, // Inh(q0)
-				{.1, .1}, // Inh(q1)
+		// three skills
+		final int s0 = bn.addVariable(2);
+		final int s1 = bn.addVariable(2);
+		final int s2 = bn.addVariable(2);
+
+		// three questions
+		final int q0c0 = bn.addVariable(2);
+		final int q0c1 = bn.addVariable(2);
+
+		bn.addParents(q0c0, s0, s1);
+		bn.addParents(q0c1, s0, s2);
+
+		final int q1c0 = bn.addVariable(2);
+		final int q1c1 = bn.addVariable(2);
+
+		bn.addParents(q1c0, s0, s1);
+		bn.addParents(q1c1, s1, s2);
+
+		final int q2c0 = bn.addVariable(2);
+		final int q2c1 = bn.addVariable(2);
+
+		bn.addParents(q2c0, s0, s2);
+		bn.addParents(q2c1, s0, s2);
+
+		final BayesianFactor[] f = new BayesianFactor[]{
+				BayesianFactorFactory.factory().domain(bn.getDomain(s0)).data(new double[]{.5, .5}).get(),
+				BayesianFactorFactory.factory().domain(bn.getDomain(s1)).data(new double[]{.5, .5}).get(),
+				BayesianFactorFactory.factory().domain(bn.getDomain(s2)).data(new double[]{.5, .5}).get(),
+
+				BayesianFactorFactory.factory().domain(bn.getDomain(q0c0, s0, s1)).noisyOr(bn.getParents(q0c0), new double[]{.4, .6}),
+				BayesianFactorFactory.factory().domain(bn.getDomain(q0c1, s0, s2)).noisyOr(bn.getParents(q0c1), new double[]{.6, .4}),
+
+				BayesianFactorFactory.factory().domain(bn.getDomain(q1c0, s0, s1)).noisyOr(bn.getParents(q1c0), new double[]{.5, .5}),
+				BayesianFactorFactory.factory().domain(bn.getDomain(q1c1, s1, s2)).noisyOr(bn.getParents(q1c1), new double[]{.3, .7}),
+
+				BayesianFactorFactory.factory().domain(bn.getDomain(q2c0, s0, s2)).noisyOr(bn.getParents(q2c0), new double[]{.6, .4}),
+				BayesianFactorFactory.factory().domain(bn.getDomain(q2c1, s0, s2)).noisyOr(bn.getParents(q2c1), new double[]{.8, .2}),
 		};
-
-		final BayesianFactor[] f = new BayesianFactor[s.length + q.length];
-
-		for (int i = 0; i < s.length; i++)
-			// factors for skills
-			f[i] = BayesianFactorFactory.factory().domain(bn.getDomain(s[i])).data(new double[]{.5, .5}).get();
-		for (int i = 0, j = s.length; i < q.length; i++, j++)
-			// factors for answer/questions
-			f[j] = BayesianFactorFactory.factory().domain(bn.getDomain(q[i], p[i][0], p[i][1])).noisyOr(bn.getParents(q[i]), inh[i]);
 
 		bn.setFactors(f);
 
 		// build survey model structure
-		final List<SkillStructure> skillStructures = IntStream.range(0, s.length)
-				.mapToObj(i -> skill(i, "S" + i))
-				.collect(Collectors.toList());
+		final List<SkillStructure> skillStructures = List.of(
+				skill(s0, "S0"),
+				skill(s1, "S1"),
+				skill(s2, "S2")
+		);
 
-		final List<QuestionStructure> questionStructures = IntStream.range(0, q.length)
-				.mapToObj(i -> {
-							final Set<String> skills = new HashSet<>();
-							final List<AnswerStructure> answers = new ArrayList<>();
-
-							for (int pa : p[i])
-								skills.add(skillStructures.get(pa).getName());
-
-							final AnswerStructure neg = new AnswerStructure("no", q[i], 0);
-							final AnswerStructure pos = new AnswerStructure("yes", q[i], 1);
-
-							answers.add(neg);
-							answers.add(pos);
-
-							return new QuestionStructure()
-									.setName("Q" + i) // 0 based
-									.setQuestion("Q" + i)
-									.setMandatory(true)
-									.setMultipleChoice(true)
-									.setMultipleSkills(true)
-									.setSkills(skills)
-									.setAnswers(answers);
-						}
-				)
-				.collect(Collectors.toList());
+		final List<QuestionStructure> questionStructures = List.of(
+				question(new int[]{q0c0, q0c1}, "Q0", new String[]{"S0", "S1", "S2"}),
+				question(new int[]{q1c0, q1c1}, "Q1", new String[]{"S0", "S1", "S2"}),
+				question(new int[]{q1c0, q1c1}, "Q2", new String[]{"S0", "S2"})
+		);
 
 		final String modelData = String.join("\n", new BayesUAIWriter(bn, "").serialize());
 		final SurveyStructure surveyStructure = new SurveyStructure()
 				.setAccessCode(code)
 				.setAdaptive(true)
 				.setSimple(true)
+				.setNoSkill(false)
 				.setQuestionTotalMin(3);
 
 		return new ImportStructure()
@@ -441,6 +447,7 @@ public class SurveyStructureRepository {
 				.setAccessCode(code)
 				.setAdaptive(true)
 				.setSimple(true)
+				.setNoSkill(false)
 				.setQuestionTotalMin(3);
 
 		return new ImportStructure()

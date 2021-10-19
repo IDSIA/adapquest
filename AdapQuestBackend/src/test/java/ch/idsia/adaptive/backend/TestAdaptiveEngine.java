@@ -13,11 +13,11 @@ import ch.idsia.adaptive.backend.services.InitializationService;
 import ch.idsia.adaptive.backend.services.SessionService;
 import ch.idsia.adaptive.backend.services.SurveyManagerService;
 import ch.idsia.adaptive.backend.utils.TestTool;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -53,7 +53,7 @@ import java.util.stream.IntStream;
 })
 @Import(TestTool.class)
 public class TestAdaptiveEngine {
-	private static final Logger logger = LogManager.getLogger(TestAdaptiveEngine.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestAdaptiveEngine.class);
 
 	@Autowired
 	TestTool tool;

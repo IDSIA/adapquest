@@ -15,13 +15,13 @@ import ch.idsia.adaptive.backend.services.InitializationService;
 import ch.idsia.adaptive.backend.services.SessionService;
 import ch.idsia.adaptive.backend.services.SurveyManagerService;
 import ch.idsia.adaptive.backend.utils.TestTool;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -54,7 +54,7 @@ import java.util.List;
 })
 @Import(TestTool.class)
 public class TestAdaptiveMultipleChoice {
-	private static final Logger logger = LogManager.getLogger(TestAdaptiveMultipleChoice.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestAdaptiveMultipleChoice.class);
 
 	@Autowired
 	TestTool tool;
