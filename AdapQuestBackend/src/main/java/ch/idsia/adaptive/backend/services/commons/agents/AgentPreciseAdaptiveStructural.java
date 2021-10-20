@@ -4,7 +4,9 @@ import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.services.commons.SurveyException;
 import ch.idsia.adaptive.backend.services.commons.inference.precise.InferenceLBP;
 import ch.idsia.adaptive.backend.services.commons.scoring.Scoring;
+import ch.idsia.crema.factor.bayesian.BayesianDefaultFactor;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
+import ch.idsia.crema.factor.bayesian.BayesianFactorFactory;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.graphical.DAGModel;
 import ch.idsia.crema.model.io.uai.BayesUAIParser;
@@ -20,6 +22,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
@@ -105,13 +109,22 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 	private void updateModel() {
 		// compute new factors (if needed)
 		final TIntObjectMap<BayesianFactor> map = new TIntObjectHashMap<>();
+		final TIntIntMap obs = new TIntIntHashMap();
+
 		for (Skill skill : skills) {
 			final Integer s = skill.getVariable();
-			if (model.getChildren(s).length > 0) {
+
+			if (observations.containsKey(s)) {
+				// skill is observed
+				obs.put(s, observations.get(s));
+				final BayesianDefaultFactor o = BayesianFactorFactory.factory().domain(model.getDomain(s)).set(1.0, obs.get(s)).get();
+				map.put(s, o);
+			} else if (model.getChildren(s).length > 0) {
+				// skill is not observed
 				final BayesianFactor f = inference.query(model, observations, s);
 				map.put(s, f);
 			} else {
-				// factor with no questions: skip inference
+				// factor with no questions: skip inference and reuse old value
 				map.put(s, model.getFactor(s));
 			}
 		}
@@ -123,7 +136,7 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 		}
 
 		// remove child nodes
-		observations.clear();
+		observations = obs;
 		dirty = false;
 	}
 
@@ -215,38 +228,51 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 		if (dirty)
 			updateModel();
 
-		DAGModel<BayesianFactor> model = this.model.copy();
-
 		// find the question with the optimal score
 		Question nextQuestion = null;
-		double maxIG = -Double.MAX_VALUE;
+		Double maxIG = -Double.MAX_VALUE;
 
-		Map<Skill, Double> HSs = new HashMap<>();
+		final Map<Skill, Double> HSs = new HashMap<>();
 		for (Skill skill : skills) {
 			final Integer S = skill.getVariable();
-			final BayesianFactor PS = model.getFactor(S);
+			final BayesianFactor PS = this.model.getFactor(S);
 			final double HS = scoring.score(PS); // skill score
 			HSs.put(skill, HS);
 		}
 
-		for (Question question : questions) {
-			model = this.model.copy();
-			addQuestion(model, question);
+		final List<Callable<Double>> tasks = questions.stream()
+				.map(question -> (Callable<Double>) () -> {
+					final DAGModel<BayesianFactor> model = this.model.copy();
+					addQuestion(model, question);
 
-			final double meanInfoGain;
+					final double meanInfoGain;
 
-			if (question.getMultipleChoice())
-				meanInfoGain = questionMultipleChoiceScore(model, HSs, question);
-			else
-				meanInfoGain = questionScore(model, HSs, question);
+					if (question.getMultipleChoice())
+						meanInfoGain = questionMultipleChoiceScore(model, HSs, question);
+					else
+						meanInfoGain = questionScore(model, HSs, question);
 
-			logger.debug("question={} with average infoGain={}", question.getName(), meanInfoGain);
+					logger.debug("question={} with average infoGain={}", question.getName(), meanInfoGain);
 
-			if (meanInfoGain > maxIG) {
-				maxIG = meanInfoGain;
-				nextQuestion = question;
-				nextQuestion.setScore(maxIG);
+					return meanInfoGain;
+				})
+				.collect(Collectors.toList());
+
+		try {
+			final List<Future<Double>> futures = executor.invokeAll(tasks);
+
+			for (int i = 0; i < questions.size(); i++) {
+				final Question question = questions.get(i);
+				final Double meanInfoGain = futures.get(i).get();
+
+				if (meanInfoGain > maxIG) {
+					maxIG = meanInfoGain;
+					nextQuestion = question;
+					nextQuestion.setScore(maxIG);
+				}
 			}
+		} catch (Exception e) {
+			logger.error("Could not perform question search: " + e.getMessage());
 		}
 
 		if (questionsDone.size() >= survey.getQuestionTotalMin()) {
@@ -307,8 +333,10 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 	 * @return the mean information gain of the given question
 	 */
 	private double questionMultipleChoiceScore(DAGModel<BayesianFactor> model, Map<Skill, Double> HSs, Question question) {
+		final int kj = question.getVariables().size();
 		double meanInfoGain = 0;
-		int kj = question.getVariables().size();
+
+		final InferenceLBP inference = new InferenceLBP();
 
 		// mean of all possible answers
 		for (Integer Q : question.getVariables()) {
@@ -316,34 +344,38 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 
 			final BayesianFactor PQ = inference.query(model, observations, Q);
 
-			// mean of gain for each skill
-			for (Skill skill : skills) {
-				final Integer S = skill.getVariable();
-				final Double HS = HSs.get(skill);
+			final List<Skill> validSkills = skills.stream()
+					.filter(S -> !observations.containsKey(S.getVariable()))
+					.filter(S -> ArraysUtil.contains(S.getVariable(), model.getParents(Q)))
+					.collect(Collectors.toList());
 
-				// skip if S is observed or if S is not a parent of Q
-				if (observations.containsKey(S) || !ArraysUtil.contains(S, model.getParents(Q)))
-					continue;
+			final int[] Ss = validSkills.stream().mapToInt(Skill::getVariable).toArray();
+			final double[] HSQ = new double[Ss.length];
 
-				double HSQ = 0;
+			for (int i = 0; i < size; i++) {
+				final TIntIntMap qi = new TIntIntHashMap(observations);
+				final QuestionAnswer answer = question.getQuestionAnswer(Q, i);
+				answer.observe(qi);
 
-				for (int i = 0; i < size; i++) {
-					final TIntIntMap qi = new TIntIntHashMap(observations);
-					final QuestionAnswer answer = question.getQuestionAnswer(Q, i);
-					answer.observe(qi);
+				final List<BayesianFactor> PSqis = inference.query(model, qi, Ss);
+				final double Pqi = PQ.getValue(i);
 
-					final BayesianFactor PSqi = inference.query(model, qi, S);
-					final double Pqi = PQ.getValue(i);
+				for (int j = 0; j < PSqis.size(); j++) {
+					BayesianFactor PSqi = PSqis.get(j);
 					double HSqi = scoring.score(PSqi);
 					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
 
-					final double HSqiPqi = HSqi * Pqi;
-					HSQ += HSqiPqi; // conditional score
-
-					logger.debug("question={} skill={} Q={} i={} with HSqi*Pqi={}", question.getName(), skill.getName(), Q, i, HSqiPqi);
+					HSQ[j] += HSqi * Pqi; // conditional score
 				}
+			}
 
-				final double dHS = HS - HSQ;
+			// mean of gain for each skill
+			for (int i = 0; i < validSkills.size(); i++) {
+				final Skill skill = validSkills.get(i);
+				final Double HS = HSs.get(skill);
+
+				final double dHS = HS - HSQ[i];
+
 				logger.debug("question={} skill={} Q={} dHS={}", question.getName(), skill.getName(), Q, dHS);
 				meanInfoGain += Math.max(0, dHS) / skills.size();
 			}

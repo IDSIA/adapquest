@@ -15,6 +15,8 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -27,6 +29,10 @@ public class SurveyManagerService {
 	private final SurveyRepository surveyRepository;
 
 	private final Map<String, Agent> activeSurveys = new ConcurrentHashMap<>();
+
+	// TODO: better parallel management with a scheduler
+	final int PARALLEL_COUNT = Runtime.getRuntime().availableProcessors() / 2;
+	final ExecutorService es = Executors.newFixedThreadPool(PARALLEL_COUNT);
 
 	@Autowired
 	public SurveyManagerService(SurveyRepository surveyRepository) {
@@ -48,7 +54,7 @@ public class SurveyManagerService {
 		final Long seed = data.getStartTime().toEpochSecond(OffsetDateTime.now().getOffset());
 
 		// TODO: allow also imprecise agents
-		AgentGeneric<BayesianFactor> agent;
+		final AgentGeneric<BayesianFactor> agent;
 
 		if (survey.getIsAdaptive()) {
 			Scoring<BayesianFactor> scoring;
@@ -68,6 +74,8 @@ public class SurveyManagerService {
 		} else {
 			agent = new AgentPreciseNonAdaptive(survey, seed);
 		}
+
+		agent.setExecutor(es);
 
 		activeSurveys.put(data.getToken(), agent);
 	}

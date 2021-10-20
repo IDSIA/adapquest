@@ -12,10 +12,13 @@ import ch.idsia.crema.model.graphical.DAGModel;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static ch.idsia.adaptive.backend.config.Consts.NO_SKILL;
@@ -75,7 +78,7 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 	/**
 	 * Evidence map of past answers.
 	 */
-	protected final TIntIntMap observations = new TIntIntHashMap();
+	protected TIntIntMap observations = new TIntIntHashMap();
 
 	@Getter
 	protected boolean answered = false;
@@ -86,6 +89,10 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 
 	protected final Scoring<F> scoring;
 
+	@Setter
+	protected ExecutorService executor = Executors.newSingleThreadExecutor();
+
+
 	public AgentGeneric(Survey survey, Long seed, Scoring<F> scoring) {
 		this.survey = survey;
 		this.random = new Random(seed);
@@ -94,6 +101,10 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 
 	public List<Skill> getSkills() {
 		return skills;
+	}
+
+	public TIntIntMap getObservations() {
+		return observations;
 	}
 
 	public void addSkills(Set<Skill> skills) {
@@ -193,6 +204,7 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 			return currentQuestion;
 
 		if (finished) {
+			executor.shutdown();
 			throw new SurveyException("Survey is finished");
 		}
 
