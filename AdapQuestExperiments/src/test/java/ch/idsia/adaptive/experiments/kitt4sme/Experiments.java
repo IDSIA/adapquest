@@ -1,7 +1,7 @@
 package ch.idsia.adaptive.experiments.kitt4sme;
 
 import ch.idsia.adaptive.backend.persistence.model.*;
-import ch.idsia.adaptive.backend.services.commons.agents.AgentPreciseAdaptiveSimple;
+import ch.idsia.adaptive.backend.services.commons.agents.AgentPreciseAdaptiveStructural;
 import ch.idsia.adaptive.backend.services.commons.scoring.precise.ScoringFunctionExpectedEntropy;
 import ch.idsia.adaptive.experiments.utils.ProgressBar;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
@@ -365,6 +365,7 @@ public class Experiments {
 	public void testPilotProfiles18Adaptive() throws Exception {
 		final List<KProfile> profiles = KProfile.read();
 		final Survey survey = InitSurvey.init("AdaptiveQuestionnaire.multiple.survey.json");
+		survey.setQuestionTotalMin(18);
 
 		filename = "adaptive.results.given_profiles_18.tsv";
 
@@ -374,26 +375,39 @@ public class Experiments {
 		p.print();
 
 		final List<Callable<Void>> tasks = profiles.stream()
-				.limit(1) // TODO: remove this limit!
 				.map(profile -> (Callable<Void>) () -> {
-					try {
-						final AgentPreciseAdaptiveSimple agent = new AgentPreciseAdaptiveSimple(survey, 42L, new ScoringFunctionExpectedEntropy());
+					final List<String> content = new ArrayList<>();
+					final ExecutorService e = Executors.newFixedThreadPool(PARALLEL_COUNT);
 
+					try {
+						final AgentPreciseAdaptiveStructural agent = new AgentPreciseAdaptiveStructural(survey, 42L, new ScoringFunctionExpectedEntropy());
+						agent.setExecutor(e);
+						final Set<String> skills = profile.skills.keySet();
+
+						List<String> output;
 						Question question;
 						State state;
+						double avgScore;
 
-						final List<String> content = new ArrayList<>();
+						state = agent.getState();
 
-						List<String> output = new ArrayList<>();
+						output = new ArrayList<>();
 						output.add("" + profile.name);
 						output.add("" + -1);
-						output.add("" + -1);
-						for (Skill skill : agent.getSkills())
-							output.add("" + profile.skills.get(skill.getName()));
-						for (Skill skill : agent.getSkills()) {
-							final double d = agent.getState().probabilities.get(skill.getName())[1];
+						for (String skill : skills)
+							output.add("" + profile.skills.get(skill));
+						for (String skill : skills) {
+							final double d = state.probabilities.get(skill)[1];
 							output.add("" + d);
 						}
+						avgScore = 0.0;
+						for (String skill : skills) {
+							final double score = state.score.get(skill);
+							avgScore += score / skills.size();
+							output.add("" + score);
+						}
+						output.add("" + avgScore);
+						output.add("" + agent.getObservations());
 
 						content.add(String.join("\t", output));
 
@@ -409,7 +423,7 @@ public class Experiments {
 
 								if (ans == qa.getState()) {
 									checked.add(qa);
-//								logger.debug("{} {} {} {}", profile.name, q, a, ans);
+									logger.debug("{} {} {} {}", profile.name, q, a, ans);
 								}
 							}
 
@@ -420,27 +434,39 @@ public class Experiments {
 							output = new ArrayList<>();
 							output.add("" + profile.name);
 							output.add("" + q);
-							for (String s : profile.skills.keySet()) {
+							for (String s : skills) {
 								output.add("" + profile.skills.get(s));
 							}
-							for (String s : profile.skills.keySet()) {
+							for (String s : skills) {
 								final double d = state.getProbabilities().get(s)[1];
 								output.add("" + d);
 							}
+							avgScore = 0.0;
+							for (String skill : skills) {
+								final double score = state.score.get(skill);
+								avgScore += score / skills.size();
+								output.add("" + score);
+							}
+							output.add("" + avgScore);
+							output.add("" + agent.getObservations());
 
 							content.add(String.join("\t", output));
 
 							final long endTime = System.currentTimeMillis();
+
+							logger.debug("{}", output);
+
 							p.update(endTime - startTime);
 						}
 
-						write(content);
-
-						p.print();
-
-					} catch (Exception e) {
-						e.printStackTrace();
+					} catch (Exception ex) {
+						logger.warn("{}", ex.getMessage());
 					}
+
+					write(content);
+
+					p.print();
+					e.shutdown();
 
 					return null;
 				})
