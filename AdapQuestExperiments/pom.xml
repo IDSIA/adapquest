@@ -24,8 +24,9 @@
 				<directory>src/test/resources/</directory>
 				<targetPath>.</targetPath>
 				<includes>
-					<include>**/*.txt</include>
 					<include>**/*.csv</include>
+					<include>**/*.txt</include>
+					<include>**/*.xml</include>
 					<include>**/*.yaml</include>
 				</includes>
 			</testResource>
