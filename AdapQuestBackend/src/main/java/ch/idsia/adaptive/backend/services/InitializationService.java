@@ -200,6 +200,8 @@ public class InitializationService {
 				.setMixedSkillOrder(structure.survey.mixedSkillOrder)
 				.setIsAdaptive(structure.survey.adaptive)
 				.setIsSimple(structure.survey.simple)
+				.setIsStructural(structure.survey.structural)
+				.setNoSkill(structure.survey.noSkill)
 				.setQuestionsAreRandom(structure.survey.randomQuestions)
 				.setQuestionPerSkillMin(structure.survey.questionPerSkillMin)
 				.setQuestionPerSkillMax(structure.survey.questionPerSkillMax)

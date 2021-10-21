@@ -211,7 +211,7 @@ public class SurveyController {
 	public ResponseEntity<SurveyData> checkAnswer(
 			@PathVariable("token") String token,
 			@RequestParam("question") Long questionId,
-			@RequestParam("answers") Long[] answersId,
+			@RequestParam(value = "answers", required = false) Long[] answersId,
 			HttpServletRequest request
 	) {
 		logger.info("User with token={} gave answers={}", token, Arrays.toString(answersId));
@@ -227,7 +227,7 @@ public class SurveyController {
 			if (questionId == null)
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-			if (answersId == null || answersId.length <= 0)
+			if (answersId == null)
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
 			final Question q = questions.findQuestionBySurveyIdAndId(data.getSurveyId(), questionId); // TODO: check for null?

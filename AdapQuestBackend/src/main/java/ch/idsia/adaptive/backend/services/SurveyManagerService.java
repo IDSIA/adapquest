@@ -8,6 +8,8 @@ import ch.idsia.adaptive.backend.services.commons.scoring.Scoring;
 import ch.idsia.adaptive.backend.services.commons.scoring.precise.ScoringFunctionBayesianMode;
 import ch.idsia.adaptive.backend.services.commons.scoring.precise.ScoringFunctionExpectedEntropy;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,7 @@ import java.util.concurrent.Executors;
  */
 @Service
 public class SurveyManagerService {
+	private static final Logger logger = LoggerFactory.getLogger(SurveyManagerService.class);
 
 	private final SurveyRepository surveyRepository;
 
@@ -59,19 +62,26 @@ public class SurveyManagerService {
 		if (survey.getIsAdaptive()) {
 			Scoring<BayesianFactor> scoring;
 
-			if (survey.getScoring().equals("mode"))
+			if (survey.getScoring().equals("mode")) {
+				logger.debug("using ScoringFunctionBayesianMode for {}", surveyId);
 				scoring = new ScoringFunctionBayesianMode();
-			else
+			} else {
+				logger.debug("using ScoringFunctionExpectedEntropy for {}", surveyId);
 				scoring = new ScoringFunctionExpectedEntropy();
+			}
 
 			if (survey.getIsStructural()) {
+				logger.debug("new AgentPreciseAdaptiveStructural for {}", surveyId);
 				agent = new AgentPreciseAdaptiveStructural(survey, seed, scoring);
 			} else if (survey.getIsSimple()) {
+				logger.debug("new AgentPreciseAdaptiveSimple for {}", surveyId);
 				agent = new AgentPreciseAdaptiveSimple(survey, seed, scoring);
 			} else {
+				logger.debug("new AgentPreciseAdaptiveSimple for {}", surveyId);
 				agent = new AgentPreciseAdaptive(survey, seed, scoring);
 			}
 		} else {
+			logger.debug("new AgentPreciseNonAdaptive for {}", surveyId);
 			agent = new AgentPreciseNonAdaptive(survey, seed);
 		}
 

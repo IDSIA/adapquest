@@ -94,6 +94,11 @@ public class Survey {
 	private Boolean isStructural = false;
 
 	/**
+	 * If this is True and {@link #isSimple} is also True, then add a "NoSkill" skill.
+	 */
+	public Boolean noSkill = true;
+
+	/**
 	 * Possible scoring functions are:
 	 * <ul>
 	 *     <li><code>mode</code> ({@link ScoringFunctionBayesianMode})</li>
