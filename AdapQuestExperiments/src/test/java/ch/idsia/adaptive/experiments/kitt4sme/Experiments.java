@@ -111,6 +111,7 @@ public class Experiments {
 		es.shutdown();
 	}
 
+	@Disabled
 	@Test
 	void sampleSingleProfile() throws Exception {
 		filename = "adaptive.results.single_profile_1.0.tsv";
@@ -281,6 +282,7 @@ public class Experiments {
 		es.invokeAll(tasks);
 	}
 
+	@Disabled
 	@Test
 	public void testPilotProfiles18() throws Exception {
 		final Survey survey = InitSurvey.init("AdaptiveQuestionnaire.multiple.survey.json");
@@ -360,7 +362,7 @@ public class Experiments {
 		es.invokeAll(tasks);
 	}
 
-	@Disabled // This will take A LOT of time...
+	// @Disabled // This will take A LOT of time...
 	@Test
 	public void testPilotProfiles18Adaptive() throws Exception {
 		final List<KProfile> profiles = KProfile.read();
@@ -461,6 +463,7 @@ public class Experiments {
 
 					} catch (Exception ex) {
 						logger.warn("{}", ex.getMessage());
+						ex.printStackTrace();
 					}
 
 					write(content);
@@ -475,6 +478,7 @@ public class Experiments {
 		es.invokeAll(tasks);
 	}
 
+	@Disabled
 	@Test
 	public void testPilotProfiles105() throws Exception {
 		// reading answers and profiles

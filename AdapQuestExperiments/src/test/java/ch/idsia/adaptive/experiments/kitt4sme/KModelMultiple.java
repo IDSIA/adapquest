@@ -152,7 +152,8 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 	@Override
 	public SurveyStructure survey() {
 		return super.survey()
-				.setSimple(true)
-				.setNoSkill(false);
+				.setQuestionTotalMin(18)
+				.setAdaptive(true)
+				.setStructural(true);
 	}
 }
