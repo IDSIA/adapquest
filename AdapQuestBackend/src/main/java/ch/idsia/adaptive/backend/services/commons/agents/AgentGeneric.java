@@ -135,7 +135,7 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 		this.questions.sort(Comparator.comparingInt(Question::getVariable));
 	}
 
-	private void register(Question q) {
+	protected void register(Question q) {
 		if (q == null) {
 			currentQuestion = null;
 			return;

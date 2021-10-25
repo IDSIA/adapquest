@@ -141,6 +141,14 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 	}
 
 	@Override
+	protected void register(Question q) {
+		super.register(q);
+		if (dirty)
+			updateModel();
+		addQuestion(model, q);
+	}
+
+	@Override
 	public boolean check(Answer answer) {
 		dirty = true;
 		return super.check(answer);

@@ -150,7 +150,7 @@ public class SurveyController {
 
 			logger.debug("New initialization for accessCode={} received token={}", accessCode, session.getToken());
 
-			// TODO: initialize a timer or timeout for the time-limit achieved when someone abandons the survey
+			// TODO: initialize a timer or timeout for the time-limit achieved when someone leave the survey
 
 			manager.init(data);
 
