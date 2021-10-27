@@ -383,6 +383,7 @@ public class Experiments {
 
 					try {
 						final AgentPreciseAdaptiveStructural agent = new AgentPreciseAdaptiveStructural(survey, 42L, new ScoringFunctionExpectedEntropy());
+						agent.setConsiderZeros(true);
 						agent.setExecutor(e);
 						final Set<String> skills = profile.skills.keySet();
 
@@ -409,6 +410,7 @@ public class Experiments {
 							output.add("" + score);
 						}
 						output.add("" + avgScore);
+						output.add("");
 						output.add("" + agent.getObservations());
 
 						content.add(String.join("\t", output));
@@ -419,11 +421,13 @@ public class Experiments {
 							final String q = question.getName();
 
 							final List<QuestionAnswer> checked = new ArrayList<>();
+							final List<String> answers = new ArrayList<>();
 							for (QuestionAnswer qa : question.getAnswersAvailable()) {
 								final String a = qa.getName();
 								final int ans = profile.answer(q, a);
 
 								if (ans == qa.getState()) {
+									answers.add(a + "=" + ans);
 									checked.add(qa);
 									logger.debug("{} {} {} {}", profile.name, q, a, ans);
 								}
@@ -450,6 +454,7 @@ public class Experiments {
 								output.add("" + score);
 							}
 							output.add("" + avgScore);
+							output.add(String.join(",", answers));
 							output.add("" + agent.getObservations());
 
 							content.add(String.join("\t", output));
@@ -462,8 +467,11 @@ public class Experiments {
 						}
 
 					} catch (Exception ex) {
-						logger.warn("{}", ex.getMessage());
-						ex.printStackTrace();
+						final String message = ex.getMessage();
+						if (!"Finished".equals(message)) {
+							logger.warn("{}", message);
+							ex.printStackTrace();
+						}
 					}
 
 					write(content);

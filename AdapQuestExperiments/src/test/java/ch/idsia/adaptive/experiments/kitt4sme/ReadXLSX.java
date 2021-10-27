@@ -173,9 +173,9 @@ public class ReadXLSX {
 			// FileWriter("AdaptiveQuestionnaire.single.model.uai"))) {
 			// bw.write(modelSingle.model());
 			// }
-			try (BufferedWriter bw = new BufferedWriter(new FileWriter("AdaptiveQuestionnaire.single.survey.json"))) {
-				bw.write(om.writerWithDefaultPrettyPrinter().writeValueAsString(modelSingle.structure()));
-			}
+			// try (BufferedWriter bw = new BufferedWriter(new FileWriter("AdaptiveQuestionnaire.single.survey.json"))) {
+			// bw.write(om.writerWithDefaultPrettyPrinter().writeValueAsString(modelSingle.structure()));
+			// }
 
 			// sections.forEach(System.out::println);
 			// questions.forEach(System.out::println);
