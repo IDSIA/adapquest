@@ -40,6 +40,8 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 	protected final DAGModel<BayesianFactor> ref;
 	protected Boolean dirty;
 
+	private Boolean considerZeros = true;
+
 	public AgentPreciseAdaptiveStructural(Survey survey, Long seed, Scoring<BayesianFactor> scoringFunction) {
 		super(survey, seed, scoringFunction);
 		addSkills(survey.getSkills());
@@ -55,6 +57,10 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 		model = newModelStructure();
 
 		dirty = true;
+	}
+
+	public void setConsiderZeros(Boolean considerZeros) {
+		this.considerZeros = considerZeros;
 	}
 
 	/**
@@ -150,8 +156,19 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 
 	@Override
 	public boolean check(Answer answer) {
-		dirty = true;
-		return super.check(answer);
+		if (considerZeros) {
+			dirty = true;
+			return super.check(answer);
+		} else {
+			/* this is used to consider only 1 answers */
+			dirty = true;
+			if (answer.getQuestionAnswer().getState() != 0) {
+				return super.check(answer);
+			}
+
+			answered = true;
+			return true;
+		}
 	}
 
 	@Override
