@@ -374,6 +374,9 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 					.filter(S -> ArraysUtil.contains(S.getVariable(), model.getParents(Q)))
 					.collect(Collectors.toList());
 
+			if (validSkills.isEmpty())
+				continue;
+
 			final int[] Ss = validSkills.stream().mapToInt(Skill::getVariable).toArray();
 			final double[] HSQ = new double[Ss.length];
 
