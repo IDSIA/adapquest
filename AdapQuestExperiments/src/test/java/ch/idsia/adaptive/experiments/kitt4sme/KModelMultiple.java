@@ -20,6 +20,12 @@ import static java.lang.Math.min;
  */
 public class KModelMultiple extends AbstractAdaptiveModel {
 
+	final static Map<Double, Double> inValue = Map.of(
+			.3, .9, //.8,
+			.6, .7, //.5,
+			.9, .5  //.2
+	);
+
 	static double eps = 0.1;
 	final static double INHIBITOR_MAX_VALUE = 0.95;
 	final static double INHIBITOR_MIN_VALUE = 0.05;
@@ -75,8 +81,10 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 
 				bq.values.forEach((k, v) -> {
 					if (v > 0) {
+//						final double inh = inValue.get(v);
+						final double inh = min(INHIBITOR_MAX_VALUE, max(INHIBITOR_MIN_VALUE, 1.0 - v + eps));
 						parents.add(nameVariables.get(k));
-						inhibitors.add(min(INHIBITOR_MAX_VALUE, max(INHIBITOR_MIN_VALUE, 1.0 - v + eps)));
+						inhibitors.add(inh);
 					} else if (v < 0) {
 						ko.add(k);
 					}

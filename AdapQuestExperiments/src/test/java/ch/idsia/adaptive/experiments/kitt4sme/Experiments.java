@@ -362,7 +362,7 @@ public class Experiments {
 		es.invokeAll(tasks);
 	}
 
-	// @Disabled // This will take A LOT of time...
+	@Disabled
 	@Test
 	public void testPilotProfiles18Adaptive() throws Exception {
 		final List<KProfile> profiles = KProfile.read();
