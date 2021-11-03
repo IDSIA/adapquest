@@ -4,20 +4,19 @@ import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.external.ImportStructure;
 import ch.idsia.adaptive.backend.persistence.external.ModelStructure;
 import ch.idsia.adaptive.backend.persistence.model.*;
+import ch.idsia.adaptive.backend.services.templates.TemplateJSON;
+import ch.idsia.adaptive.backend.services.templates.TemplateXLSX;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import ch.idsia.crema.factor.bayesian.BayesianFactorFactory;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,9 +32,11 @@ import static ch.idsia.adaptive.backend.config.Consts.NO_SKILL;
 public class InitializationService {
 	private static final Logger logger = LoggerFactory.getLogger(InitializationService.class);
 
+	final PathMatcher matchJSON = FileSystems.getDefault().getPathMatcher("glob:**.json");
+	final PathMatcher matchXLSX = FileSystems.getDefault().getPathMatcher("glob:**.xlsx");
+
 	private final SurveyRepository surveys;
 
-	private final ObjectMapper om = new ObjectMapper();
 
 	@Autowired
 	public InitializationService(SurveyRepository surveys) {
@@ -60,20 +61,29 @@ public class InitializationService {
 		try (Stream<Path> paths = Files.walk(cwd.resolve("data"))) {
 			paths
 					.filter(Files::isRegularFile)
-					.map(path -> {
-						try {
-							logger.info("Reading file={}", path.toFile());
-							return om.readValue(path.toFile(), ImportStructure.class);
-						} catch (IOException e) {
-							logger.error("Could not import path={}", path);
-							logger.error(e.getMessage());
-							return null;
-						}
-					})
+					.map(this::parseStructure)
 					.filter(Objects::nonNull)
 					.forEach(this::parseSurvey);
 		} catch (IOException e) {
 			logger.error(e.getMessage());
+		}
+	}
+
+	public ImportStructure parseStructure(Path path) {
+		try {
+			logger.info("Reading file={}", path.toFile());
+
+			if (matchJSON.matches(path))
+				return TemplateJSON.parse(path);
+
+			if (matchXLSX.matches(path))
+				return TemplateXLSX.parse(path);
+
+			return null;
+		} catch (IOException e) {
+			logger.error("Could not import path={}", path);
+			logger.error(e.getMessage());
+			return null;
 		}
 	}
 
