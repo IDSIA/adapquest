@@ -18,7 +18,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static ch.idsia.adaptive.backend.services.templates.Settings.*;
 import static java.lang.Math.max;
@@ -88,7 +87,7 @@ public class TemplateXLSX {
 		if (settings.containsKey(SURVEY_DESCRIPTION))
 			survey.setDescription(settings.get(SURVEY_DESCRIPTION).toString());
 		if (settings.containsKey(DURATION))
-			survey.setDuration((long) settings.get(DURATION).getNumericCellValue());
+			survey.setDuration(Double.valueOf(settings.get(DURATION).getNumericCellValue()).longValue());
 		if (settings.containsKey(MIXED_SKILL_ORDER))
 			survey.setSkillOrder(List.of(settings.get(MIXED_SKILL_ORDER).getStringCellValue().split(",")));
 		if (settings.containsKey(ADAPTIVE))
@@ -102,13 +101,13 @@ public class TemplateXLSX {
 		if (settings.containsKey(RANDOM_QUESTIONS))
 			survey.setRandomQuestions(settings.get(RANDOM_QUESTIONS).getBooleanCellValue());
 		if (settings.containsKey(QUESTION_PER_SKILL_MIN))
-			survey.setQuestionPerSkillMin((int) settings.get(QUESTION_PER_SKILL_MIN).getNumericCellValue());
+			survey.setQuestionPerSkillMin(Double.valueOf(settings.get(QUESTION_PER_SKILL_MIN).getNumericCellValue()).intValue());
 		if (settings.containsKey(QUESTION_PER_SKILL_MAX))
-			survey.setQuestionPerSkillMax((int) settings.get(QUESTION_PER_SKILL_MAX).getNumericCellValue());
+			survey.setQuestionPerSkillMax(Double.valueOf(settings.get(QUESTION_PER_SKILL_MAX).getNumericCellValue()).intValue());
 		if (settings.containsKey(QUESTION_TOTAL_MIN))
-			survey.setQuestionTotalMin((int) settings.get(QUESTION_TOTAL_MIN).getNumericCellValue());
+			survey.setQuestionTotalMin(Double.valueOf(settings.get(QUESTION_TOTAL_MIN).getNumericCellValue()).intValue());
 		if (settings.containsKey(QUESTION_TOTAL_MAX))
-			survey.setQuestionTotalMax((int) settings.get(QUESTION_TOTAL_MAX).getNumericCellValue());
+			survey.setQuestionTotalMax(Double.valueOf(settings.get(QUESTION_TOTAL_MAX).getNumericCellValue()).intValue());
 		if (settings.containsKey(SCORE_LOWER_THRESHOLD))
 			survey.setScoreLowerThreshold(settings.get(SCORE_LOWER_THRESHOLD).getNumericCellValue());
 		if (settings.containsKey(SCORE_UPPER_THRESHOLD))
@@ -119,81 +118,72 @@ public class TemplateXLSX {
 			survey.setGlobalMeanScoreLowerThreshold(settings.get(GLOBAL_MEAN_SCORE_LOWER_THRESHOLD).getNumericCellValue());
 	}
 
-	private void addQuestions(List<TQuestion> qs, Map<String, TAnswer> as, Map<Integer, List<TBinaryQuestion>> bqs) {
-		for (TQuestion question : qs) {
+	private QuestionStructure addQuestion(int qid, String qText, boolean mandatory) {
+		logger.debug("Adding question={}", qid);
+		final QuestionStructure question = new QuestionStructure()
+				.setName("Q" + qid)
+				.setQuestion(qText)
+				.setMandatory(mandatory)
+				.setMultipleChoice(true)
+				.setMultipleSkills(true)
+				.setSkills(new HashSet<>())
+				.setAnswers(new ArrayList<>());
+		questions.add(question);
 
-			final List<AnswerStructure> answers = new ArrayList<>();
+		return question;
+	}
 
-			final List<TBinaryQuestion> bqlist = bqs.get(question.questionId);
-			if (bqlist == null)
-				continue;
+	private void addAnswer(QuestionStructure question, int aid, String text, Map<String, Double> values) {
+		logger.debug("Adding answers={} to question={}", aid, question.getName());
+		final List<Integer> parents = new ArrayList<>();
+		final List<Double> inhibitors = new ArrayList<>();
+		final List<String> ko = new ArrayList<>();
 
-			final Set<String> skills = new HashSet<>();
-			for (TBinaryQuestion bq : bqlist) {
-				final List<Integer> parents = new ArrayList<>();
-				final List<Double> inhibitors = new ArrayList<>();
-				final List<String> ko = new ArrayList<>();
-
-				skills.addAll(bq.values.keySet());
-
-				bq.values.forEach((k, v) -> {
-					if (v > 0) {
-						final double inh = min(INHIBITOR_MAX_VALUE, max(INHIBITOR_MIN_VALUE, 1.0 - v + eps));
-						parents.add(nameVariables.get(k));
-						inhibitors.add(inh);
-					} else if (v < 0) {
-						ko.add(k);
-					}
-				});
-
-				// noisy or
-				final int nor = model.addVariable(2);
-
-				final int[] p = parents.stream().mapToInt(x -> x).toArray();
-				final double[] i = inhibitors.stream().mapToDouble(x -> x).toArray();
-
-				parents.add(nor);
-				model.addParents(nor, p);
-
-				final TAnswer a = as.get(bq.questionId + "$" + bq.answerId);
-
-				// displayed in multiple choice
-				final AnswerStructure neg = new AnswerStructure("no", nor, 0).setName("A" + bq.answerId);
-				final AnswerStructure pos = new AnswerStructure(a.text, nor, 1).setName("A" + bq.answerId);
-
-				if (ko.size() > 0) {
-					// direct evidence
-					final List<Integer> evVars = new ArrayList<>();
-					final List<Integer> evStates = new ArrayList<>();
-					for (String s : ko) {
-						evVars.add(nameVariables.get(s));
-						evStates.add(0);
-					}
-					pos.setDirectEvidence(true)
-							.setDirectEvidenceVariables(evVars)
-							.setDirectEvidenceStates(evStates);
-				}
-
-				answers.add(neg);
-				answers.add(pos);
-
-				final int[] vars = parents.stream().mapToInt(x -> x).toArray();
-
-				final BayesianNoisyOrFactor f_nor = BayesianFactorFactory.factory().domain(model.getDomain(vars)).noisyOr(p, i);
-				factors.add(f_nor);
+		values.forEach((k, v) -> {
+			if (v > 0) {
+				final double inh = min(INHIBITOR_MAX_VALUE, max(INHIBITOR_MIN_VALUE, 1.0 - v + eps));
+				parents.add(nameVariables.get(k));
+				inhibitors.add(inh);
+				question.getSkills().add(k);
+			} else if (v < 0) {
+				ko.add(k);
+				question.getSkills().add(k);
 			}
+		});
 
-			questions.add(
-					new QuestionStructure()
-							.setName("Q" + question.questionId)
-							.setQuestion(question.questionText)
-							.setMandatory(question.mandatory)
-							.setMultipleChoice(true)
-							.setMultipleSkills(true)
-							.setSkills(skills)
-							.setAnswers(answers)
-			);
+		// noisy or
+		final int nor = model.addVariable(2);
+
+		final int[] p = parents.stream().mapToInt(x -> x).toArray();
+		final double[] i = inhibitors.stream().mapToDouble(x -> x).toArray();
+
+		parents.add(nor);
+		model.addParents(nor, p);
+
+		// displayed in multiple choice
+		final AnswerStructure neg = new AnswerStructure("no", nor, 0).setName("A" + aid);
+		final AnswerStructure pos = new AnswerStructure(text, nor, 1).setName("A" + aid);
+
+		if (ko.size() > 0) {
+			// direct evidence
+			final List<Integer> evVars = new ArrayList<>();
+			final List<Integer> evStates = new ArrayList<>();
+			for (String s : ko) {
+				evVars.add(nameVariables.get(s));
+				evStates.add(0);
+			}
+			pos.setDirectEvidence(true)
+					.setDirectEvidenceVariables(evVars)
+					.setDirectEvidenceStates(evStates);
 		}
+
+		question.answers.add(neg);
+		question.answers.add(pos);
+
+		final int[] vars = parents.stream().mapToInt(x -> x).toArray();
+
+		final BayesianNoisyOrFactor f_nor = BayesianFactorFactory.factory().domain(model.getDomain(vars)).noisyOr(p, i);
+		factors.add(f_nor);
 	}
 
 	private String model() {
@@ -212,20 +202,19 @@ public class TemplateXLSX {
 	public static ImportStructure parse(Path path) throws IOException {
 
 		logger.info("Reading template XLSX file={}", path.toFile());
+		final TemplateXLSX tmpl = new TemplateXLSX();
 
-		final Map<String, Cell> settings = new HashMap<>();
-		final List<TQuestion> questions = new ArrayList<>();
-		final List<TAnswer> answers = new ArrayList<>();
-		final List<String> variables = new ArrayList<>();
-		final List<TBinaryQuestion> binaryQuestions = new ArrayList<>();
+		final Map<String, String> answerTexts = new HashMap<>();
 
 		try (final Workbook workbook = new XSSFWorkbook(new FileInputStream(path.toFile()))) {
 			final Sheet sheetSettings = workbook.getSheet("Settings");
-			final Sheet sheetQuestions = workbook.getSheet("Questions");
+//			final Sheet sheetQuestions = workbook.getSheet("Questions");
 			final Sheet sheetAnswers = workbook.getSheet("Answers");
 			final Sheet sheetBinaryQuestions = workbook.getSheet("Binary questions");
 
 			// reading settings
+			final Map<String, Cell> settings = new HashMap<>();
+
 			int iKey = 0, iValue = 0;
 			for (Row row : sheetSettings) {
 				if (row.getRowNum() == 0) {
@@ -248,41 +237,43 @@ public class TemplateXLSX {
 					settings.put(row.getCell(iKey).toString().toUpperCase(), row.getCell(iValue));
 			}
 
+			tmpl.setSettings(settings);
+
 			// reading questions
-			int iQuestionId = 0, iQuestionMandatory = 1, iQuestionExclusivity = 3, iQuestionText = 4;
-			for (Row row : sheetQuestions) {
-				if (row.getRowNum() == 0) {
-					// parse header
-					for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
-						switch (row.getCell(i).getStringCellValue().toUpperCase()) {
-							case "QUESTION_ID":
-								iQuestionId = i;
-								break;
-							case "MANDATORY":
-								iQuestionMandatory = i;
-								break;
-							case "EXCLUSIVITY":
-								iQuestionExclusivity = i;
-								break;
-							case "QUESTION_TEXT":
-								iQuestionText = i;
-								break;
-						}
-					}
-
-					continue;
-				}
-
-				if (row.getCell(iQuestionId) == null || row.getCell(iQuestionId).toString().isEmpty())
-					continue;
-
-				final int qid = Double.valueOf(row.getCell(iQuestionId).getNumericCellValue()).intValue();
-				final boolean man = Double.valueOf(row.getCell(iQuestionMandatory).getNumericCellValue()).intValue() == 1;
-				final boolean exc = Double.valueOf(row.getCell(iQuestionExclusivity).getNumericCellValue()).intValue() == 1;
-				final String text = row.getCell(iQuestionText).getStringCellValue();
-
-				questions.add(new TQuestion(qid, man, exc, text));
-			}
+//			int iQuestionId = 0, iQuestionMandatory = 1, iQuestionExclusivity = 3, iQuestionText = 4;
+//			for (Row row : sheetQuestions) {
+//				if (row.getRowNum() == 0) {
+//					// parse header
+//					for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
+//						switch (row.getCell(i).getStringCellValue().toUpperCase()) {
+//							case "QUESTION_ID":
+//								iQuestionId = i;
+//								break;
+//							case "MANDATORY":
+//								iQuestionMandatory = i;
+//								break;
+//							case "EXCLUSIVITY":
+//								iQuestionExclusivity = i;
+//								break;
+//							case "QUESTION_TEXT":
+//								iQuestionText = i;
+//								break;
+//						}
+//					}
+//
+//					continue;
+//				}
+//
+//				if (row.getCell(iQuestionId) == null || row.getCell(iQuestionId).toString().isEmpty())
+//					continue;
+//
+//				final int qid = Double.valueOf(row.getCell(iQuestionId).getNumericCellValue()).intValue();
+//				final boolean man = Double.valueOf(row.getCell(iQuestionMandatory).getNumericCellValue()).intValue() == 1;
+//				final boolean exc = Double.valueOf(row.getCell(iQuestionExclusivity).getNumericCellValue()).intValue() == 1;
+//				final String text = row.getCell(iQuestionText).getStringCellValue();
+//
+//				questions.add(new TQuestion(qid, man, exc, text));
+//			}
 
 			// reading answers
 			int iAnswerQuestionId = 0, iAnswerStart = 2, limit = 0;
@@ -320,17 +311,15 @@ public class TemplateXLSX {
 					final int aid = Double.valueOf(row.getCell(j).getNumericCellValue()).intValue();
 					final String text = row.getCell(j + 1).getStringCellValue();
 
-					answers.add(new TAnswer(qid, aid, text));
+					answerTexts.put(qid + "$" + aid, text);
 				}
 			}
 
 			// reading model elicitation
-			int bqid = 0, iValQuestionId = 0, iValQuestionText = 0, iValMandatory = 0, iValAnswerId = 0, iValAnswerText = 0, iStartSkills = 0;
+			int qid = -1, iValQuestionId = 0, iValQuestionText = 0, iValMandatory = 0, iValAnswerId = 0, iStartSkills = 0;
 			limit = 0;
 
-			int qid = -1;
-			int man = -1;
-			String qText = "";
+			QuestionStructure question = null;
 
 			for (Row row : sheetBinaryQuestions) {
 				final int i = row.getRowNum();
@@ -350,15 +339,16 @@ public class TemplateXLSX {
 							case "ID_ANS":
 								iValAnswerId = j;
 								break;
-							case "BINARY_QUESTIONS_TEXT":
-								iValAnswerText = j;
-								break;
+//							case "BINARY_QUESTIONS_TEXT":
+//								iValAnswerText = j;
+//								break;
 						}
 					}
 
 					continue;
 				}
 				if (i == 1) {
+					// parse skills
 					boolean found = false;
 					for (int j = row.getFirstCellNum(); j < row.getLastCellNum(); j++) {
 						if (row.getCell(j) != null && !row.getCell(j).toString().isEmpty()) {
@@ -366,52 +356,45 @@ public class TemplateXLSX {
 								iStartSkills = j;
 								found = true;
 							}
-							variables.add(row.getCell(j).getStringCellValue());
+							tmpl.addSkill(row.getCell(j).getStringCellValue());
 						}
 					}
-					limit = variables.size();
+					limit = tmpl.skills.size();
 					continue;
 				}
 
-				if (row.getCell(iValQuestionText) == null || row.getCell(iValQuestionText).toString().isEmpty())
+				if (row.getCell(iValAnswerId) == null || row.getCell(iValAnswerId).toString().isEmpty())
 					// skip empty rows or not model-related questions
 					continue;
 
-				if (row.getCell(iValQuestionId).toString() != null && !row.getCell(iValQuestionId).toString().isEmpty()) {
+				if (row.getCell(iValQuestionId) != null && !row.getCell(iValQuestionId).toString().isEmpty()) {
 					// update questions
 					qid = Double.valueOf(row.getCell(iValQuestionId).getNumericCellValue()).intValue();
-					man = Double.valueOf(row.getCell(iValMandatory).getNumericCellValue()).intValue();
-					qText = row.getCell(iValQuestionText).getStringCellValue();
+					int man = Double.valueOf(row.getCell(iValMandatory).getNumericCellValue()).intValue();
+					String qText = row.getCell(iValQuestionText).getStringCellValue();
+
+					logger.debug("Found new question={}", qid);
+
+					if (man < 0) {
+						logger.debug("Invalid mandatory value for question={}, skipping", qid);
+						continue;
+					}
+
+					question = tmpl.addQuestion(qid, qText, man == 1);
 				}
 
 				final int aid = Double.valueOf(row.getCell(iValAnswerId).getNumericCellValue()).intValue();
-				final String bqText = row.getCell(iValAnswerText).getStringCellValue();
-
-				if (man < 0)
-					continue;
-
-				bqid++;
-
-				final TBinaryQuestion bq = new TBinaryQuestion(qid, aid, bqid, man == 1, qText, bqText);
-				binaryQuestions.add(bq);
+				final Map<String, Double> values = new HashMap<>();
 
 				for (int j = iStartSkills, k = 0; k < limit; j++, k++) {
 					final Cell c = row.getCell(j);
 					final double v = c.toString().equals("KO") ? -1.0 : c.getNumericCellValue();
-					bq.values.put(variables.get(k), v);
+					values.put(tmpl.skills.get(k).getName(), v);
 				}
+
+				tmpl.addAnswer(question, aid, answerTexts.get(qid + "$" + aid), values);
 			}
 		}
-
-		final Map<String, TAnswer> ansMap = answers.stream().collect(
-				Collectors.toMap(k -> k.questionId + "$" + k.answerId, a -> a, (e1, e2) -> e1, LinkedHashMap::new));
-		final Map<Integer, List<TBinaryQuestion>> bqMap = binaryQuestions.stream()
-				.collect(Collectors.groupingBy(k -> k.questionId, LinkedHashMap::new, Collectors.toList()));
-
-		final TemplateXLSX tmpl = new TemplateXLSX();
-		tmpl.setSettings(settings);
-		variables.forEach(tmpl::addSkill);
-		tmpl.addQuestions(questions, ansMap, bqMap);
 
 		return tmpl.structure();
 	}
