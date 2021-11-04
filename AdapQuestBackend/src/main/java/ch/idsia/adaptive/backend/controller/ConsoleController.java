@@ -13,8 +13,8 @@ import ch.idsia.adaptive.backend.persistence.requests.RequestKey;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import ch.idsia.adaptive.backend.services.InitializationService;
 import ch.idsia.adaptive.backend.utils.Convert;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -45,7 +45,7 @@ import static ch.idsia.adaptive.backend.security.APIKeyGenerator.validateApiKey;
 @Transactional
 @RequestMapping(value = "/console", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ConsoleController {
-	public static final Logger logger = LogManager.getLogger(ConsoleController.class);
+	public static final Logger logger = LoggerFactory.getLogger(ConsoleController.class);
 
 	private final InitializationService initService;
 

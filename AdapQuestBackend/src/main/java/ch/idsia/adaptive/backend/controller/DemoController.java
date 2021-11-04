@@ -7,8 +7,8 @@ import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseResult;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +31,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/demo")
 public class DemoController {
-	private static final Logger logger = LogManager.getLogger(DemoController.class);
+	private static final Logger logger = LoggerFactory.getLogger(DemoController.class);
 
 	final SurveyRepository surveys;
 	final SurveyController controller;
@@ -44,17 +44,17 @@ public class DemoController {
 
 	@GetMapping("/")
 	public String index(Model model) {
-		Collection<String> codes = surveys.findAllAccessCodes();
+		final Collection<String> codes = surveys.findAllAccessCodes();
 		model.addAttribute("codes", new ArrayList<>(codes));
 		return "index";
 	}
 
 	@GetMapping("/results/{token}")
 	public String results(@PathVariable String token, Model model) {
-		ResponseEntity<ResponseResult> resResult = this.controller.surveyResults(token);
-		List<Answer> answers = this.controller.getAnswers(token);
+		final ResponseEntity<ResponseResult> resResult = this.controller.surveyResults(token);
+		final List<Answer> answers = this.controller.getAnswers(token);
 
-		HttpStatus statusCode = resResult.getStatusCode();
+		final HttpStatus statusCode = resResult.getStatusCode();
 
 		if (statusCode.is4xxClientError()) {
 			model.addAttribute("code", statusCode);
@@ -63,7 +63,7 @@ public class DemoController {
 			return "error";
 		}
 
-		ResponseResult r = resResult.getBody();
+		final ResponseResult r = resResult.getBody();
 		model.addAttribute("result", r);
 		model.addAttribute("answers", answers);
 
@@ -77,9 +77,9 @@ public class DemoController {
 			HttpServletRequest request
 	) {
 		// initialization
-		ResponseEntity<ResponseData> resData = this.controller.initTest(code, request);
-		HttpStatus statusCode = resData.getStatusCode();
-		ResponseData rd = resData.getBody();
+		final ResponseEntity<ResponseData> resData = this.controller.initTest(code, request);
+		final HttpStatus statusCode = resData.getStatusCode();
+		final ResponseData rd = resData.getBody();
 
 		if (statusCode.is4xxClientError()) {
 			// this happens when a wrong access code was used
@@ -104,6 +104,7 @@ public class DemoController {
 			@PathVariable String token,
 			@RequestParam(required = false) Long questionId,
 			@RequestParam(required = false) Long answerId,
+			@RequestParam(value = "checkboxes", required = false) Long[] multipleAnswersId,
 			@RequestParam(required = false, defaultValue = "true") Boolean show,
 			Model model,
 			HttpServletRequest request
@@ -112,10 +113,22 @@ public class DemoController {
 		model.addAttribute("show", show);
 
 		// check answer
-		if (questionId != null && answerId != null) {
-			// we have an answer of a question: check it
-			ResponseEntity<SurveyData> resData = controller.checkAnswer(token, questionId, answerId, request);
-			HttpStatus statusCode = resData.getStatusCode();
+		if (questionId != null) {
+
+			final Long[] answers;
+			if (answerId != null) {
+				// we have an answer of a question: check it
+				answers = new Long[]{answerId};
+			} else {
+				// we have an answer to a multiple-choice question
+				if (multipleAnswersId == null)
+					answers = new Long[0];
+				else
+					answers = multipleAnswersId;
+			}
+
+			final ResponseEntity<SurveyData> resData = controller.checkAnswer(token, questionId, answers, request);
+			final HttpStatus statusCode = resData.getStatusCode();
 
 			if (!statusCode.is2xxSuccessful()) {
 				// this happens when we have wrong ids for question and answer, but it is a minor error
@@ -126,7 +139,7 @@ public class DemoController {
 		}
 
 		// get current state
-		ResponseEntity<ResponseState> resState = controller.getLastStateForToken(token);
+		final ResponseEntity<ResponseState> resState = controller.getLastStateForToken(token);
 
 		if (!resState.getStatusCode().is2xxSuccessful()) {
 			// this is a minor error
@@ -139,7 +152,7 @@ public class DemoController {
 		}
 
 		// ask for the next question
-		ResponseEntity<ResponseQuestion> resQuestion = controller.nextQuestion(token, request);
+		final ResponseEntity<ResponseQuestion> resQuestion = controller.nextQuestion(token, request);
 
 		if (!resQuestion.getStatusCode().is2xxSuccessful()) {
 			// this happens when something went wrong
@@ -154,7 +167,7 @@ public class DemoController {
 			return "redirect:/demo/results/" + token;
 		}
 
-		ResponseQuestion q = resQuestion.getBody();
+		final ResponseQuestion q = resQuestion.getBody();
 
 		if (q == null) {
 			model.addAttribute("code", HttpStatus.INTERNAL_SERVER_ERROR);

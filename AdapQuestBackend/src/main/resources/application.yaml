@@ -1,0 +1,17 @@
+spring:
+  jpa:
+    open-in-view: false
+  servlet:
+    multipart:
+      # Max file size.
+      max-file-size: 10MB
+      # Max request size.
+      max-request-size: 100MB
+
+logging:
+  file:
+    name: logs/application.log
+
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-50c{1} %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%15t] %-50c{1} %msg%n"

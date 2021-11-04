@@ -64,6 +64,16 @@ public class SurveyStructure {
 	public Boolean simple = false;
 
 	/**
+	 * If {@link #simple} is True, then add a "NoSkill" skill.
+	 */
+	public Boolean noSkill = true;
+
+	/**
+	 * If true, use the {@link ch.idsia.adaptive.backend.services.commons.agents.AgentPreciseAdaptiveStructural} agent.
+	 */
+	public Boolean structural = false;
+
+	/**
 	 * Possible scoring functions are:
 	 * <ul>
 	 *     <li><code>mode</code></li>

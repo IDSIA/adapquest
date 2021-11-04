@@ -10,8 +10,6 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>adapquest-exchange</artifactId>
-	<version>1.2</version>
-	<packaging>jar</packaging>
 
 	<name>AdapQuestExchange</name>
 

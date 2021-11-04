@@ -6,6 +6,8 @@ import ch.idsia.crema.inference.bp.LoopyBeliefPropagation;
 import ch.idsia.crema.model.graphical.DAGModel;
 import gnu.trove.map.TIntIntMap;
 
+import java.util.List;
+
 /**
  * Author:  Claudio "Dna" Bonesana
  * Project: adapquest
@@ -19,4 +21,9 @@ public class InferenceLBP implements InferenceEngine<BayesianFactor> {
 		return inference.query(model, obs, variable);
 	}
 
+	@Override
+	public List<BayesianFactor> query(DAGModel<BayesianFactor> model, TIntIntMap obs, int... variable) {
+		final LoopyBeliefPropagation<BayesianFactor> inference = new LoopyBeliefPropagation<>();
+		return inference.query(model, obs, variable);
+	}
 }

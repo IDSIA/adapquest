@@ -1,7 +1,7 @@
 package ch.idsia.adaptive.backend.controller;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping(value = "/dashboard")
 public class DashboardController {
-	private static final Logger logger = LogManager.getLogger(DashboardController.class);
+	private static final Logger logger = LoggerFactory.getLogger(DashboardController.class);
 
 	@Autowired
 	public DashboardController() {

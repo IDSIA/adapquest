@@ -8,6 +8,8 @@ import ch.idsia.adaptive.backend.services.commons.scoring.Scoring;
 import ch.idsia.adaptive.backend.services.commons.scoring.precise.ScoringFunctionBayesianMode;
 import ch.idsia.adaptive.backend.services.commons.scoring.precise.ScoringFunctionExpectedEntropy;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,8 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -23,10 +27,15 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 public class SurveyManagerService {
+	private static final Logger logger = LoggerFactory.getLogger(SurveyManagerService.class);
 
 	private final SurveyRepository surveyRepository;
 
 	private final Map<String, Agent> activeSurveys = new ConcurrentHashMap<>();
+
+	// TODO: better parallel management with a scheduler
+	final int PARALLEL_COUNT = Runtime.getRuntime().availableProcessors() / 2;
+	final ExecutorService es = Executors.newFixedThreadPool(PARALLEL_COUNT);
 
 	@Autowired
 	public SurveyManagerService(SurveyRepository surveyRepository) {
@@ -40,34 +49,43 @@ public class SurveyManagerService {
 	 * @throws IllegalArgumentException when the survey id is not valid
 	 */
 	public void init(SurveyData data) {
-		Long surveyId = data.getSurveyId();
-		Survey survey = surveyRepository
+		final Long surveyId = data.getSurveyId();
+		final Survey survey = surveyRepository
 				.findById(surveyId)
 				.orElseThrow(() -> new IllegalArgumentException("No model associated with SurveyId=" + surveyId));
 
-		Long seed = data.getStartTime().toEpochSecond(OffsetDateTime.now().getOffset());
+		final Long seed = data.getStartTime().toEpochSecond(OffsetDateTime.now().getOffset());
 
 		// TODO: allow also imprecise agents
-		AgentPrecise agent;
+		final AgentGeneric<BayesianFactor> agent;
 
 		if (survey.getIsAdaptive()) {
 			Scoring<BayesianFactor> scoring;
 
-			if (survey.getScoring().equals("mode"))
+			if (survey.getScoring().equals("mode")) {
+				logger.debug("using ScoringFunctionBayesianMode for {}", surveyId);
 				scoring = new ScoringFunctionBayesianMode();
-			else
+			} else {
+				logger.debug("using ScoringFunctionExpectedEntropy for {}", surveyId);
 				scoring = new ScoringFunctionExpectedEntropy();
+			}
 
-			if (survey.getIsSimple()) {
+			if (survey.getIsStructural()) {
+				logger.debug("new AgentPreciseAdaptiveStructural for {}", surveyId);
+				agent = new AgentPreciseAdaptiveStructural(survey, seed, scoring);
+			} else if (survey.getIsSimple()) {
+				logger.debug("new AgentPreciseAdaptiveSimple for {}", surveyId);
 				agent = new AgentPreciseAdaptiveSimple(survey, seed, scoring);
 			} else {
+				logger.debug("new AgentPreciseAdaptiveSimple for {}", surveyId);
 				agent = new AgentPreciseAdaptive(survey, seed, scoring);
 			}
 		} else {
+			logger.debug("new AgentPreciseNonAdaptive for {}", surveyId);
 			agent = new AgentPreciseNonAdaptive(survey, seed);
 		}
-		agent.addSkills(survey.getSkills());
-		agent.addQuestions(survey.getQuestions());
+
+		agent.setExecutor(es);
 
 		activeSurveys.put(data.getToken(), agent);
 	}

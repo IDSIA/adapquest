@@ -6,8 +6,8 @@ import ch.idsia.adaptive.backend.persistence.model.Session;
 import ch.idsia.adaptive.backend.persistence.model.Survey;
 import ch.idsia.adaptive.backend.persistence.model.SurveyData;
 import ch.idsia.adaptive.backend.persistence.model.SurveyToken;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,7 +20,7 @@ import java.time.temporal.ChronoUnit;
  */
 @Service
 public class SessionService {
-	private static final Logger logger = LogManager.getLogger(SessionService.class);
+	private static final Logger logger = LoggerFactory.getLogger(SessionService.class);
 
 	final SessionRepository repository;
 	final SurveyRepository surveys;

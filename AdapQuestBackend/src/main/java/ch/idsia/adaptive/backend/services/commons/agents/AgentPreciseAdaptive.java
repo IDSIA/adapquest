@@ -8,8 +8,8 @@ import ch.idsia.adaptive.backend.services.commons.scoring.Scoring;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
@@ -17,12 +17,17 @@ import java.util.Collection;
  * Author:  Claudio "Dna" Bonesana
  * Project: AdapQuest
  * Date:    14.12.2020 17:17
+ * <p>
+ * This specific {@link Agent} works on a model that have a single parent skill for each available question.
+ * For a multi-skill model, consider using the {@link AgentPreciseAdaptiveSimple} agent.
  */
 public class AgentPreciseAdaptive extends AgentPrecise {
-	private static final Logger logger = LogManager.getLogger(AgentPreciseAdaptive.class);
+	private static final Logger logger = LoggerFactory.getLogger(AgentPreciseAdaptive.class);
 
 	public AgentPreciseAdaptive(Survey survey, Long seed, Scoring<BayesianFactor> scoring) {
 		super(survey, seed, scoring);
+		addSkills(survey.getSkills());
+		addQuestions(survey.getQuestions());
 	}
 
 	public boolean isSkillValid(Skill skill) {
@@ -151,7 +156,7 @@ public class AgentPreciseAdaptive extends AgentPrecise {
 
 				for (int i = 0; i < size; i++) {
 					final TIntIntMap qi = new TIntIntHashMap(observations);
-					qi.put(Q, i);
+					question.getQuestionAnswer(Q, i).observe(qi);
 
 					final BayesianFactor PSqi = inference.query(model, qi, S);
 					final double Pqi = PQ.getValue(i);

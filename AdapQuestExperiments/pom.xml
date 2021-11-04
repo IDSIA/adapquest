@@ -10,8 +10,6 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>adapquest-experiments</artifactId>
-	<version>1.2</version>
-	<packaging>jar</packaging>
 
 	<name>AdapQuestExperiments</name>
 
@@ -26,8 +24,9 @@
 				<directory>src/test/resources/</directory>
 				<targetPath>.</targetPath>
 				<includes>
-					<include>**/*.txt</include>
 					<include>**/*.csv</include>
+					<include>**/*.txt</include>
+					<include>**/*.xml</include>
 					<include>**/*.yaml</include>
 				</includes>
 			</testResource>

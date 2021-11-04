@@ -26,6 +26,7 @@ public class Convert {
 
 		rq.isExample = question.getIsExample();
 		rq.randomAnswers = question.getRandomAnswers();
+		rq.multipleChoice = question.getMultipleChoice();
 
 		rq.answers = question.getAnswersAvailable().stream()
 				.map(Convert::toResponse)
@@ -88,7 +89,7 @@ public class Convert {
 	public static ResponseState toResponse(State state) {
 		ResponseState rs = new ResponseState();
 
-		rs.skillDistribution = state.getState();
+		rs.skillDistribution = state.getProbabilities();
 		rs.scoreDistribution = state.getScore();
 		rs.skillCompleted = state.getSkillCompleted();
 		rs.questionsPerSkill = state.getQuestionsPerSkill();

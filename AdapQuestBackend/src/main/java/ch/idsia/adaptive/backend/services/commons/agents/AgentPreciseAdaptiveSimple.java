@@ -8,8 +8,8 @@ import ch.idsia.adaptive.backend.services.commons.scoring.Scoring;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,12 +19,16 @@ import java.util.Map;
  * Author:  Claudio "Dna" Bonesana
  * Project: AdapQuest
  * Date:    14.12.2020 17:17
+ * <p>
+ * This {@link Agent} is compatible with any precise model. {@link Question}s with multiple skills are also supported.
  */
 public class AgentPreciseAdaptiveSimple extends AgentPrecise {
-	private static final Logger logger = LogManager.getLogger(AgentPreciseAdaptiveSimple.class);
+	private static final Logger logger = LoggerFactory.getLogger(AgentPreciseAdaptiveSimple.class);
 
 	public AgentPreciseAdaptiveSimple(Survey model, Long seed, Scoring<BayesianFactor> scoring) {
 		super(model, seed, scoring);
+		addSkills(survey.getSkills());
+		addQuestions(survey.getQuestions());
 	}
 
 	@Override
@@ -103,7 +107,7 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 
 				for (int i = 0; i < size; i++) {
 					final TIntIntMap qi = new TIntIntHashMap(observations);
-					qi.put(Q, i);
+					question.getQuestionAnswer(Q, i).observe(qi);
 
 					final BayesianFactor PSqi = inference.query(model, qi, S);
 					final double Pqi = PQ.getValue(i);
@@ -113,7 +117,7 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 					HSQ += HSqi * Pqi; // conditional score
 				}
 
-//				logger.debug("question={} skill={} with HSQ={}", question.getName(), skill.getName(), HSQ);
+//			logger.debug("question={} skill={} with HSQ={}", question.getName(), skill.getName(), HSQ);
 
 				meanInfoGain += Math.max(0, HS - HSQ) / skills.size();
 			}
@@ -138,4 +142,5 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 
 		return nextQuestion;
 	}
+
 }

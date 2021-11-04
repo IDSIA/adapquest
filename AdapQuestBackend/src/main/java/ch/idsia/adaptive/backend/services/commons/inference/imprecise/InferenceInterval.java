@@ -2,7 +2,7 @@ package ch.idsia.adaptive.backend.services.commons.inference.imprecise;
 
 import ch.idsia.adaptive.backend.services.commons.inference.InferenceEngine;
 import ch.idsia.crema.factor.credal.linear.interval.IntervalFactor;
-import ch.idsia.crema.inference.approxlp.ApproxLP1;
+import ch.idsia.crema.inference.approxlp1.ApproxLP1;
 import ch.idsia.crema.model.graphical.DAGModel;
 import gnu.trove.map.TIntIntMap;
 

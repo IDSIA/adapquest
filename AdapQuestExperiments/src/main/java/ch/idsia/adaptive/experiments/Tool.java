@@ -10,8 +10,8 @@ import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -31,7 +31,7 @@ import static ch.idsia.adaptive.experiments.utils.StatusCodeCheck.is2xxSuccessfu
  * This tool is intended to simplify the connection to a remote machine running the AdapQuestBackend.
  */
 public class Tool {
-	private static final Logger logger = LogManager.getLogger(Tool.class);
+	private static final Logger logger = LoggerFactory.getLogger(Tool.class);
 
 	private final ObjectMapper om = new ObjectMapper().registerModule(new JavaTimeModule());
 
