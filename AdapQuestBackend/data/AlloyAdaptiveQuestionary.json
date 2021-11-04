@@ -55,14 +55,15 @@
       "skill": "target",
       "question": "Do you consider your gender more aligned with the concept of 'Man' or 'Woman'?",
       "name": "women",
-      "variable": 1,
       "answers": [
         {
           "text": "Man",
+          "variable": 1,
           "state": 0
         },
         {
           "text": "Woman",
+          "variable": 1,
           "state": 1
         }
       ]
@@ -71,18 +72,20 @@
       "skill": "target",
       "question": "What is your instruction level?",
       "name": "education_level",
-      "variable": 4,
       "answers": [
         {
           "text": "Low: no school degree, elementary school, or secondary school degree",
+          "variable": 4,
           "state": 0
         },
         {
           "text": "Medium: high school or professional school degree",
+          "variable": 4,
           "state": 1
         },
         {
           "text": "Tertiary: Scientific formation, advanced professional, university degree",
+          "variable": 4,
           "state": 2
         }
       ]
@@ -91,26 +94,30 @@
       "skill": "target",
       "question": "What is your age?",
       "name": "age",
-      "variable": 2,
       "answers": [
         {
           "text": "0 - 25",
+          "variable": 2,
           "state": 0
         },
         {
           "text": "26 - 35",
+          "variable": 2,
           "state": 1
         },
         {
           "text": "35 - 45",
+          "variable": 2,
           "state": 2
         },
         {
           "text": "46 - 55",
+          "variable": 2,
           "state": 3
         },
         {
           "text": "55+",
+          "variable": 2,
           "state": 4
         }
       ]
@@ -119,14 +126,15 @@
       "skill": "target",
       "question": "Your first nationality is Switzerland?",
       "name": "swiss",
-      "variable": 3,
       "answers": [
         {
           "text": "Yes",
+          "variable": 3,
           "state": 1
         },
         {
           "text": "No",
+          "variable": 3,
           "state": 0
         }
       ]
@@ -135,34 +143,40 @@
       "skill": "target",
       "question": "What is the region your current live in?",
       "name": "region",
-      "variable": 14,
       "answers": [
         {
           "text": "Lemano region (VD, VS, GE)",
+          "variable": 14,
           "state": 0
         },
         {
           "text": "Espace Mittelland (BE, FR, SO, NE, JU)",
+          "variable": 14,
           "state": 1
         },
         {
           "text": "Northwestern Switzerland (BS, BL, AG)",
+          "variable": 14,
           "state": 2
         },
         {
           "text": "Zurich area (ZH)",
+          "variable": 14,
           "state": 3
         },
         {
           "text": "Eastern Switzerland (GL, SH, AR, AI, SG, GR, TG)",
+          "variable": 14,
           "state": 5
         },
         {
           "text": "Central Switzerland (LU, UR, SZ, OW, NW, ZG)",
+          "variable": 14,
           "state": 4
         },
         {
           "text": "Southern Switzerland (TI)",
+          "variable": 14,
           "state": 6
         }
       ]
@@ -171,14 +185,15 @@
       "skill": "target",
       "question": "Are you married or with a registered partner?",
       "name": "married",
-      "variable": 10,
       "answers": [
         {
           "text": "Yes",
+          "variable": 10,
           "state": 1
         },
         {
           "text": "No",
+          "variable": 10,
           "state": 0
         }
       ]
@@ -187,22 +202,25 @@
       "skill": "target",
       "question": "How many children under the age of 17 do you have?",
       "name": "kids",
-      "variable": 11,
       "answers": [
         {
           "text": "0",
+          "variable": 11,
           "state": 0
         },
         {
           "text": "1",
+          "variable": 11,
           "state": 1
         },
         {
           "text": "2",
+          "variable": 11,
           "state": 2
         },
         {
           "text": "3+",
+          "variable": 11,
           "state": 3
         }
       ]
@@ -211,18 +229,20 @@
       "skill": "target",
       "question": "What is the age of your youngest child? Consider only those under the age of 17.",
       "name": "age_kids",
-      "variable": 12,
       "answers": [
         {
           "text": "0-6",
+          "variable": 12,
           "state": 0
         },
         {
           "text": "6-17",
+          "variable": 12,
           "state": 1
         },
         {
           "text": "None",
+          "variable": 12,
           "state": 2
         }
       ]
@@ -231,22 +251,25 @@
       "skill": "target",
       "question": "What is you Body Mass Index (BMI)?",
       "name": "BMI",
-      "variable": 9,
       "answers": [
         {
           "text": "10-20",
+          "variable": 9,
           "state": 0
         },
         {
           "text": "21-25",
+          "variable": 9,
           "state": 1
         },
         {
           "text": "26-30",
+          "variable": 9,
           "state": 2
         },
         {
           "text": "31-100",
+          "variable": 9,
           "state": 3
         }
       ]
@@ -255,50 +278,60 @@
       "skill": "target",
       "question": "How often do you usually experience the emotion \"Joy\"?",
       "name": "joy",
-      "variable": 19,
       "answers": [
         {
           "text": "0 - Never",
+          "variable": 19,
           "state": 0
         },
         {
           "text": "1",
+          "variable": 19,
           "state": 1
         },
         {
           "text": "2",
+          "variable": 19,
           "state": 2
         },
         {
           "text": "3",
+          "variable": 19,
           "state": 3
         },
         {
           "text": "4",
+          "variable": 19,
           "state": 4
         },
         {
           "text": "5",
+          "variable": 19,
           "state": 5
         },
         {
           "text": "6",
+          "variable": 19,
           "state": 6
         },
         {
           "text": "7",
+          "variable": 19,
           "state": 7
         },
         {
           "text": "8",
+          "variable": 19,
           "state": 8
         },
         {
           "text": "9",
+          "variable": 19,
           "state": 9
         },
         {
           "text": "10 - Always",
+          "variable": 19,
           "state": 10
         }
       ]
@@ -307,50 +340,60 @@
       "skill": "target",
       "question": "How often do you usually experience the emotion \"Anger\"?",
       "name": "noanger",
-      "variable": 21,
       "answers": [
         {
           "text": "0 - Never",
+          "variable": 21,
           "state": 10
         },
         {
           "text": "1",
+          "variable": 21,
           "state": 9
         },
         {
           "text": "2",
+          "variable": 21,
           "state": 8
         },
         {
           "text": "3",
+          "variable": 21,
           "state": 7
         },
         {
           "text": "4",
+          "variable": 21,
           "state": 6
         },
         {
           "text": "5",
+          "variable": 21,
           "state": 5
         },
         {
           "text": "6",
+          "variable": 21,
           "state": 4
         },
         {
           "text": "7",
+          "variable": 21,
           "state": 3
         },
         {
           "text": "8",
+          "variable": 21,
           "state": 2
         },
         {
           "text": "9",
+          "variable": 21,
           "state": 1
         },
         {
           "text": "10 - Always",
+          "variable": 21,
           "state": 0
         }
       ]
@@ -359,50 +402,60 @@
       "skill": "target",
       "question": "How often do you usually experience the emotion \"Sadness\"?",
       "name": "nosadness",
-      "variable": 22,
       "answers": [
         {
           "text": "0 - Never",
+          "variable": 22,
           "state": 10
         },
         {
           "text": "1",
+          "variable": 22,
           "state": 9
         },
         {
           "text": "2",
+          "variable": 22,
           "state": 8
         },
         {
           "text": "3",
+          "variable": 22,
           "state": 7
         },
         {
           "text": "4",
+          "variable": 22,
           "state": 6
         },
         {
           "text": "5",
+          "variable": 22,
           "state": 5
         },
         {
           "text": "6",
+          "variable": 22,
           "state": 4
         },
         {
           "text": "7",
+          "variable": 22,
           "state": 3
         },
         {
           "text": "8",
+          "variable": 22,
           "state": 2
         },
         {
           "text": "9",
+          "variable": 22,
           "state": 1
         },
         {
           "text": "10 - Always",
+          "variable": 22,
           "state": 0
         }
       ]
@@ -411,50 +464,60 @@
       "skill": "target",
       "question": "How often do you usually experience the emotion \"Worry\"?",
       "name": "noworry",
-      "variable": 23,
       "answers": [
         {
           "text": "0 - Never",
+          "variable": 23,
           "state": 10
         },
         {
           "text": "1",
+          "variable": 23,
           "state": 9
         },
         {
           "text": "2",
+          "variable": 23,
           "state": 8
         },
         {
           "text": "3",
+          "variable": 23,
           "state": 7
         },
         {
           "text": "4",
+          "variable": 23,
           "state": 6
         },
         {
           "text": "5",
+          "variable": 23,
           "state": 5
         },
         {
           "text": "6",
+          "variable": 23,
           "state": 4
         },
         {
           "text": "7",
+          "variable": 23,
           "state": 3
         },
         {
           "text": "8",
+          "variable": 23,
           "state": 2
         },
         {
           "text": "9",
+          "variable": 23,
           "state": 1
         },
         {
           "text": "10 - Always",
+          "variable": 23,
           "state": 0
         }
       ]
@@ -463,14 +526,15 @@
       "skill": "target",
       "question": "In the past 4 weeks, have you had difficulty falling asleep or experienced insomnia?",
       "name": "sleeping_problem",
-      "variable": 8,
       "answers": [
         {
           "text": "Not at all or a little",
+          "variable": 8,
           "state": 0
         },
         {
           "text": "A lot",
+          "variable": 8,
           "state": 1
         }
       ]
@@ -479,50 +543,60 @@
       "skill": "target",
       "question": "How often do you experience negative feelings such as \"Melancholy\", \"Despair\", \"Anxiety\", or \"Depression\"?",
       "name": "noanxiety",
-      "variable": 20,
       "answers": [
         {
           "text": "0 - Never",
+          "variable": 20,
           "state": 10
         },
         {
           "text": "1",
+          "variable": 20,
           "state": 9
         },
         {
           "text": "2",
+          "variable": 20,
           "state": 8
         },
         {
           "text": "3",
+          "variable": 20,
           "state": 7
         },
         {
           "text": "4",
+          "variable": 20,
           "state": 6
         },
         {
           "text": "5",
+          "variable": 20,
           "state": 5
         },
         {
           "text": "6",
+          "variable": 20,
           "state": 4
         },
         {
           "text": "7",
+          "variable": 20,
           "state": 3
         },
         {
           "text": "8",
+          "variable": 20,
           "state": 2
         },
         {
           "text": "9",
+          "variable": 20,
           "state": 1
         },
         {
           "text": "10 - Always",
+          "variable": 20,
           "state": 0
         }
       ]
@@ -531,50 +605,60 @@
       "skill": "target",
       "question": "How ofter do you feel \"Full of strength\", \"Energy\", and \"Optimism\"?",
       "name": "energy",
-      "variable": 18,
       "answers": [
         {
           "text": "0 - Never",
+          "variable": 18,
           "state": 0
         },
         {
           "text": "1",
+          "variable": 18,
           "state": 1
         },
         {
           "text": "2",
+          "variable": 18,
           "state": 2
         },
         {
           "text": "3",
+          "variable": 18,
           "state": 3
         },
         {
           "text": "4",
+          "variable": 18,
           "state": 4
         },
         {
           "text": "5",
+          "variable": 18,
           "state": 5
         },
         {
           "text": "6",
+          "variable": 18,
           "state": 6
         },
         {
           "text": "7",
+          "variable": 18,
           "state": 7
         },
         {
           "text": "8",
+          "variable": 18,
           "state": 8
         },
         {
           "text": "9",
+          "variable": 18,
           "state": 9
         },
         {
           "text": "10 - Always",
+          "variable": 18,
           "state": 10
         }
       ]
@@ -583,22 +667,25 @@
       "skill": "target",
       "question": "Can you indicate how your health condition restricts you in your daily activities, whether for household chores, work, or leisure?",
       "name": "impediment",
-      "variable": 7,
       "answers": [
         {
           "text": "Not at all",
+          "variable": 7,
           "state": 0
         },
         {
           "text": "Minimally",
+          "variable": 7,
           "state": 2
         },
         {
           "text": "Fairly",
+          "variable": 7,
           "state": 1
         },
         {
           "text": "Very much",
+          "variable": 7,
           "state": 3
         }
       ]
@@ -607,14 +694,15 @@
       "skill": "target",
       "question": "Do you have a chronic illness or health issue that lasts over time?",
       "name": "illness",
-      "variable": 6,
       "answers": [
         {
           "text": "Yes",
+          "variable": 6,
           "state": 0
         },
         {
           "text": "No",
+          "variable": 6,
           "state": 1
         }
       ]
@@ -623,14 +711,15 @@
       "skill": "target",
       "question": "Do you have suffered from a psychological issue or illness in the last 12 months?",
       "name": "psico_event2",
-      "variable": 24,
       "answers": [
         {
           "text": "Yes",
+          "variable": 24,
           "state": 0
         },
         {
           "text": "No",
+          "variable": 24,
           "state": 1
         }
       ]
@@ -639,18 +728,20 @@
       "skill": "target",
       "question": "How many days a week do you engage in physical activity, for at least half an hour, that makes you slightly fatigued ? ",
       "name": "PA",
-      "variable": 25,
       "answers": [
         {
           "text": "0 days",
+          "variable": 25,
           "state": 1
         },
         {
           "text": "1 - 4 days",
+          "variable": 25,
           "state": 0
         },
         {
           "text": "5 - 7 days",
+          "variable": 25,
           "state": 2
         }
       ]
@@ -659,22 +750,25 @@
       "skill": "target",
       "question": "What is your professional category?",
       "name": "ISCO",
-      "variable": 15,
       "answers": [
         {
           "text": "Legislators, senior officials and managers, professionals",
+          "variable": 15,
           "state": 0
         },
         {
           "text": "Employees, service workers, store and sales associates",
+          "variable": 15,
           "state": 1
         },
         {
           "text": "Skilled agricultural and fishing personnel, craftsmen and skilled workers",
+          "variable": 15,
           "state": 2
         },
         {
           "text": "Plant and machinery operators, unskilled personnel",
+          "variable": 15,
           "state": 3
         }
       ]
@@ -683,14 +777,15 @@
       "skill": "target",
       "question": "Have you changed employers or businesses in the past 12 months?",
       "name": "change_employer",
-      "variable": 33,
       "answers": [
         {
           "text": "Yes",
+          "variable": 33,
           "state": 0
         },
         {
           "text": "No",
+          "variable": 33,
           "state": 1
         }
       ]
@@ -699,22 +794,25 @@
       "skill": "target",
       "question": "What do you consider your primary employment?",
       "name": "contract",
-      "variable": 28,
       "answers": [
         {
           "text": "Permanent employee",
+          "variable": 28,
           "state": 0
         },
         {
           "text": "Fixed-term employee",
+          "variable": 28,
           "state": 1
         },
         {
           "text": "Self-employed",
+          "variable": 28,
           "state": 2
         },
         {
           "text": "Employee in your own company",
+          "variable": 28,
           "state": 3
         }
       ]
@@ -723,26 +821,30 @@
       "skill": "target",
       "question": "What is your working percentage?",
       "name": "percentage",
-      "variable": 29,
       "answers": [
         {
           "text": "Up to 40%",
+          "variable": 29,
           "state": 0
         },
         {
           "text": "41 - 60%",
+          "variable": 29,
           "state": 1
         },
         {
           "text": "61 - 80%",
+          "variable": 29,
           "state": 2
         },
         {
           "text": "81 - 99%",
+          "variable": 29,
           "state": 3
         },
         {
           "text": "100%",
+          "variable": 29,
           "state": 4
         }
       ]
@@ -751,14 +853,15 @@
       "skill": "target",
       "question": "If part-time worker, are you working part-time because you cannot find a full-time job?",
       "name": "no_findFT",
-      "variable": 30,
       "answers": [
         {
           "text": "Yes",
+          "variable": 30,
           "state": 0
         },
         {
           "text": "No, I work part-time for other reasons or I already work full-time (90%-100%)",
+          "variable": 30,
           "state": 1
         }
       ]
@@ -767,14 +870,15 @@
       "skill": "target",
       "question": "If part-time worker, do you wish to work more than 10% of your current work time?",
       "name": "underemployed",
-      "variable": 31,
       "answers": [
         {
           "text": "Yes",
+          "variable": 31,
           "state": 0
         },
         {
           "text": "No or I already work full-time (90%-100%)",
+          "variable": 31,
           "state": 1
         }
       ]
@@ -783,14 +887,15 @@
       "skill": "target",
       "question": "In a normal month, do you have to work at night (midnight - 6am)?",
       "name": "work_night",
-      "variable": 45,
       "answers": [
         {
           "text": "Yes",
+          "variable": 45,
           "state": 0
         },
         {
           "text": "No",
+          "variable": 45,
           "state": 1
         }
       ]
@@ -799,14 +904,15 @@
       "skill": "target",
       "question": "In a normal month, do you have to work on Saturday or Sunday?",
       "name": "work_we",
-      "variable": 46,
       "answers": [
         {
           "text": "Yes",
+          "variable": 46,
           "state": 0
         },
         {
           "text": "No",
+          "variable": 46,
           "state": 1
         }
       ]
@@ -815,50 +921,60 @@
       "skill": "target",
       "question": "How often are you subjected to a high work rate and crunch time?",
       "name": "work_fast",
-      "variable": 39,
       "answers": [
         {
           "text": "0 - Never",
+          "variable": 39,
           "state": 4
         },
         {
           "text": "1",
+          "variable": 39,
           "state": 10
         },
         {
           "text": "2",
+          "variable": 39,
           "state": 9
         },
         {
           "text": "3",
+          "variable": 39,
           "state": 7
         },
         {
           "text": "4",
+          "variable": 39,
           "state": 8
         },
         {
           "text": "5",
+          "variable": 39,
           "state": 5
         },
         {
           "text": "6",
+          "variable": 39,
           "state": 1
         },
         {
           "text": "7",
+          "variable": 39,
           "state": 0
         },
         {
           "text": "8",
+          "variable": 39,
           "state": 2
         },
         {
           "text": "9",
+          "variable": 39,
           "state": 6
         },
         {
           "text": "10 - Always",
+          "variable": 39,
           "state": 3
         }
       ]
@@ -867,14 +983,15 @@
       "skill": "target",
       "question": "Does your job expose you to a lot of nervous tension?",
       "name": "strain",
-      "variable": 40,
       "answers": [
         {
           "text": "Yes",
+          "variable": 40,
           "state": 0
         },
         {
           "text": "No",
+          "variable": 40,
           "state": 1
         }
       ]
@@ -883,14 +1000,15 @@
       "skill": "target",
       "question": "Does your job expose you to loud noises or dirt?",
       "name": "noise",
-      "variable": 41,
       "answers": [
         {
           "text": "Yes",
+          "variable": 41,
           "state": 0
         },
         {
           "text": "No",
+          "variable": 41,
           "state": 1
         }
       ]
@@ -899,14 +1017,15 @@
       "skill": "target",
       "question": "Does your job exposes you to positions or movements that are heavy or tiring in the long run?",
       "name": "tiring_posture",
-      "variable": 42,
       "answers": [
         {
           "text": "Yes",
+          "variable": 42,
           "state": 0
         },
         {
           "text": "No",
+          "variable": 42,
           "state": 1
         }
       ]
@@ -915,14 +1034,15 @@
       "skill": "target",
       "question": "Do you use a computer for your work?",
       "name": "usePC",
-      "variable": 37,
       "answers": [
         {
           "text": "Yes",
+          "variable": 37,
           "state": 1
         },
         {
           "text": "No",
+          "variable": 37,
           "state": 0
         }
       ]
@@ -931,14 +1051,15 @@
       "skill": "target",
       "question": "Do you usually work more than 48 hours per week in your main job?",
       "name": "more48hours",
-      "variable": 43,
       "answers": [
         {
           "text": "Yes",
+          "variable": 43,
           "state": 0
         },
         {
           "text": "No",
+          "variable": 43,
           "state": 1
         }
       ]
@@ -947,14 +1068,15 @@
       "skill": "target",
       "question": "Do you work at home or do you have your own company's office in your home?",
       "name": "work_athome",
-      "variable": 47,
       "answers": [
         {
           "text": "Yes",
+          "variable": 47,
           "state": 0
         },
         {
           "text": "No",
+          "variable": 47,
           "state": 1
         }
       ]
@@ -963,14 +1085,15 @@
       "skill": "target",
       "question": "Do you have a management function or are you responsible for supervising and controlling the work of others?",
       "name": "supervisory_task",
-      "variable": 38,
       "answers": [
         {
           "text": "Yes",
+          "variable": 38,
           "state": 1
         },
         {
           "text": "No",
+          "variable": 38,
           "state": 0
         }
       ]
@@ -979,22 +1102,25 @@
       "skill": "target",
       "question": "How many years have you been employed or self-employed?",
       "name": "past_experience",
-      "variable": 5,
       "answers": [
         {
           "text": "0 - 5",
+          "variable": 5,
           "state": 0
         },
         {
           "text": "6 - 15",
+          "variable": 5,
           "state": 1
         },
         {
           "text": "15 - 30",
+          "variable": 5,
           "state": 2
         },
         {
           "text": "30+",
+          "variable": 5,
           "state": 3
         }
       ]
@@ -1003,22 +1129,25 @@
       "skill": "target",
       "question": "How many people work at the company you work at?",
       "name": "firm_size",
-      "variable": 16,
       "answers": [
         {
           "text": "0",
+          "variable": 16,
           "state": 0
         },
         {
           "text": "1 - 9",
+          "variable": 16,
           "state": 1
         },
         {
           "text": "10 - 49",
+          "variable": 16,
           "state": 2
         },
         {
           "text": "50+",
+          "variable": 16,
           "state": 3
         }
       ]
@@ -1027,50 +1156,60 @@
       "skill": "target",
       "question": "In what economic activity area do you work?",
       "name": "NOGA",
-      "variable": 17,
       "answers": [
         {
           "text": "Agriculture",
+          "variable": 17,
           "state": 10
         },
         {
           "text": "Industry",
+          "variable": 17,
           "state": 0
         },
         {
           "text": "Constructions",
+          "variable": 17,
           "state": 7
         },
         {
           "text": "Trade and Hosting",
+          "variable": 17,
           "state": 5
         },
         {
           "text": "Transport and Communications",
+          "variable": 17,
           "state": 8
         },
         {
           "text": "Financial Services",
+          "variable": 17,
           "state": 6
         },
         {
           "text": "Public Administration",
+          "variable": 17,
           "state": 4
         },
         {
           "text": "Education",
+          "variable": 17,
           "state": 3
         },
         {
           "text": "Health and Social Services",
+          "variable": 17,
           "state": 2
         },
         {
           "text": "Other public, social, and personal services",
+          "variable": 17,
           "state": 9
         },
         {
           "text": "None",
+          "variable": 17,
           "state": 1
         }
       ]
@@ -1079,22 +1218,25 @@
       "skill": "target",
       "question": "What is your monthly net earned income (employed and/or self-employed)?",
       "name": "class_income",
-      "variable": 26,
       "answers": [
         {
           "text": "Up to 4’500 CHF/month",
+          "variable": 26,
           "state": 0
         },
         {
           "text": "Up to 6’000 CHF/month",
+          "variable": 26,
           "state": 1
         },
         {
           "text": "Up to 8’000 CHF/month",
+          "variable": 26,
           "state": 2
         },
         {
           "text": "More than 8'000 CHF/month",
+          "variable": 26,
           "state": 3
         }
       ]
@@ -1103,14 +1245,15 @@
       "skill": "target",
       "question": "Do you receive or have you received an award or bonus?",
       "name": "bonus",
-      "variable": 27,
       "answers": [
         {
           "text": "Yes",
+          "variable": 27,
           "state": 0
         },
         {
           "text": "No",
+          "variable": 27,
           "state": 1
         }
       ]
@@ -1119,18 +1262,20 @@
       "skill": "target",
       "question": "Considering all of your household's income and expenses for one year, would you say that:",
       "name": "family_income",
-      "variable": 13,
       "answers": [
         {
           "text": "Your home economy can save",
+          "variable": 13,
           "state": 0
         },
         {
           "text": "Your household spends what it earns",
+          "variable": 13,
           "state": 1
         },
         {
           "text": "Your household uses up its assets or goes into debt",
+          "variable": 13,
           "state": 2
         }
       ]
@@ -1139,14 +1284,15 @@
       "skill": "target",
       "question": "Do your work hours vary regularly (shift work, team work)?",
       "name": "shift",
-      "variable": 44,
       "answers": [
         {
           "text": "Yes",
+          "variable": 44,
           "state": 0
         },
         {
           "text": "No",
+          "variable": 44,
           "state": 1
         }
       ]
@@ -1155,14 +1301,15 @@
       "skill": "target",
       "question": "Do your work hours vary from day to day by your decision?",
       "name": "flex_youdecide",
-      "variable": 48,
       "answers": [
         {
           "text": "Yes",
+          "variable": 48,
           "state": 1
         },
         {
           "text": "No",
+          "variable": 48,
           "state": 0
         }
       ]
@@ -1171,14 +1318,15 @@
       "skill": "target",
       "question": "Do you rate your qualification higher than your job?",
       "name": "overqualified",
-      "variable": 36,
       "answers": [
         {
           "text": "Yes",
+          "variable": 36,
           "state": 0
         },
         {
           "text": "No",
+          "variable": 36,
           "state": 1
         }
       ]
@@ -1187,14 +1335,15 @@
       "skill": "target",
       "question": "Is your company undergoing reorganization/restructuring or privatization?",
       "name": "affected_restr",
-      "variable": 34,
       "answers": [
         {
           "text": "Yes",
+          "variable": 34,
           "state": 1
         },
         {
           "text": "No",
+          "variable": 34,
           "state": 0
         }
       ]
@@ -1203,14 +1352,15 @@
       "skill": "target",
       "question": "Have you taken training courses while working for professional reasons in the last year?",
       "name": "lifelong_training",
-      "variable": 35,
       "answers": [
         {
           "text": "Yes",
+          "variable": 35,
           "state": 1
         },
         {
           "text": "No",
+          "variable": 35,
           "state": 0
         }
       ]
@@ -1219,14 +1369,15 @@
       "skill": "target",
       "question": "Do you normally have many different jobs or employers?",
       "name": "many_jobs",
-      "variable": 32,
       "answers": [
         {
           "text": "Yes",
+          "variable": 32,
           "state": 0
         },
         {
           "text": "No",
+          "variable": 32,
           "state": 1
         }
       ]

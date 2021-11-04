@@ -29,7 +29,7 @@ public class Skill implements Comparable<Skill> {
 	private Long id;
 
 	/**
-	 * Skill name;
+	 * Skill name.
 	 */
 	private String name;
 
@@ -55,10 +55,7 @@ public class Skill implements Comparable<Skill> {
 
 	@Override
 	public String toString() {
-		return "Skill{" +
-				"id=" + id +
-				", name='" + name + '\'' +
-				'}';
+		return "Skill{'" + name + "'}";
 	}
 
 	@Override

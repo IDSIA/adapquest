@@ -12,6 +12,8 @@ public class AgentPreciseNonAdaptive extends AgentPrecise {
 
 	public AgentPreciseNonAdaptive(Survey model, Long seed) {
 		super(model, seed, (f) -> 0);
+		addSkills(survey.getSkills());
+		addQuestions(survey.getQuestions());
 	}
 
 	@Override

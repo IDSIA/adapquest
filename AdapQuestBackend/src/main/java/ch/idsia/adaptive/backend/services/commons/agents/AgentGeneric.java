@@ -12,10 +12,13 @@ import ch.idsia.crema.model.graphical.DAGModel;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import lombok.Getter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.Setter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static ch.idsia.adaptive.backend.config.Consts.NO_SKILL;
@@ -26,7 +29,7 @@ import static ch.idsia.adaptive.backend.config.Consts.NO_SKILL;
  * Date:    14.12.2020 17:18
  */
 public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
-	private static final Logger logger = LogManager.getLogger(AgentGeneric.class);
+	private static final Logger logger = LoggerFactory.getLogger(AgentGeneric.class);
 
 	/**
 	 * Reference survey.
@@ -40,7 +43,7 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 	/**
 	 * Available skill in no specific order.
 	 */
-	protected final Set<Skill> skills = new HashSet<>();
+	protected final List<Skill> skills = new ArrayList<>();
 
 	/**
 	 * List of all the questions available in the survey.
@@ -75,7 +78,7 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 	/**
 	 * Evidence map of past answers.
 	 */
-	protected final TIntIntMap observations = new TIntIntHashMap();
+	protected TIntIntMap observations = new TIntIntHashMap();
 
 	@Getter
 	protected boolean answered = false;
@@ -86,10 +89,22 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 
 	protected final Scoring<F> scoring;
 
+	@Setter
+	protected ExecutorService executor = Executors.newSingleThreadExecutor();
+
+
 	public AgentGeneric(Survey survey, Long seed, Scoring<F> scoring) {
 		this.survey = survey;
 		this.random = new Random(seed);
 		this.scoring = scoring;
+	}
+
+	public List<Skill> getSkills() {
+		return skills;
+	}
+
+	public TIntIntMap getObservations() {
+		return observations;
 	}
 
 	public void addSkills(Set<Skill> skills) {
@@ -97,48 +112,58 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 				skills.stream()
 						.filter(Objects::nonNull)
 						.filter(x -> !x.getName().equals(NO_SKILL))
+						.sorted(Comparator.comparingInt(Skill::getVariable))
 						.collect(Collectors.toList())
 		);
 	}
 
 	public void addQuestions(Set<Question> questions) {
 		questions.forEach(q -> {
-			Skill skill = q.getSkill();
 			this.questions.add(q);
-			this.questionsDonePerSkill.putIfAbsent(skill, new LinkedList<>());
-			this.questionsAvailablePerSkill.computeIfAbsent(skill, x -> new LinkedList<>()).add(q);
 			if (q.getIsExample()) {
 				this.mandatoryQuestions.addFirst(q);
 			}
 			if (q.getMandatory()) {
 				this.mandatoryQuestions.add(q);
 			}
+
+			q.getSkills().forEach(skill -> {
+				this.questionsDonePerSkill.putIfAbsent(skill, new LinkedList<>());
+				this.questionsAvailablePerSkill.computeIfAbsent(skill, x -> new LinkedList<>()).add(q);
+			});
 		});
 		this.questions.sort(Comparator.comparingInt(Question::getVariable));
 	}
 
-	private void register(Question q) {
+	protected void register(Question q) {
 		if (q == null) {
 			currentQuestion = null;
 			return;
 		}
 
-		Skill s = q.getSkill();
+		q.getSkills().forEach(s -> {
+			// remove from possible questions per skill
+			questionsAvailablePerSkill.get(s).remove(q);
+
+			// add to done per skill slacks
+			questionsDonePerSkill.get(s).add(q);
+		});
 
 		// remove from possible questions
-		questionsAvailablePerSkill.get(s).remove(q);
 		questions.remove(q);
 		if (q.getMandatory())
 			mandatoryQuestions.remove(q);
 
 		// add to done slacks
-		questionsDonePerSkill.get(s).add(q);
 		questionsDone.add(q);
 
 		// update current question
 		currentQuestion = q;
 
-		logger.debug("next question is skill={} question={}", s.getName(), q.getName());
+		logger.debug("next question is skill={} question={}",
+				q.getSkills().stream().map(Skill::getName).collect(Collectors.joining(",")),
+				q.getName()
+		);
 		answered = false;
 	}
 
@@ -153,15 +178,23 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 
 	@Override
 	public boolean check(Answer answer) {
-		if (currentQuestion != null && currentQuestion.getVariable().equals(answer.getQuestion().getVariable())) {
+		if (currentQuestion != null && currentQuestion.equals(answer.getQuestion())) {
 			if (!answer.getQuestion().getIsExample()) {
-				final Integer variable = answer.getQuestion().getVariable();
-				final Integer state = answer.getQuestionAnswer().getState();
-				observations.put(variable, state);
+				logger.debug("checking answer: variable={} state={} question={} direct={}",
+						answer.getQuestionAnswer().getVariable(),
+						answer.getQuestionAnswer().getState(),
+						answer.getQuestionAnswer().getDirectEvidence(),
+						answer.getQuestion()
+				);
+				answer.getQuestionAnswer().observe(observations);
 			}
 			answered = true;
 			return true;
 		}
+		logger.warn("invalid answer: expected={} received={}",
+				answer.getQuestion(),
+				currentQuestion
+		);
 		return false;
 	}
 
@@ -171,6 +204,7 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 			return currentQuestion;
 
 		if (finished) {
+			executor.shutdown();
 			throw new SurveyException("Survey is finished");
 		}
 

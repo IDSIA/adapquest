@@ -4,20 +4,19 @@ import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.external.ImportStructure;
 import ch.idsia.adaptive.backend.persistence.external.ModelStructure;
 import ch.idsia.adaptive.backend.persistence.model.*;
+import ch.idsia.adaptive.backend.services.templates.TemplateJSON;
+import ch.idsia.adaptive.backend.services.templates.TemplateXLSX;
 import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import ch.idsia.crema.factor.bayesian.BayesianFactorFactory;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -31,11 +30,13 @@ import static ch.idsia.adaptive.backend.config.Consts.NO_SKILL;
  */
 @Service
 public class InitializationService {
-	private static final Logger logger = LogManager.getLogger(InitializationService.class);
+	private static final Logger logger = LoggerFactory.getLogger(InitializationService.class);
+
+	final PathMatcher matchJSON = FileSystems.getDefault().getPathMatcher("glob:**.json");
+	final PathMatcher matchXLSX = FileSystems.getDefault().getPathMatcher("glob:**.xlsx");
 
 	private final SurveyRepository surveys;
 
-	private final ObjectMapper om = new ObjectMapper();
 
 	@Autowired
 	public InitializationService(SurveyRepository surveys) {
@@ -43,7 +44,7 @@ public class InitializationService {
 	}
 
 	public void init() {
-		long surveysNum = surveys.count();
+		final long surveysNum = surveys.count();
 
 		if (surveysNum > 0) {
 			logger.info("Data already initialized: {} surveys found(s)", surveysNum);
@@ -56,30 +57,38 @@ public class InitializationService {
 	}
 
 	void readDataFolder() {
-		Path cwd = Paths.get("");
+		final Path cwd = Paths.get("");
 		try (Stream<Path> paths = Files.walk(cwd.resolve("data"))) {
 			paths
 					.filter(Files::isRegularFile)
-					.map(path -> {
-						try {
-							logger.info("Reading file={}", path.toFile());
-							return om.readValue(path.toFile(), ImportStructure.class);
-						} catch (IOException e) {
-							logger.error("Could not import path={}", path);
-							logger.error(e);
-							return null;
-						}
-					})
+					.map(this::parseStructure)
 					.filter(Objects::nonNull)
 					.forEach(this::parseSurvey);
 		} catch (IOException e) {
-			logger.error(e);
+			logger.error(e.getMessage());
+		}
+	}
+
+	public ImportStructure parseStructure(Path path) {
+		try {
+			logger.info("Reading file={}", path.toFile());
+
+			if (matchJSON.matches(path))
+				return TemplateJSON.parse(path);
+
+			if (matchXLSX.matches(path))
+				return TemplateXLSX.parse(path);
+
+			return null;
+		} catch (IOException e) {
+			logger.error("Could not import path={}", path);
+			logger.error(e.getMessage());
+			return null;
 		}
 	}
 
 	public Survey parseSurvey(ImportStructure structure) {
 		final Survey survey = parseSurveyStructure(structure);
-		// save survey
 		return surveys.save(survey);
 	}
 
@@ -122,14 +131,13 @@ public class InitializationService {
 
 	public static Survey parseSurveyStructure(ImportStructure structure) {
 		// build model
-		final Map<String, Integer> v = new HashMap<>();
+		final Map<String, Integer> v = new HashMap<>(); // this is used only for skill mapping
 		String modelData = "";
 
 		if (structure.modelData != null) {
 			logger.info("Using serialized model structure.");
 			modelData = structure.modelData;
 			structure.skills.forEach(skill -> v.put(skill.name, skill.variable));
-			structure.questions.forEach(question -> v.put(question.name, question.variable));
 		} else if (structure.model != null) {
 			modelData = parseModelStructure(structure.model, v);
 		}
@@ -144,51 +152,65 @@ public class InitializationService {
 								.collect(Collectors.toList())
 						)
 				)
-				.collect(Collectors.toMap(Skill::getName, x -> x));
+				.collect(Collectors.toMap(Skill::getName, x -> x, (a, b) -> a, LinkedHashMap::new));
 
-		if (structure.survey.getSimple()) {
+		if (structure.survey.getSimple() && structure.survey.getNoSkill()) {
 			skills.put("", new Skill().setName(NO_SKILL).setStates(new ArrayList<>()));
 			logger.info("Simple survey: added empty skill {}", NO_SKILL);
 		}
 
-		logger.info("Found {} skill(s): {}", skills.size(), skills.values().stream().map(Skill::getName).collect(Collectors.joining(" ")));
+		logger.info("Found {} skill(s): {}", skills.size(), skills.values().stream().map(s -> "[" + s.getName() + "]").collect(Collectors.joining(" ")));
 
 		// build questions
 		final Set<Question> questions = structure.questions.stream()
 				.map(q -> new Question()
 						.setQuestion(q.question)
 						.setExplanation(q.explanation)
-						.setSkill(skills.get(q.skill))
+						.addSkills(q.skills.stream()
+								.map(skills::get)
+								.collect(Collectors.toList())
+						)
 						.setName(q.name)
-						.setVariable(v.computeIfAbsent(q.name, i -> -1))
 						.setWeight(q.weight)
 						.setIsExample(q.example)
 						.setRandomAnswers(q.randomAnswers)
 						.setMandatory(q.mandatory)
+						.setMultipleChoice(q.multipleChoice)
+						.setMultipleSkills(q.multipleSkills)
 						.addAnswersAvailable(q.answers.stream()
 								.map(a -> new QuestionAnswer()
+										.setName(a.name)
 										.setText(a.text)
+										.setCorrect(a.correct)
+										.setHidden(a.hidden)
 										.setState(a.state)
-										.setIsCorrect(a.correct)
+										.setVariable(a.variable)
+										.setDirectEvidence(a.directEvidence)
+										.setDirectEvidenceVariables(a.directEvidenceVariables)
+										.setDirectEvidenceStates(a.directEvidenceStates)
 								)
 								.toArray(QuestionAnswer[]::new)
 						)
-				).collect(Collectors.toCollection(LinkedHashSet::new));
+				)
+				// .peek(q -> {}) TODO: check if all variables and states are covered, if not add padding hidden elements
+				.collect(Collectors.toCollection(LinkedHashSet::new));
 		logger.info("Found {} question(s)", questions.size());
 
 		// build survey
-		Survey survey = new Survey()
+		final Survey survey = new Survey()
 				.setLanguage(structure.survey.language)
 				.setAccessCode(structure.survey.accessCode)
 				.setDescription(structure.survey.description)
 				.setDuration(structure.survey.duration)
 				.setQuestions(questions)
 				.setSkillOrder(structure.survey.skillOrder)
-				.setSkills(new HashSet<>(skills.values()))
+				.setSkills(new LinkedHashSet<>(skills.values()))
 				.setModelData(modelData)
 				.setMixedSkillOrder(structure.survey.mixedSkillOrder)
 				.setIsAdaptive(structure.survey.adaptive)
 				.setIsSimple(structure.survey.simple)
+				.setIsStructural(structure.survey.structural)
+				.setNoSkill(structure.survey.noSkill)
 				.setQuestionsAreRandom(structure.survey.randomQuestions)
 				.setQuestionPerSkillMin(structure.survey.questionPerSkillMin)
 				.setQuestionPerSkillMax(structure.survey.questionPerSkillMax)

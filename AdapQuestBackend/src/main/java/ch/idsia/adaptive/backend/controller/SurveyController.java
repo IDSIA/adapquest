@@ -1,9 +1,6 @@
 package ch.idsia.adaptive.backend.controller;
 
-import ch.idsia.adaptive.backend.persistence.dao.AnswerRepository;
-import ch.idsia.adaptive.backend.persistence.dao.QuestionAnswerRepository;
-import ch.idsia.adaptive.backend.persistence.dao.StatesRepository;
-import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
+import ch.idsia.adaptive.backend.persistence.dao.*;
 import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.persistence.requests.RequestAnswer;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
@@ -15,8 +12,8 @@ import ch.idsia.adaptive.backend.services.SessionService;
 import ch.idsia.adaptive.backend.services.SurveyManagerService;
 import ch.idsia.adaptive.backend.services.commons.SurveyException;
 import ch.idsia.adaptive.backend.utils.Convert;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,9 +21,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityManagerFactory;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collection;
-import java.util.List;
+import javax.transaction.Transactional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -37,15 +35,18 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping(value = "/survey", consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class SurveyController {
-	private static final Logger logger = LogManager.getLogger(SurveyController.class);
+	private static final Logger logger = LoggerFactory.getLogger(SurveyController.class);
 
 	final SessionService sessions;
 	final SurveyManagerService manager;
 
 	final SurveyRepository surveys;
 	final StatesRepository statuses;
-	final QuestionAnswerRepository questions;
+	final QuestionAnswerRepository questionAnswers;
+	final QuestionRepository questions;
 	final AnswerRepository answers;
+
+	final EntityManagerFactory emf;
 
 	@Autowired
 	public SurveyController(
@@ -53,15 +54,19 @@ public class SurveyController {
 			SurveyManagerService manager,
 			SurveyRepository surveys,
 			StatesRepository statuses,
-			QuestionAnswerRepository questions,
-			AnswerRepository answers
+			QuestionRepository questions,
+			QuestionAnswerRepository questionAnswers,
+			AnswerRepository answers,
+			EntityManagerFactory emf
 	) {
 		this.sessions = sessions;
 		this.manager = manager;
 		this.surveys = surveys;
 		this.statuses = statuses;
 		this.questions = questions;
+		this.questionAnswers = questionAnswers;
 		this.answers = answers;
+		this.emf = emf;
 	}
 
 	@GetMapping("/codes")
@@ -145,7 +150,7 @@ public class SurveyController {
 
 			logger.debug("New initialization for accessCode={} received token={}", accessCode, session.getToken());
 
-			// TODO: initialize a timer or timeout for the time-limit achieved when someone abandons the survey
+			// TODO: initialize a timer or timeout for the time-limit achieved when someone leave the survey
 
 			manager.init(data);
 
@@ -158,7 +163,7 @@ public class SurveyController {
 			logger.warn("Request test initialization with an invalid accessCode={} from ip={}", accessCode, request.getRemoteAddr());
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
-			logger.error(e);
+			logger.error(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -180,6 +185,7 @@ public class SurveyController {
 	 * @param request servlet request component
 	 * @return 500 if there is an internal error, otherwise 200
 	 */
+	@Transactional
 	@PostMapping(value = "/answer/{token}", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<SurveyData> checkAnswer(
 			@PathVariable("token") String token,
@@ -188,7 +194,7 @@ public class SurveyController {
 	) {
 		final Long questionId = answer.question;
 		final Long answerId = answer.answer;
-		return checkAnswer(token, questionId, answerId, request);
+		return checkAnswer(token, questionId, new Long[]{answerId}, request);
 	}
 
 	/**
@@ -196,18 +202,19 @@ public class SurveyController {
 	 *
 	 * @param token      unique session token id
 	 * @param questionId question the user answer
-	 * @param answerId   answer given by the user
+	 * @param answersId  answers given by the user
 	 * @param request    servlet request component
 	 * @return 500 if there is an internal error, otherwise 200
 	 */
+	@Transactional
 	@PostMapping(value = "/answer/{token}", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 	public ResponseEntity<SurveyData> checkAnswer(
 			@PathVariable("token") String token,
 			@RequestParam("question") Long questionId,
-			@RequestParam("answer") Long answerId,
+			@RequestParam(value = "answers", required = false) Long[] answersId,
 			HttpServletRequest request
 	) {
-		logger.info("User with token={} gave answer={}", token, answerId);
+		logger.info("User with token={} gave answers={}", token, Arrays.toString(answersId));
 
 		try {
 			final Session session = sessions.getSession(token);
@@ -220,33 +227,77 @@ public class SurveyController {
 			if (questionId == null)
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-			if (answerId == null)
+			if (answersId == null)
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-			final QuestionAnswer qa = questions.findByIdAndQuestionId(answerId, questionId);
+			final Question q = questions.findQuestionBySurveyIdAndId(data.getSurveyId(), questionId); // TODO: check for null?
 
-			if (qa == null)
-				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			// parse answers
+			if (Objects.nonNull(q) && q.getMultipleChoice()) {
+				// multiple answers
+				final Set<Long> checkedAnswers = new HashSet<>(Arrays.asList(answersId));
+				final Set<Integer> variables = new HashSet<>(q.getVariables());
 
-			final Answer answer = new Answer()
-					.setSession(session)
-					.setQuestionAnswer(qa)
-					.setIsCorrect(qa.getIsCorrect())
-					.setQuestion(qa.getQuestion());
+				final List<QuestionAnswer> answers = q.getAnswersAvailable().stream()
+						.filter(qa -> checkedAnswers.contains(qa.getId()))
+						.peek(qa -> variables.remove(qa.getVariable()))
+						.collect(Collectors.toCollection(ArrayList::new));
 
-			final boolean b = manager.checkAnswer(data, answer);
-			if (b) {
-				answers.save(answer);
+				// these are variables not covered by the checked answers
+				variables.forEach(v -> answers.add(q.getQuestionAnswer(v, 0)));
+
+				answers.stream()
+						.sorted(Comparator.comparingLong(QuestionAnswer::getId))
+						.map(qa -> new Answer()
+								.setSession(session)
+								.setQuestionAnswer(qa)
+								.setIsCorrect(qa.getCorrect())
+						)
+						.forEach(answer -> {
+							final boolean b = manager.checkAnswer(data, answer);
+							if (b) {
+								this.answers.save(answer);
+							}
+						});
+
 				sessions.setLastAnswerTime(session);
 
-				State s = manager.getState(data).setSession(session);
+				final State s = manager.getState(data).setSession(session);
 				statuses.save(s);
+
+			} else {
+				// single answers
+				if (answersId.length != 1)
+					return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+				final long answerId = answersId[0];
+
+				final QuestionAnswer qa = questionAnswers.findByIdAndQuestionId(answerId, questionId);
+
+				if (qa == null)
+					return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+				final Answer answer = new Answer()
+						.setSession(session)
+						.setQuestionAnswer(qa)
+						.setIsCorrect(qa.getCorrect());
+
+				final boolean b = manager.checkAnswer(data, answer);
+				if (b) {
+					answers.save(answer);
+					sessions.setLastAnswerTime(session);
+
+					final State s = manager.getState(data).setSession(session);
+					statuses.save(s);
+				}
 			}
 
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (SessionException e) {
-			logger.error(e);
+			logger.error(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -258,6 +309,7 @@ public class SurveyController {
 	 * @return 500 if there is an internal error, 204 if the survey has ended, otherwise 200 with the data of the
 	 * question to pose
 	 */
+	@Transactional
 	@GetMapping("/question/{token}")
 	public ResponseEntity<ResponseQuestion> nextQuestion(@PathVariable("token") String token, HttpServletRequest request) {
 		logger.info("User with token={} request a new question", token);
@@ -286,10 +338,10 @@ public class SurveyController {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
-			Question q = manager.nextQuestion(data);
+			final Question q = manager.nextQuestion(data);
 			return new ResponseEntity<>(Convert.toResponse(q), HttpStatus.OK);
 		} catch (SessionException e) {
-			logger.error(e);
+			logger.error(e.getMessage());
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (SurveyException e) {
 			if (e.getMessage().equals("Finished")) {

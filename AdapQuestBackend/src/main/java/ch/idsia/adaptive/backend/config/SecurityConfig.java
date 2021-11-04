@@ -3,8 +3,8 @@ package ch.idsia.adaptive.backend.config;
 import ch.idsia.adaptive.backend.persistence.dao.ClientRepository;
 import ch.idsia.adaptive.backend.persistence.model.Client;
 import ch.idsia.adaptive.backend.security.APIKeyAuthFilter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -26,7 +26,7 @@ import static ch.idsia.adaptive.backend.security.APIKeyGenerator.validateApiKey;
 @EnableWebSecurity
 @AutoConfigureAfter(PersistenceConfig.class)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-	public static final Logger logger = LogManager.getLogger(WebSecurityConfigurerAdapter.class);
+	public static final Logger logger = LoggerFactory.getLogger(WebSecurityConfigurerAdapter.class);
 
 	private final ClientRepository clients;
 

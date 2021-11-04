@@ -11,6 +11,7 @@ import ch.idsia.adaptive.backend.persistence.external.ImportStructure;
 import ch.idsia.adaptive.backend.persistence.external.SurveyStructure;
 import ch.idsia.adaptive.backend.services.InitializationService;
 import ch.idsia.adaptive.backend.utils.TestTool;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class TestConsoleController {
 
 	@Autowired
+	SurveyRepository sr;
+
+	@Autowired
 	TestTool tool;
 
 	@Test
@@ -47,6 +51,14 @@ public class TestConsoleController {
 		ImportStructure is = new ImportStructure()
 				.setSurvey(new SurveyStructure());
 
+		final long nSurveysBefore = sr.count();
+
 		tool.consoleSurveyAdd("test", is);
+
+		final long nSurveysAfter = sr.count();
+
+		Assertions.assertEquals(1, nSurveysAfter - nSurveysBefore);
+
+		tool.consoleSurveyRemove("test", is.survey.accessCode);
 	}
 }

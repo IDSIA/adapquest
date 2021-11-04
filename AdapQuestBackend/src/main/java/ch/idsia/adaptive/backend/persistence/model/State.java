@@ -27,21 +27,21 @@ public class State {
 	 * Mapping of skills.
 	 */
 	@Convert(converter = MapStringSkillConverter.class)
-	@Column(name = "skills", length = 1023)
+	@Column(name = "skills", length = 5119)
 	public Map<String, Skill> skills = new HashMap<>();
 
 	/**
 	 * Mapping skill name to score.
 	 */
 	@Convert(converter = MapStringDoubleConverter.class)
-	@Column(name = "score", length = 1023)
+	@Column(name = "score", length = 2047)
 	public Map<String, Double> score = new HashMap<>();
 
 	/**
 	 * If a skill is completed (no more questions) its name should be saved there there.
 	 */
 	@Convert(converter = SetStringConverter.class)
-	@Column(name = "skillCompleted", length = 1023)
+	@Column(name = "skillCompleted", length = 2047)
 	public Set<String> skillCompleted = new HashSet<>();
 
 	/**
@@ -54,8 +54,8 @@ public class State {
 	 * Mapping skill name to distribution.
 	 */
 	@Convert(converter = MapStringDoubleArrayConverter.class)
-	@Column(name = "state", length = 1023)
-	public Map<String, double[]> state = new HashMap<>();
+	@Column(name = "state", length = 2047)
+	public Map<String, double[]> probabilities = new HashMap<>();
 	@Id
 	@GeneratedValue
 	@EqualsAndHashCode.Include
@@ -75,7 +75,7 @@ public class State {
 	 * Total answers given for each skill, mapped by skill name.
 	 */
 	@Convert(converter = MapStringLongConverter.class)
-	@Column(name = "questionsPerSkill", length = 1023)
+	@Column(name = "questionsPerSkill", length = 2047)
 	private Map<String, Long> questionsPerSkill = new HashMap<>();
 
 	/**

@@ -10,11 +10,11 @@ import ch.idsia.adaptive.backend.services.commons.agents.AgentPreciseAdaptive;
 import ch.idsia.adaptive.backend.services.commons.scoring.precise.ScoringFunctionExpectedEntropy;
 import ch.idsia.adaptive.backend.utils.Convert;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * Date:    23.02.2021 13:35
  */
 public class AlloyAdaptiveExperimentLocal {
-	private static final Logger logger = LogManager.getLogger(AlloyAdaptiveExperimentLocal.class);
+	private static final Logger logger = LoggerFactory.getLogger(AlloyAdaptiveExperimentLocal.class);
 
 	static final Integer THREADS = Runtime.getRuntime().availableProcessors();
 	static final Integer maxQuestions = 100;
@@ -52,7 +52,6 @@ public class AlloyAdaptiveExperimentLocal {
 	List<Record> experiment(Answers ans, String accessCode) {
 		final ch.idsia.adaptive.experiments.alloy.AlloyModel model = surveys.get(accessCode);
 		final Survey survey = InitializationService.parseSurveyStructure(model.structure());
-		final AgentPreciseAdaptive as = new AgentPreciseAdaptive(survey, 0L, new ScoringFunctionExpectedEntropy());
 
 		long idQuestion = 0L;
 		long idAnswer = 0L;
@@ -65,8 +64,7 @@ public class AlloyAdaptiveExperimentLocal {
 			}
 		}
 
-		as.addSkills(survey.getSkills());
-		as.addQuestions(questions);
+		final AgentPreciseAdaptive as = new AgentPreciseAdaptive(survey, 0L, new ScoringFunctionExpectedEntropy());
 
 		final List<Record> records = new ArrayList<>();
 
@@ -93,7 +91,7 @@ public class AlloyAdaptiveExperimentLocal {
 				logger.info("student={} answered questionId={} ({}) with answerId={} ({})",
 						ans.id, qid, nextQuestion.getQuestion(), aid, qaid.getText());
 
-				final Answer a = new Answer().setQuestion(nextQuestion).setQuestionAnswer(qaid);
+				final Answer a = new Answer().setQuestionAnswer(qaid);
 				as.check(a);
 
 				Record r = new Record();

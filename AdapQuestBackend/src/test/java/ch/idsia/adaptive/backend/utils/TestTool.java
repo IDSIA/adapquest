@@ -8,13 +8,14 @@ import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestComponent;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @TestComponent
 public class TestTool {
-	public static final Logger logger = LogManager.getLogger(ConsoleController.class);
+	public static final Logger logger = LoggerFactory.getLogger(ConsoleController.class);
 
 	ObjectMapper om;
 	MockMvc mvc;
@@ -112,14 +113,17 @@ public class TestTool {
 		return om.readValue(result.getResponse().getContentAsString(), ResponseQuestion.class);
 	}
 
-	public void answer(String token, Long questionId, Long answerId) throws Exception {
+	public void answer(String token, Long questionId, Long... answerId) throws Exception {
 		logger.info("Survey: answer=({}, {}) for token={}", questionId, answerId, token);
-		mvc
-				.perform(post("/survey/answer/" + token)
-						.contentType(MediaType.APPLICATION_FORM_URLENCODED)
-						.param("question", "" + questionId)
-						.param("answer", "" + answerId)
-				).andExpect(status().isOk());
+		final MockHttpServletRequestBuilder req = post("/survey/answer/" + token)
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+				.param("question", "" + questionId);
+
+		for (Long aid : answerId) {
+			req.param("answers", "" + aid);
+		}
+
+		mvc.perform(req).andExpect(status().isOk());
 	}
 
 	public ResponseState state(String token) throws Exception {

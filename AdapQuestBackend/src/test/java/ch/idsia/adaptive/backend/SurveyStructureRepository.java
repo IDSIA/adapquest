@@ -6,9 +6,9 @@ import ch.idsia.crema.factor.bayesian.BayesianFactorFactory;
 import ch.idsia.crema.model.graphical.BayesianNetwork;
 import ch.idsia.crema.model.io.uai.BayesUAIWriter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -18,10 +18,28 @@ import java.util.Random;
 public class SurveyStructureRepository {
 
 	private static QuestionStructure question(int variable, String name, String skill) {
-		return new QuestionStructure().setSkill(skill).setName(name).setVariable(variable).setAnswers(List.of(
-				new AnswerStructure("0", 0),
-				new AnswerStructure("1", 1)
+		return new QuestionStructure().setSkill(skill).setName(name).setAnswers(List.of(
+				new AnswerStructure("0", variable, 0),
+				new AnswerStructure("1", variable, 1)
 		));
+	}
+
+	private static QuestionStructure question(int[] variables, String name, String[] skills) {
+
+		final List<AnswerStructure> answers = new ArrayList<>();
+		for (int v : variables) {
+			final AnswerStructure neg = new AnswerStructure("A0", v, 0);
+			final AnswerStructure pos = new AnswerStructure("A1", v, 1);
+			answers.add(neg);
+			answers.add(pos);
+		}
+
+		return new QuestionStructure()
+				.setSkills(Set.of(skills))
+				.setName(name)
+				.setMultipleSkills(true)
+				.setMultipleChoice(true)
+				.setAnswers(answers);
 	}
 
 	private static SkillStructure skill(int variable, String name) {
@@ -188,6 +206,254 @@ public class SurveyStructureRepository {
 				.setSurvey(surveyStructure)
 				.setSkills(skillStructure)
 				.setQuestions(questionStructure)
+				.setModelData(modelData);
+	}
+
+	public static ImportStructure structure3S7QMultiChoice(String code) {
+		final BayesianNetwork bn = new BayesianNetwork();
+		// skill nodes
+		final int[] s = {
+				bn.addVariable(2), // s0
+				bn.addVariable(2), // s1
+				bn.addVariable(2), // s2
+		};
+		// answer nodes, a question is composed by answers
+		final int[] a = {
+				bn.addVariable(2), // a0 q0
+				bn.addVariable(2), // a1 q0
+				bn.addVariable(2), // a2 q1
+				bn.addVariable(2), // a3 q1
+				bn.addVariable(2), // a4 q1
+				bn.addVariable(2), // a5 q2
+				bn.addVariable(2), // a6 q2
+		};
+		// parents for answer nodes
+		final int[][] p = {
+				{s[0], s[1]}, // Pa(a0)
+				{s[0], s[1]}, // Pa(a1)
+				{s[1], s[2]}, // Pa(a2)
+				{s[1], s[2]}, // Pa(a3)
+				{s[1], s[2]}, // Pa(a4)
+				{s[0], s[2]}, // Pa(a5)
+				{s[1], s[2]}, // Pa(a6)
+		};
+		// set parents
+		for (int i = 0; i < a.length; i++)
+			bn.addParents(a[i], p[i]);
+
+		// noisy-or inhibitors
+		final double[][] inh = {
+				{.1, .2}, // Inh(a0)
+				{.3, .4}, // Inh(a1)
+				{.2, .3}, // Inh(a2)
+				{.1, .2}, // Inh(a3)
+				{.5, .6}, // Inh(a4)
+				{.1, .4}, // Inh(a5)
+				{.5, .7}, // Inh(a6)
+		};
+		// answer nodes for each question
+		final int[][] q = {
+				{0, 1},     // q0
+				{2, 3, 4},  // q1
+				{5, 6},     // q2
+		};
+
+		final BayesianFactor[] f = new BayesianFactor[s.length + a.length];
+
+		for (int i = 0; i < s.length; i++)
+			// factors for skills
+			f[i] = BayesianFactorFactory.factory().domain(bn.getDomain(s[i])).data(new double[]{.5, .5}).get();
+		for (int i = 0, j = s.length; i < a.length; i++, j++)
+			// factors for answer/questions
+			f[j] = BayesianFactorFactory.factory().domain(bn.getDomain(a[i], p[i][0], p[i][1])).noisyOr(bn.getParents(a[i]), inh[i]);
+
+		bn.setFactors(f);
+
+		// build survey model structure
+		final List<SkillStructure> skillStructures = IntStream.range(0, s.length)
+				.mapToObj(i -> skill(i, "S" + i))
+				.collect(Collectors.toList());
+
+		final List<QuestionStructure> questionStructures = IntStream.range(0, q.length)
+				.mapToObj(i -> {
+							final Set<String> skills = new HashSet<>();
+							final List<AnswerStructure> answers = new ArrayList<>();
+
+							// each question is composed by N*2 answers
+							for (int aq : q[i]) {
+								for (int pa : p[aq])
+									skills.add(skillStructures.get(pa).getName());
+								answers.add(new AnswerStructure("no", a[aq], 0));
+								answers.add(new AnswerStructure("yes", a[aq], 1));
+							}
+
+							return new QuestionStructure()
+									.setName("Q" + i)
+									.setQuestion("Q" + i)
+									.setMultipleChoice(true)
+									.setMultipleSkills(true)
+									.setSkills(skills)
+									.setAnswers(answers);
+						}
+				)
+				.collect(Collectors.toList());
+
+		final String modelData = String.join("\n", new BayesUAIWriter(bn, "").serialize());
+		final SurveyStructure surveyStructure = new SurveyStructure()
+				.setAccessCode(code)
+				.setAdaptive(true)
+				.setSimple(true)
+				.setQuestionTotalMin(3);
+
+		return new ImportStructure()
+				.setSurvey(surveyStructure)
+				.setSkills(skillStructures)
+				.setQuestions(questionStructures)
+				.setModelData(modelData);
+	}
+
+	public static ImportStructure structure3S3Q4C(String code) {
+		final BayesianNetwork bn = new BayesianNetwork();
+
+		// three skills
+		final int s0 = bn.addVariable(2);
+		final int s1 = bn.addVariable(2);
+		final int s2 = bn.addVariable(2);
+
+		// three questions
+		final int q0c0 = bn.addVariable(2);
+		final int q0c1 = bn.addVariable(2);
+
+		bn.addParents(q0c0, s0, s1);
+		bn.addParents(q0c1, s0, s2);
+
+		final int q1c0 = bn.addVariable(2);
+		final int q1c1 = bn.addVariable(2);
+
+		bn.addParents(q1c0, s0, s1);
+		bn.addParents(q1c1, s1, s2);
+
+		final int q2c0 = bn.addVariable(2);
+		final int q2c1 = bn.addVariable(2);
+
+		bn.addParents(q2c0, s0, s2);
+		bn.addParents(q2c1, s0, s2);
+
+		final BayesianFactor[] f = new BayesianFactor[]{
+				BayesianFactorFactory.factory().domain(bn.getDomain(s0)).data(new double[]{.5, .5}).get(),
+				BayesianFactorFactory.factory().domain(bn.getDomain(s1)).data(new double[]{.5, .5}).get(),
+				BayesianFactorFactory.factory().domain(bn.getDomain(s2)).data(new double[]{.5, .5}).get(),
+
+				BayesianFactorFactory.factory().domain(bn.getDomain(q0c0, s0, s1)).noisyOr(bn.getParents(q0c0), new double[]{.4, .6}),
+				BayesianFactorFactory.factory().domain(bn.getDomain(q0c1, s0, s2)).noisyOr(bn.getParents(q0c1), new double[]{.6, .4}),
+
+				BayesianFactorFactory.factory().domain(bn.getDomain(q1c0, s0, s1)).noisyOr(bn.getParents(q1c0), new double[]{.5, .5}),
+				BayesianFactorFactory.factory().domain(bn.getDomain(q1c1, s1, s2)).noisyOr(bn.getParents(q1c1), new double[]{.3, .7}),
+
+				BayesianFactorFactory.factory().domain(bn.getDomain(q2c0, s0, s2)).noisyOr(bn.getParents(q2c0), new double[]{.6, .4}),
+				BayesianFactorFactory.factory().domain(bn.getDomain(q2c1, s0, s2)).noisyOr(bn.getParents(q2c1), new double[]{.8, .2}),
+		};
+
+		bn.setFactors(f);
+
+		// build survey model structure
+		final List<SkillStructure> skillStructures = List.of(
+				skill(s0, "S0"),
+				skill(s1, "S1"),
+				skill(s2, "S2")
+		);
+
+		final List<QuestionStructure> questionStructures = List.of(
+				question(new int[]{q0c0, q0c1}, "Q0", new String[]{"S0", "S1", "S2"}),
+				question(new int[]{q1c0, q1c1}, "Q1", new String[]{"S0", "S1", "S2"}),
+				question(new int[]{q1c0, q1c1}, "Q2", new String[]{"S0", "S2"})
+		);
+
+		final String modelData = String.join("\n", new BayesUAIWriter(bn, "").serialize());
+		final SurveyStructure surveyStructure = new SurveyStructure()
+				.setAccessCode(code)
+				.setAdaptive(true)
+				.setSimple(true)
+				.setNoSkill(false)
+				.setQuestionTotalMin(3);
+
+		return new ImportStructure()
+				.setSurvey(surveyStructure)
+				.setSkills(skillStructures)
+				.setQuestions(questionStructures)
+				.setModelData(modelData);
+	}
+
+	public static ImportStructure structure3S2QMultiChoiceDirect(String code) {
+		final BayesianNetwork bn = new BayesianNetwork();
+
+		final int s0 = bn.addVariable(2);
+		final int s1 = bn.addVariable(2);
+		final int s2 = bn.addVariable(2);
+		final int q1 = bn.addVariable(2);
+		final int q2 = bn.addVariable(2);
+
+		bn.addParents(q1, s0, s1);
+		bn.addParents(q2, s1, s2);
+
+		final BayesianFactor[] f = {
+				BayesianFactorFactory.factory().domain(bn.getDomain(s0)).data(new double[]{.5, .5}).get(),
+				BayesianFactorFactory.factory().domain(bn.getDomain(s1)).data(new double[]{.5, .5}).get(),
+				BayesianFactorFactory.factory().domain(bn.getDomain(s2)).data(new double[]{.5, .5}).get(),
+
+				BayesianFactorFactory.factory().domain(bn.getDomain(q1, s0, s1)).noisyOr(bn.getParents(q1), new double[]{.0, .0}),
+				BayesianFactorFactory.factory().domain(bn.getDomain(q2, s1, s2)).noisyOr(bn.getParents(q2), new double[]{.0, .0}),
+		};
+
+		bn.setFactors(f);
+
+		// build survey model structure
+		final List<SkillStructure> skillStructures = IntStream.range(0, 3)
+				.mapToObj(i -> skill(i, "S" + i))
+				.collect(Collectors.toList());
+
+		final QuestionStructure qs1 = new QuestionStructure()
+				.setName("Q1")
+				.setQuestion("Q1")
+				.setMandatory(true)
+				.setMultipleChoice(true)
+				.setMultipleSkills(true)
+				.setSkills(Set.of("S0", "S1"))
+				.setAnswers(List.of(
+						new AnswerStructure("no", q1, 0),
+						new AnswerStructure("yes", q1, 1)
+								// set evidence S2=0 if Q0=1
+								.setDirectEvidence(true)
+								.setDirectEvidenceVariables(List.of(s2))
+								.setDirectEvidenceStates(List.of(0))
+				));
+
+		final QuestionStructure qs2 = new QuestionStructure()
+				.setName("Q2")
+				.setQuestion("Q2")
+				.setMandatory(true)
+				.setMultipleChoice(true)
+				.setMultipleSkills(true)
+				.setSkills(Set.of("S1", "S2"))
+				.setAnswers(List.of(
+						new AnswerStructure("no", q2, 0),
+						new AnswerStructure("yes", q2, 1)
+				));
+
+		final List<QuestionStructure> questionStructures = List.of(qs1, qs2);
+
+		final String modelData = String.join("\n", new BayesUAIWriter(bn, "").serialize());
+		final SurveyStructure surveyStructure = new SurveyStructure()
+				.setAccessCode(code)
+				.setAdaptive(true)
+				.setSimple(true)
+				.setNoSkill(false)
+				.setQuestionTotalMin(3);
+
+		return new ImportStructure()
+				.setSurvey(surveyStructure)
+				.setSkills(skillStructures)
+				.setQuestions(questionStructures)
 				.setModelData(modelData);
 	}
 

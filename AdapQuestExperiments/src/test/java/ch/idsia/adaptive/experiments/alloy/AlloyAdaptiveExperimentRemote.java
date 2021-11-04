@@ -5,11 +5,11 @@ import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
 import ch.idsia.adaptive.experiments.Tool;
 import ch.idsia.adaptive.experiments.ToolLocalhost;
 import ch.idsia.adaptive.experiments.models.AbstractAdaptiveModel;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  * Date:    23.02.2021 13:35
  */
 public class AlloyAdaptiveExperimentRemote {
-	private static final Logger logger = LogManager.getLogger(AlloyAdaptiveExperimentRemote.class);
+	private static final Logger logger = LoggerFactory.getLogger(AlloyAdaptiveExperimentRemote.class);
 
 	static final Integer THREADS = Runtime.getRuntime().availableProcessors() * 2;
 	static final Integer maxQuestions = 100;
