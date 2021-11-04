@@ -29,6 +29,7 @@ import static java.lang.Math.min;
  * Project: adapquest
  * Date:    03.11.2021 08:45
  */
+// TODO: this is a template for multi-choice only, we also need a mixed single-choice version!
 public class TemplateXLSX {
 	private static final Logger logger = LoggerFactory.getLogger(TemplateJSON.class);
 
@@ -208,7 +209,6 @@ public class TemplateXLSX {
 
 		try (final Workbook workbook = new XSSFWorkbook(new FileInputStream(path.toFile()))) {
 			final Sheet sheetSettings = workbook.getSheet("Settings");
-//			final Sheet sheetQuestions = workbook.getSheet("Questions");
 			final Sheet sheetAnswers = workbook.getSheet("Answers");
 			final Sheet sheetBinaryQuestions = workbook.getSheet("Binary questions");
 
@@ -238,42 +238,6 @@ public class TemplateXLSX {
 			}
 
 			tmpl.setSettings(settings);
-
-			// reading questions
-//			int iQuestionId = 0, iQuestionMandatory = 1, iQuestionExclusivity = 3, iQuestionText = 4;
-//			for (Row row : sheetQuestions) {
-//				if (row.getRowNum() == 0) {
-//					// parse header
-//					for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
-//						switch (row.getCell(i).getStringCellValue().toUpperCase()) {
-//							case "QUESTION_ID":
-//								iQuestionId = i;
-//								break;
-//							case "MANDATORY":
-//								iQuestionMandatory = i;
-//								break;
-//							case "EXCLUSIVITY":
-//								iQuestionExclusivity = i;
-//								break;
-//							case "QUESTION_TEXT":
-//								iQuestionText = i;
-//								break;
-//						}
-//					}
-//
-//					continue;
-//				}
-//
-//				if (row.getCell(iQuestionId) == null || row.getCell(iQuestionId).toString().isEmpty())
-//					continue;
-//
-//				final int qid = Double.valueOf(row.getCell(iQuestionId).getNumericCellValue()).intValue();
-//				final boolean man = Double.valueOf(row.getCell(iQuestionMandatory).getNumericCellValue()).intValue() == 1;
-//				final boolean exc = Double.valueOf(row.getCell(iQuestionExclusivity).getNumericCellValue()).intValue() == 1;
-//				final String text = row.getCell(iQuestionText).getStringCellValue();
-//
-//				questions.add(new TQuestion(qid, man, exc, text));
-//			}
 
 			// reading answers
 			int iAnswerQuestionId = 0, iAnswerStart = 2, limit = 0;
@@ -330,7 +294,7 @@ public class TemplateXLSX {
 							case "Q_ID":
 								iValQuestionId = j;
 								break;
-							case "M":
+							case "MANDATORY":
 								iValMandatory = j;
 								break;
 							case "QUESTIONS_TEXT":
@@ -392,7 +356,8 @@ public class TemplateXLSX {
 					values.put(tmpl.skills.get(k).getName(), v);
 				}
 
-				tmpl.addAnswer(question, aid, answerTexts.get(qid + "$" + aid), values);
+				if (question != null)
+					tmpl.addAnswer(question, aid, answerTexts.get(qid + "$" + aid), values);
 			}
 		}
 

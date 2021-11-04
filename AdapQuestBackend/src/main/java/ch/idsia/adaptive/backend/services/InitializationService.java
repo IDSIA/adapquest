@@ -89,7 +89,6 @@ public class InitializationService {
 
 	public Survey parseSurvey(ImportStructure structure) {
 		final Survey survey = parseSurveyStructure(structure);
-		// save survey
 		return surveys.save(survey);
 	}
 
