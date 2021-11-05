@@ -20,10 +20,21 @@ public class AgentPreciseNonAdaptive extends AgentPrecise {
 	public Question nextQuestion() {
 		Question nextQuestion;
 		if (survey.getQuestionsAreRandom()) {
-			int i = random.nextInt(questions.size());
-			nextQuestion = questions.remove(i);
+			questions.forEach(q -> q.setScore(random.nextDouble()));
 		} else {
-			nextQuestion = questions.poll();
+			for (int i = 0; i < questions.size(); i++) {
+				questions.get(i).setScore(1.0 * questions.size() - i);
+			}
+		}
+
+		double max = 0;
+		nextQuestion = null;
+
+		for (Question q : questions) {
+			if (q.getScore() > max) {
+				max = q.getScore();
+				nextQuestion = q;
+			}
 		}
 
 		return nextQuestion;

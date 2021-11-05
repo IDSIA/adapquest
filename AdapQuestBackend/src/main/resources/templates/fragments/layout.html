@@ -27,20 +27,12 @@
     <div th:fragment="header">
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" th:fragment="navbar">
             <div class="container">
-                <a class="navbar-brand" href="#" th:href="@{/demo/}">Adaptive Survey</a>
+                <a class="navbar-brand" href="#" th:href="@{/}">AdapQuest</a>
                 <button aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation"
                         class="navbar-toggler"
                         data-target="#navbarColor01" data-toggle="collapse" type="button">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-
-                <!--div class="collapse navbar-collapse" id="navbarColor01">
-                    <ul class="navbar-nav mr-auto">
-                        <li class="nav-item" th:classappend="${page} == 'dashboard' ? 'active' : ''">
-                            <a class="nav-link" href="#" th:href="@{/dashboard}">Dashboard</a>
-                        </li>
-                    </ul>
-                </div-->
             </div>
         </nav>
 

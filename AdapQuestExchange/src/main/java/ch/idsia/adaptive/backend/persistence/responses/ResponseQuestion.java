@@ -41,11 +41,15 @@ public class ResponseQuestion {
 	public Boolean isExample = false;
 
 	/**
+	 * If true, this question need to be answered.
+	 */
+	public Boolean isMandatory = false;
+
+	/**
 	 * If true, this will be considered a multiple-choice question. The relative {@link ResponseAnswer}s should have
 	 * their own model variable associated.
 	 */
 	public Boolean multipleChoice = false;
-
 	/**
 	 * If tree, the possible answers should be showed in a random order.
 	 */

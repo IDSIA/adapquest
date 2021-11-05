@@ -289,11 +289,11 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 			for (int i = 0; i < questions.size(); i++) {
 				final Question question = questions.get(i);
 				final Double meanInfoGain = futures.get(i).get();
+				question.setScore(meanInfoGain);
 
 				if (meanInfoGain > maxIG) {
 					maxIG = meanInfoGain;
 					nextQuestion = question;
-					nextQuestion.setScore(maxIG);
 				}
 			}
 		} catch (Exception e) {

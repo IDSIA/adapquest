@@ -6,6 +6,8 @@ import ch.idsia.adaptive.backend.persistence.model.State;
 import ch.idsia.adaptive.backend.services.commons.SurveyException;
 import ch.idsia.adaptive.backend.services.commons.scoring.Scoring;
 
+import java.util.List;
+
 /**
  * Author:  Claudio "Dna" Bonesana
  * Project: adapquest
@@ -36,5 +38,11 @@ public interface Agent {
 	 * @return the next {@link Question} found using the given {@link Scoring}.
 	 */
 	Question next() throws SurveyException;
+
+	/**
+	 * @return an ordered list of {@link Question} ordered by the score of each {@link Question}. The first question of
+	 * this list should be the same as the question obtained with the {@link #next()} method.
+	 */
+	List<Question> rank() throws SurveyException;
 
 }
