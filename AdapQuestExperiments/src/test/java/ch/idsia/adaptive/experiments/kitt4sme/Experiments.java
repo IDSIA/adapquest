@@ -284,13 +284,15 @@ public class Experiments {
 
 	@Disabled
 	@Test
-	public void testPilotProfiles18() throws Exception {
+	public void testPilotProfilesNonAdaptive() throws Exception {
 		final Survey survey = InitSurvey.init("AdaptiveQuestionnaire.multiple.survey.json");
 		final List<String> lines = Arrays.stream(survey.getModelData().split("\n")).collect(Collectors.toList());
 		final Set<Skill> skills = survey.getSkills();
 
 		model = new BayesUAIParser(lines).parse();
 		final List<KProfile> profiles = KProfile.read();
+
+		logger.info("Found {} profiles", profiles.size());
 
 		filename = "adaptive.results.given_profiles_18.tsv";
 
@@ -364,8 +366,10 @@ public class Experiments {
 
 	@Disabled
 	@Test
-	public void testPilotProfiles18Adaptive() throws Exception {
+	public void testPilotProfilesAdaptive() throws Exception {
 		final List<KProfile> profiles = KProfile.read();
+		logger.info("Found {} profiles", profiles.size());
+
 		final Survey survey = InitSurvey.init("AdaptiveQuestionnaire.multiple.survey.json");
 		survey.setQuestionTotalMin(18);
 
@@ -383,7 +387,8 @@ public class Experiments {
 
 					try {
 						final AgentPreciseAdaptiveStructural agent = new AgentPreciseAdaptiveStructural(survey, 42L, new ScoringFunctionExpectedEntropy());
-						agent.setConsiderZeros(true);
+						//agent.setConsiderZeros(true);
+						agent.setConsiderZeros(false);
 						agent.setExecutor(e);
 						final Set<String> skills = profile.skills.keySet();
 

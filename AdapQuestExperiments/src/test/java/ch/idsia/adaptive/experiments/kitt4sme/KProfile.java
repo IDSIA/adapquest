@@ -79,6 +79,9 @@ public class KProfile {
 					continue;
 				}
 
+				if (row.getCell(1) == null)
+					break;
+
 				final String n = row.getCell(1).getStringCellValue();
 				for (int j = 2, k = 0; k < names.size(); j++, k++) { // two columns on the left
 					final int s = Double.valueOf(row.getCell(j).getNumericCellValue()).intValue();
