@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -364,6 +365,28 @@ public class Experiments {
 		es.invokeAll(tasks);
 	}
 
+	public void setup1(Survey s) {
+		for (Question question : s.getQuestions()) {
+			question.setYesOnly(true);
+		}
+	}
+
+	public void setup2(Survey s) {
+		for (Question question : s.getQuestions()) {
+			switch (question.getName()) {
+				case "Q1":
+				case "Q2":
+				case "Q4":
+				case "Q12":
+				case "Q13":
+					question.setYesOnly(false);
+					break;
+				default:
+					question.setYesOnly(true);
+			}
+		}
+	}
+
 	@Disabled
 	@Test
 	public void testPilotProfilesAdaptive() throws Exception {
@@ -373,8 +396,17 @@ public class Experiments {
 		final Survey survey = InitSurvey.init("AdaptiveQuestionnaire.multiple.survey.json");
 		survey.setQuestionTotalMin(18);
 
-		filename = "adaptive.results.given_profiles_18.tsv";
+		setup1(survey);
+		filename = "adaptive.results.given_profiles_18_setup1.tsv";
+		defaultApdaptiveExperiment(profiles, survey);
 
+		setup2(survey);
+		filename = "adaptive.results.given_profiles_18_setup2.tsv";
+		defaultApdaptiveExperiment(profiles, survey);
+	}
+
+	private void defaultApdaptiveExperiment(List<KProfile> profiles, Survey survey) throws IOException, InterruptedException {
+		logger.info("Experiment {}", filename);
 		Files.write(Paths.get(filename), new ArrayList<String>(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
 
 		final ProgressBar p = new ProgressBar(profiles.size() * 18);
@@ -387,8 +419,6 @@ public class Experiments {
 
 					try {
 						final AgentPreciseAdaptiveStructural agent = new AgentPreciseAdaptiveStructural(survey, 42L, new ScoringFunctionExpectedEntropy());
-						//agent.setConsiderZeros(true);
-						agent.setConsiderZeros(false);
 						agent.setExecutor(e);
 						final Set<String> skills = profile.skills.keySet();
 
