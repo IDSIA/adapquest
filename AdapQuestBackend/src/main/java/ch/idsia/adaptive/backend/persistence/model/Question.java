@@ -76,6 +76,12 @@ public class Question implements Comparable<Question> {
 	private Boolean multipleChoice = false;
 
 	/**
+	 * If true, and {@link #multipleChoice} is also true, only the evidence of checked (true) answers are considered by
+	 * the inference engine.
+	 */
+	private Boolean yesOnly = false;
+
+	/**
 	 * If true, this question influence a number of {@link Skill} greater than 1.
 	 */
 	private Boolean multipleSkills = false;

@@ -18,10 +18,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -40,8 +37,6 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 	protected final DAGModel<BayesianFactor> ref;
 	protected Boolean dirty;
 
-	private Boolean considerZeros = true;
-
 	public AgentPreciseAdaptiveStructural(Survey survey, Long seed, Scoring<BayesianFactor> scoringFunction) {
 		super(survey, seed, scoringFunction);
 		addSkills(survey.getSkills());
@@ -57,10 +52,6 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 		model = newModelStructure();
 
 		dirty = true;
-	}
-
-	public void setConsiderZeros(Boolean considerZeros) {
-		this.considerZeros = considerZeros;
 	}
 
 	/**
@@ -156,11 +147,11 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 
 	@Override
 	public boolean check(Answer answer) {
-		if (considerZeros) {
+		if (!answer.getQuestion().getYesOnly()) {
 			dirty = true;
 			return super.check(answer);
 		} else {
-			/* this is used to consider only 1 answers */
+			/* this is used to consider only yes answers */
 			dirty = true;
 			if (answer.getQuestionAnswer().getState() != 0) {
 				return super.check(answer);
@@ -364,36 +355,77 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 		final InferenceLBP inference = new InferenceLBP();
 
 		// mean of all possible answers
-		for (Integer Q : question.getVariables()) {
-			final int size = model.getSize(Q);
+		for (Integer C : question.getVariables()) {
+			final int size = model.getSize(C);
+			final QuestionAnswer qa0 = question.getQuestionAnswer(C, 0);
+			final QuestionAnswer qa1 = question.getQuestionAnswer(C, 1);
 
-			final BayesianFactor PQ = inference.query(model, observations, Q);
+			final BayesianFactor PC = inference.query(model, observations, C);
 
 			final List<Skill> validSkills = skills.stream()
 					.filter(S -> !observations.containsKey(S.getVariable()))
-					.filter(S -> ArraysUtil.contains(S.getVariable(), model.getParents(Q)))
+					.filter(S -> ArraysUtil.contains(S.getVariable(), model.getParents(C)))
 					.collect(Collectors.toList());
 
 			if (validSkills.isEmpty())
 				continue;
 
 			final int[] Ss = validSkills.stream().mapToInt(Skill::getVariable).toArray();
-			final double[] HSQ = new double[Ss.length];
+			final double[] HSC = new double[Ss.length];
 
-			for (int i = 0; i < size; i++) {
-				final TIntIntMap qi = new TIntIntHashMap(observations);
-				final QuestionAnswer answer = question.getQuestionAnswer(Q, i);
-				answer.observe(qi);
+			if (qa1.getDirectEvidence()) {
+				// K.O.
+				double Pcnot = 1.0;
+				for (Integer v : question.getVariables()) {
+					if (!Objects.equals(v, C)) {
+						Pcnot += inference.query(model, observations, v).getValue(0); // P all othr are negative
+					}
+				}
+				final int[] d = qa1.getDirectEvidenceVariables().stream().mapToInt(x -> x).toArray();
+				for (int j = 0; j < Ss.length; j++) {
+					if (ArraysUtil.contains(Ss[j], d)) {
+						HSC[j] = HSs.get(validSkills.get(j)) * Pcnot;
+					}
+				}
 
-				final List<BayesianFactor> PSqis = inference.query(model, qi, Ss);
-				final double Pqi = PQ.getValue(i);
+			} else if (question.getYesOnly()) {
+				// yes only
+				final TIntIntMap ci = new TIntIntHashMap(observations);
+				qa1.observe(ci);
 
-				for (int j = 0; j < PSqis.size(); j++) {
-					BayesianFactor PSqi = PSqis.get(j);
-					double HSqi = scoring.score(PSqi);
-					HSqi = Double.isNaN(HSqi) ? 0.0 : HSqi;
+				final List<BayesianFactor> PSc1s = inference.query(model, ci, Ss);
+				final double Pc1 = PC.getValue(1);
+				final double Pc0 = PC.getValue(0);
 
-					HSQ[j] += HSqi * Pqi; // conditional score
+				for (int j = 0; j < PSc1s.size(); j++) {
+					Skill skill = validSkills.get(j);
+					BayesianFactor PSc1 = PSc1s.get(j);
+					double HSc1 = scoring.score(PSc1);
+					HSc1 = Double.isNaN(HSc1) ? 0.0 : HSc1;
+
+					// H(S|C) := H(S|c=1) P(c=1) + H(S) P(c=0)
+					HSC[j] += HSc1 * Pc1 + HSs.get(skill) * Pc0; // conditional score
+				}
+			} else {
+				// yes and no
+				for (int i = 0; i < size; i++) {
+					final TIntIntMap ci = new TIntIntHashMap(observations);
+					if (i == 0)
+						qa0.observe(ci);
+					else if (i == 1)
+						qa1.observe(ci);
+
+					final List<BayesianFactor> PScis = inference.query(model, ci, Ss); // ci = [0,1]
+					final double Pci = PC.getValue(i);
+
+					for (int j = 0; j < PScis.size(); j++) {
+						BayesianFactor PSci = PScis.get(j);
+						double HSci = scoring.score(PSci);
+						HSci = Double.isNaN(HSci) ? 0.0 : HSci;
+
+						// H(S|C) := H(S|c=1) P(c=1) + H(S|c=0) P(c=0) = SUM(H(S|c=i) P(c=i), i in [0,1]
+						HSC[j] += HSci * Pci; // conditional score
+					}
 				}
 			}
 
@@ -402,9 +434,9 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 				final Skill skill = validSkills.get(i);
 				final Double HS = HSs.get(skill);
 
-				final double dHS = HS - HSQ[i];
+				final double dHS = HS - HSC[i];
 
-				logger.debug("question={} skill={} Q={} dHS={}", question.getName(), skill.getName(), Q, dHS);
+				logger.debug("question={} skill={} Q={} dHS={}", question.getName(), skill.getName(), C, dHS);
 				meanInfoGain += Math.max(0, dHS) / skills.size();
 			}
 		}

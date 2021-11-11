@@ -176,6 +176,7 @@ public class InitializationService {
 						.setRandomAnswers(q.randomAnswers)
 						.setMandatory(q.mandatory)
 						.setMultipleChoice(q.multipleChoice)
+						.setYesOnly(q.yesOnly)
 						.setMultipleSkills(q.multipleSkills)
 						.addAnswersAvailable(q.answers.stream()
 								.map(a -> new QuestionAnswer()
