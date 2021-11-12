@@ -416,13 +416,13 @@ public class Experiments {
 				.map(profile -> (Callable<Void>) () -> {
 					final List<String> content = new ArrayList<>();
 					final ExecutorService e = Executors.newFixedThreadPool(PARALLEL_COUNT);
+					final AgentPreciseAdaptiveStructural agent = new AgentPreciseAdaptiveStructural(survey, 42L, new ScoringFunctionExpectedEntropy());
+					agent.setExecutor(e);
+					final Set<String> skills = profile.skills.keySet();
+
+					List<String> output;
 
 					try {
-						final AgentPreciseAdaptiveStructural agent = new AgentPreciseAdaptiveStructural(survey, 42L, new ScoringFunctionExpectedEntropy());
-						agent.setExecutor(e);
-						final Set<String> skills = profile.skills.keySet();
-
-						List<String> output;
 						Question question;
 						State state;
 						double avgScore;
@@ -430,42 +430,58 @@ public class Experiments {
 						state = agent.getState();
 
 						output = new ArrayList<>();
-						output.add("" + profile.name);
-						output.add("" + -1);
-						for (String skill : skills)
-							output.add("" + profile.skills.get(skill));
+						output.add("" + profile.name); // profile name
+						output.add("INIT"); // question
+						output.add(""); // answer
+						output.add(""); // answer given
 						for (String skill : skills) {
 							final double d = state.probabilities.get(skill)[1];
-							output.add("" + d);
+							output.add("" + d); // P(skill)
 						}
 						avgScore = 0.0;
 						for (String skill : skills) {
 							final double score = state.score.get(skill);
 							avgScore += score / skills.size();
-							output.add("" + score);
 						}
-						output.add("" + avgScore);
-						output.add("");
-						output.add("" + agent.getObservations());
+						output.add("" + avgScore); // H(avg)
+						output.add("" + agent.getObservations()); // observations
 
 						content.add(String.join("\t", output));
 
 						while ((question = agent.next()) != null) {
+							content.add("");
 							final long startTime = System.currentTimeMillis();
 
 							final String q = question.getName();
 
 							final List<QuestionAnswer> checked = new ArrayList<>();
-							final List<String> answers = new ArrayList<>();
 							for (QuestionAnswer qa : question.getAnswersAvailable()) {
 								final String a = qa.getName();
 								final int ans = profile.answer(q, a);
 
 								if (ans == qa.getState()) {
-									answers.add(a + "=" + ans);
 									checked.add(qa);
 									logger.debug("{} {} {} {}", profile.name, q, a, ans);
+
+									output = new ArrayList<>();
+									output.add("" + profile.name); // profile
+									output.add("" + q); // question
+									output.add("" + a); // answer
+
+									double v;
+									if (question.getYesOnly()) {
+										v = ans == 0 ? 0 : +1;
+									} else {
+										v = ans == 0 ? -1 : +1;
+									}
+									output.add("" + v); // answer given
+									for (double d : profile.weights.get(q).get(a)) {
+										output.add("" + (v * d)); // P(x)
+									}
+									output.add(""); // H(avg)
+									content.add(String.join("\t", output));
 								}
+
 							}
 
 							checked.forEach(qa -> agent.check(new Answer(qa)));
@@ -473,23 +489,21 @@ public class Experiments {
 							state = agent.getState();
 
 							output = new ArrayList<>();
-							output.add("" + profile.name);
-							output.add("" + q);
-							for (String s : skills) {
-								output.add("" + profile.skills.get(s));
-							}
+							output.add("" + profile.name); // profile
+							output.add("" + q); // question
+							output.add(""); // answer
+							output.add(""); // answer given
+
 							for (String s : skills) {
 								final double d = state.getProbabilities().get(s)[1];
-								output.add("" + d);
+								output.add("" + d); // P(x)
 							}
 							avgScore = 0.0;
 							for (String skill : skills) {
 								final double score = state.score.get(skill);
 								avgScore += score / skills.size();
-								output.add("" + score);
 							}
-							output.add("" + avgScore);
-							output.add(String.join(",", answers));
+							output.add("" + avgScore); // H(avg)
 							output.add("" + agent.getObservations());
 
 							content.add(String.join("\t", output));
@@ -508,6 +522,17 @@ public class Experiments {
 							ex.printStackTrace();
 						}
 					}
+
+					output = new ArrayList<>();
+					output.add("" + profile.name); // profile
+					output.add("TRUE"); // question
+					output.add(""); // answer
+					output.add(""); // answer given
+					for (String s : skills) {
+						output.add("" + profile.skills.get(s)); // P(x)
+					}
+					content.add("");
+					content.add(String.join("\t", output));
 
 					write(content);
 
