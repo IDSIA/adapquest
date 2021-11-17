@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -94,8 +95,11 @@ public class Experiments {
 		}
 	}
 
+	private long starTime;
+
 	@BeforeEach
 	void setUp() throws Exception {
+		starTime = System.currentTimeMillis();
 		randoms = new ConcurrentHashMap<>();
 		RandomUtil.setRandom(() -> randoms.get(Thread.currentThread().getName()));
 
@@ -110,6 +114,14 @@ public class Experiments {
 	void tearDown() {
 		RandomUtil.reset();
 		es.shutdown();
+
+		final long seconds = Duration.ofMillis(System.currentTimeMillis() - starTime).getSeconds();
+		final String txt = String.format(
+				"%02d:%02d:%02d",
+				seconds / 3600,          // hours
+				(seconds % 3600) / 60,   // minutes
+				seconds % 60);           // seconds
+		logger.info("experiment duration: {}", txt);
 	}
 
 	@Disabled
@@ -389,7 +401,7 @@ public class Experiments {
 
 	@Disabled
 	@Test
-	public void testPilotProfilesAdaptive() throws Exception {
+	public void testPilotProfilesAdaptive2Setup() throws Exception {
 		final List<KProfile> profiles = KProfile.read();
 		logger.info("Found {} profiles", profiles.size());
 
@@ -405,12 +417,25 @@ public class Experiments {
 		defaultApdaptiveExperiment(profiles, survey);
 	}
 
+	@Disabled
+	@Test
+	public void testPilotProfilesAdaptive() throws Exception {
+		final List<KProfile> profiles = KProfile.read();
+		logger.info("Found {} profiles", profiles.size());
+
+		final Survey survey = InitSurvey.init("AdaptiveQuestionnaire.multiple.survey.json");
+		survey.setQuestionTotalMin(18);
+
+		filename = "adaptive.results.6profiles_fixedStrength.tsv";
+		defaultApdaptiveExperiment(profiles, survey);
+	}
+
 	private void defaultApdaptiveExperiment(List<KProfile> profiles, Survey survey) throws IOException, InterruptedException {
 		logger.info("Experiment {}", filename);
 		Files.write(Paths.get(filename), new ArrayList<String>(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
 
-		final ProgressBar p = new ProgressBar(profiles.size() * 18);
-		p.print();
+//		final ProgressBar p = new ProgressBar(profiles.size() * 18);
+//		p.print();
 
 		final List<Callable<Void>> tasks = profiles.stream()
 				.map(profile -> (Callable<Void>) () -> {
@@ -512,7 +537,7 @@ public class Experiments {
 
 							logger.debug("{}", output);
 
-							p.update(endTime - startTime);
+//							p.update(endTime - startTime);
 						}
 
 					} catch (Exception ex) {
@@ -536,7 +561,7 @@ public class Experiments {
 
 					write(content);
 
-					p.print();
+//					p.print();
 					e.shutdown();
 
 					return null;

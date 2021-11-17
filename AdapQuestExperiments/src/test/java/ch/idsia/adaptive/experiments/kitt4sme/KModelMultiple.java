@@ -10,9 +10,6 @@ import ch.idsia.crema.model.io.uai.BayesUAIWriter;
 
 import java.util.*;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-
 /**
  * Author:  Claudio "Dna" Bonesana
  * Project: adapquest
@@ -73,6 +70,8 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 
 			final Set<String> skills = new HashSet<>();
 			for (KBinaryQuestion bq : bqlist) {
+				question.yesOnly = bq.yesOnly;
+
 				final List<Integer> parents = new ArrayList<>();
 				final List<Double> inhibitors = new ArrayList<>();
 				final List<String> ko = new ArrayList<>();
@@ -82,7 +81,8 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 				bq.values.forEach((k, v) -> {
 					if (v > 0) {
 //						final double inh = inValue.get(v);
-						final double inh = min(INHIBITOR_MAX_VALUE, max(INHIBITOR_MIN_VALUE, 1.0 - v + eps));
+//						final double inh = min(INHIBITOR_MAX_VALUE, max(INHIBITOR_MIN_VALUE, 1.0 - v + eps));
+						final double inh = 0.6; // TODO: this is fixed
 						parents.add(nameVariables.get(k));
 						inhibitors.add(inh);
 					} else if (v < 0) {
@@ -100,10 +100,11 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 				model.addParents(nor, p);
 
 				final KAnswer a = as.get(bq.questionId + "$" + bq.answerId);
+				final String aText = a == null ? "Nothing" : a.text;
 
 				// displayed in multiple choice
 				final AnswerStructure neg = new AnswerStructure("no", nor, 0).setName("A" + bq.answerId);
-				final AnswerStructure pos = new AnswerStructure(a.text, nor, 1).setName("A" + bq.answerId);
+				final AnswerStructure pos = new AnswerStructure(aText, nor, 1).setName("A" + bq.answerId);
 
 				if (ko.size() > 0) {
 					// direct evidence
@@ -132,6 +133,7 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 							.setName("Q" + question.questionId)
 							.setQuestion(question.questionText)
 							.setMandatory(question.mandatory)
+							.setYesOnly(question.yesOnly)
 							.setMultipleChoice(true)
 							.setMultipleSkills(true)
 							.setSkills(skills)

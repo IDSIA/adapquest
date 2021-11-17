@@ -68,7 +68,7 @@ public class KProfile {
 			final Workbook workbook = new XSSFWorkbook(fis);
 
 			final Sheet sheetSkills = workbook.getSheet("Pilot Skill");
-			final Sheet sheetPilotAnswers = workbook.getSheet("Pilot Answers");
+			final Sheet sheetPilotAnswers = workbook.getSheet("Pilot+Interviews Answers");
 			final Sheet sheetBinaryQuestions = workbook.getSheet("Binary questions");
 
 			// profiles parsing
