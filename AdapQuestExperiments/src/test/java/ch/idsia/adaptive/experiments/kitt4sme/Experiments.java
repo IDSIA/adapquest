@@ -410,11 +410,11 @@ public class Experiments {
 
 		setup1(survey);
 		filename = "adaptive.results.given_profiles_18_setup1.tsv";
-		defaultApdaptiveExperiment(profiles, survey);
+		defaultAdaptiveExperiment(profiles, survey);
 
 		setup2(survey);
 		filename = "adaptive.results.given_profiles_18_setup2.tsv";
-		defaultApdaptiveExperiment(profiles, survey);
+		defaultAdaptiveExperiment(profiles, survey);
 	}
 
 	@Disabled
@@ -427,10 +427,10 @@ public class Experiments {
 		survey.setQuestionTotalMin(18);
 
 		filename = "adaptive.results.6profiles_fixedStrength.tsv";
-		defaultApdaptiveExperiment(profiles, survey);
+		defaultAdaptiveExperiment(profiles, survey);
 	}
 
-	private void defaultApdaptiveExperiment(List<KProfile> profiles, Survey survey) throws IOException, InterruptedException {
+	private void defaultAdaptiveExperiment(List<KProfile> profiles, Survey survey) throws IOException, InterruptedException {
 		logger.info("Experiment {}", filename);
 		Files.write(Paths.get(filename), new ArrayList<String>(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
 
@@ -533,7 +533,7 @@ public class Experiments {
 
 							content.add(String.join("\t", output));
 
-							final long endTime = System.currentTimeMillis();
+//							final long endTime = System.currentTimeMillis();
 
 							logger.debug("{}", output);
 

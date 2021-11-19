@@ -109,7 +109,7 @@ public class KProfile {
 					continue;
 				}
 
-				if (row.getRowNum() == 107) {
+				if (row.getCell(3) == null || row.getCell(3).toString().isEmpty()) {
 					break;
 				}
 

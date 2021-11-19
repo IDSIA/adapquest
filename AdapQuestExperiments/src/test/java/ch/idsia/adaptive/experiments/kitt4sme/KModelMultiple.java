@@ -96,8 +96,8 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 				final int[] p = parents.stream().mapToInt(x -> x).toArray();
 				final double[] i = inhibitors.stream().mapToDouble(x -> x).toArray();
 
-				parents.add(nor);
-				model.addParents(nor, p);
+//				final int[] p;
+//				final double[] i;
 
 				final KAnswer a = as.get(bq.questionId + "$" + bq.answerId);
 				final String aText = a == null ? "Nothing" : a.text;
@@ -117,10 +117,23 @@ public class KModelMultiple extends AbstractAdaptiveModel {
 					pos.setDirectEvidence(true)
 							.setDirectEvidenceVariables(evVars)
 							.setDirectEvidenceStates(evStates);
+
+//					parents.clear();
+//					ko.forEach(k -> parents.add(nameVariables.get(k)));
+//					p = parents.stream().mapToInt(x -> x).toArray();
+//					i = new double[p.length];
+//					Arrays.fill(i, 0.5);
+//				} else {
+					// standard
+//					p = parents.stream().mapToInt(x -> x).toArray();
+//					i = inhibitors.stream().mapToDouble(x -> x).toArray();
 				}
+				parents.add(nor);
 
 				answers.add(neg);
 				answers.add(pos);
+
+				model.addParents(nor, p);
 
 				final int[] vars = parents.stream().mapToInt(x -> x).toArray();
 
