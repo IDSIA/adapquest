@@ -58,7 +58,7 @@ public class InitializationService {
 
 	void readDataFolder() {
 		final Path cwd = Paths.get("");
-		try (Stream<Path> paths = Files.walk(cwd.resolve("data"))) {
+		try (Stream<Path> paths = Files.walk(cwd.resolve("data/surveys"))) {
 			paths
 					.filter(Files::isRegularFile)
 					.map(this::parseStructure)
