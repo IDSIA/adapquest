@@ -128,7 +128,7 @@ public class ReadXLSX {
 				final int qid = Double.valueOf(regions.get(i).get(0).getNumericCellValue()).intValue();
 				final int man = Double.valueOf(regions.get(i).get(2).getNumericCellValue()).intValue();
 				final String qText = regions.get(i).get(3).getStringCellValue();
-				final boolean onlyYes = "SOLO SI".equals(row.getCell(4).getStringCellValue());
+				final boolean onlyYes = "SOLO SI".equalsIgnoreCase(regions.get(i).get(4).getStringCellValue().trim());
 				final int aid = Double.valueOf(row.getCell(5).getNumericCellValue()).intValue();
 				final String bqText = row.getCell(6).getStringCellValue();
 
