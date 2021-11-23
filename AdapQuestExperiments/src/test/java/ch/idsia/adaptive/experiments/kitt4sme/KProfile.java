@@ -1,5 +1,6 @@
 package ch.idsia.adaptive.experiments.kitt4sme;
 
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -7,6 +8,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -18,6 +20,7 @@ public class KProfile {
 	final String name;
 	final Map<String, Integer> skills = new LinkedHashMap<>();
 	final Map<String, Integer> answers = new HashMap<>();
+	Map<String, Map<String, double[]>> weights;
 
 	public KProfile(String name) {
 		this.name = name;
@@ -65,7 +68,8 @@ public class KProfile {
 			final Workbook workbook = new XSSFWorkbook(fis);
 
 			final Sheet sheetSkills = workbook.getSheet("Pilot Skill");
-			final Sheet sheetPilotAnswers = workbook.getSheet("Pilot Answers");
+			final Sheet sheetPilotAnswers = workbook.getSheet("Pilot+Interviews Answers");
+			final Sheet sheetBinaryQuestions = workbook.getSheet("Binary questions");
 
 			// profiles parsing
 			for (Row row : sheetSkills) {
@@ -78,6 +82,9 @@ public class KProfile {
 
 					continue;
 				}
+
+				if (row.getCell(1) == null)
+					break;
 
 				final String n = row.getCell(1).getStringCellValue();
 				for (int j = 2, k = 0; k < names.size(); j++, k++) { // two columns on the left
@@ -102,7 +109,7 @@ public class KProfile {
 					continue;
 				}
 
-				if (row.getRowNum() == 107) {
+				if (row.getCell(3) == null || row.getCell(3).toString().isEmpty()) {
 					break;
 				}
 
@@ -128,8 +135,70 @@ public class KProfile {
 //			}
 //		}
 
-			return new ArrayList<>(profiles.values());
-		}
-	}
+			String qid = "";
+			int iValQuestionId = 0, iValAnswerId = 0, iStartSkills = 0, limit = 0;
 
+			final List<String> skills = new ArrayList<>();
+			final Map<String, Map<String, double[]>> weights = new ConcurrentHashMap<>();
+
+			for (Row row : sheetBinaryQuestions) {
+				final int i = row.getRowNum();
+				if (i == 0) {
+					// parse header
+					for (int j = row.getFirstCellNum(); j < row.getLastCellNum(); j++) {
+						switch (row.getCell(j).getStringCellValue().toUpperCase()) {
+							case "Q_ID":
+								iValQuestionId = j;
+								break;
+							case "A_ID":
+								iValAnswerId = j;
+						}
+					}
+
+					continue;
+				}
+				if (i == 1) {
+					// parse skills
+					boolean found = false;
+					for (int j = row.getFirstCellNum(); j < row.getLastCellNum(); j++) {
+						if (row.getCell(j) != null && !row.getCell(j).toString().isEmpty()) {
+							if (!found) {
+								iStartSkills = j;
+								found = true;
+							}
+							skills.add(row.getCell(j).getStringCellValue());
+						}
+					}
+					limit = skills.size();
+					continue;
+				}
+
+				if (row.getCell(iStartSkills) == null || row.getCell(iStartSkills).toString().isEmpty())
+					// skip empty rows or not model-related questions
+					continue;
+
+				if (row.getCell(iValQuestionId) != null && !row.getCell(iValQuestionId).toString().isEmpty()) {
+					// update questions
+					qid = "Q" + Double.valueOf(row.getCell(iValQuestionId).getNumericCellValue()).intValue();
+					weights.put(qid, new HashMap<>());
+				}
+
+				if (row.getCell(iValAnswerId) == null || row.getCell(iValAnswerId).toString().isEmpty())
+					continue;
+
+				final String aid = "A" + Double.valueOf(row.getCell(iValAnswerId).getNumericCellValue()).intValue();
+				final double[] values = new double[skills.size()];
+
+				for (int j = iStartSkills, k = 0; k < limit; j++, k++) {
+					final Cell c = row.getCell(j);
+					values[k] = "KO".equals(c.toString()) ? -1.0 : c.getNumericCellValue();
+				}
+
+				weights.get(qid).put(aid, values);
+			}
+
+			profiles.values().forEach(p -> p.weights = weights);
+		}
+		return new ArrayList<>(profiles.values());
+	}
 }

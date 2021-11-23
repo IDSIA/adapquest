@@ -25,9 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
@@ -93,8 +95,11 @@ public class Experiments {
 		}
 	}
 
+	private long starTime;
+
 	@BeforeEach
 	void setUp() throws Exception {
+		starTime = System.currentTimeMillis();
 		randoms = new ConcurrentHashMap<>();
 		RandomUtil.setRandom(() -> randoms.get(Thread.currentThread().getName()));
 
@@ -109,6 +114,14 @@ public class Experiments {
 	void tearDown() {
 		RandomUtil.reset();
 		es.shutdown();
+
+		final long seconds = Duration.ofMillis(System.currentTimeMillis() - starTime).getSeconds();
+		final String txt = String.format(
+				"%02d:%02d:%02d",
+				seconds / 3600,          // hours
+				(seconds % 3600) / 60,   // minutes
+				seconds % 60);           // seconds
+		logger.info("experiment duration: {}", txt);
 	}
 
 	@Disabled
@@ -284,13 +297,15 @@ public class Experiments {
 
 	@Disabled
 	@Test
-	public void testPilotProfiles18() throws Exception {
+	public void testPilotProfilesNonAdaptive() throws Exception {
 		final Survey survey = InitSurvey.init("AdaptiveQuestionnaire.multiple.survey.json");
 		final List<String> lines = Arrays.stream(survey.getModelData().split("\n")).collect(Collectors.toList());
 		final Set<Skill> skills = survey.getSkills();
 
 		model = new BayesUAIParser(lines).parse();
 		final List<KProfile> profiles = KProfile.read();
+
+		logger.info("Found {} profiles", profiles.size());
 
 		filename = "adaptive.results.given_profiles_18.tsv";
 
@@ -362,32 +377,77 @@ public class Experiments {
 		es.invokeAll(tasks);
 	}
 
+	public void setup1(Survey s) {
+		for (Question question : s.getQuestions()) {
+			question.setYesOnly(true);
+		}
+	}
+
+	public void setup2(Survey s) {
+		for (Question question : s.getQuestions()) {
+			switch (question.getName()) {
+				case "Q1":
+				case "Q2":
+				case "Q4":
+				case "Q12":
+				case "Q13":
+					question.setYesOnly(false);
+					break;
+				default:
+					question.setYesOnly(true);
+			}
+		}
+	}
+
 	@Disabled
 	@Test
-	public void testPilotProfiles18Adaptive() throws Exception {
+	public void testPilotProfilesAdaptive2Setup() throws Exception {
 		final List<KProfile> profiles = KProfile.read();
+		logger.info("Found {} profiles", profiles.size());
+
 		final Survey survey = InitSurvey.init("AdaptiveQuestionnaire.multiple.survey.json");
 		survey.setQuestionTotalMin(18);
 
-		filename = "adaptive.results.given_profiles_18.tsv";
+		setup1(survey);
+		filename = "adaptive.results.given_profiles_18_setup1.tsv";
+		defaultAdaptiveExperiment(profiles, survey);
 
+		setup2(survey);
+		filename = "adaptive.results.given_profiles_18_setup2.tsv";
+		defaultAdaptiveExperiment(profiles, survey);
+	}
+
+	@Disabled
+	@Test
+	public void testPilotProfilesAdaptive() throws Exception {
+		final List<KProfile> profiles = KProfile.read();
+		logger.info("Found {} profiles", profiles.size());
+
+		final Survey survey = InitSurvey.init("AdaptiveQuestionnaire.multiple.survey.json");
+		survey.setQuestionTotalMin(18);
+
+		filename = "adaptive.results.6profiles_fixedStrength.tsv";
+		defaultAdaptiveExperiment(profiles, survey);
+	}
+
+	private void defaultAdaptiveExperiment(List<KProfile> profiles, Survey survey) throws IOException, InterruptedException {
+		logger.info("Experiment {}", filename);
 		Files.write(Paths.get(filename), new ArrayList<String>(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
 
-		final ProgressBar p = new ProgressBar(profiles.size() * 18);
-		p.print();
+//		final ProgressBar p = new ProgressBar(profiles.size() * 18);
+//		p.print();
 
 		final List<Callable<Void>> tasks = profiles.stream()
 				.map(profile -> (Callable<Void>) () -> {
 					final List<String> content = new ArrayList<>();
 					final ExecutorService e = Executors.newFixedThreadPool(PARALLEL_COUNT);
+					final AgentPreciseAdaptiveStructural agent = new AgentPreciseAdaptiveStructural(survey, 42L, new ScoringFunctionExpectedEntropy());
+					agent.setExecutor(e);
+					final Set<String> skills = profile.skills.keySet();
+
+					List<String> output;
 
 					try {
-						final AgentPreciseAdaptiveStructural agent = new AgentPreciseAdaptiveStructural(survey, 42L, new ScoringFunctionExpectedEntropy());
-						agent.setConsiderZeros(true);
-						agent.setExecutor(e);
-						final Set<String> skills = profile.skills.keySet();
-
-						List<String> output;
 						Question question;
 						State state;
 						double avgScore;
@@ -395,42 +455,58 @@ public class Experiments {
 						state = agent.getState();
 
 						output = new ArrayList<>();
-						output.add("" + profile.name);
-						output.add("" + -1);
-						for (String skill : skills)
-							output.add("" + profile.skills.get(skill));
+						output.add("" + profile.name); // profile name
+						output.add("INIT"); // question
+						output.add(""); // answer
+						output.add(""); // answer given
 						for (String skill : skills) {
 							final double d = state.probabilities.get(skill)[1];
-							output.add("" + d);
+							output.add("" + d); // P(skill)
 						}
 						avgScore = 0.0;
 						for (String skill : skills) {
 							final double score = state.score.get(skill);
 							avgScore += score / skills.size();
-							output.add("" + score);
 						}
-						output.add("" + avgScore);
-						output.add("");
-						output.add("" + agent.getObservations());
+						output.add("" + avgScore); // H(avg)
+						output.add("" + agent.getObservations()); // observations
 
 						content.add(String.join("\t", output));
 
 						while ((question = agent.next()) != null) {
+							content.add("");
 							final long startTime = System.currentTimeMillis();
 
 							final String q = question.getName();
 
 							final List<QuestionAnswer> checked = new ArrayList<>();
-							final List<String> answers = new ArrayList<>();
 							for (QuestionAnswer qa : question.getAnswersAvailable()) {
 								final String a = qa.getName();
 								final int ans = profile.answer(q, a);
 
 								if (ans == qa.getState()) {
-									answers.add(a + "=" + ans);
 									checked.add(qa);
 									logger.debug("{} {} {} {}", profile.name, q, a, ans);
+
+									output = new ArrayList<>();
+									output.add("" + profile.name); // profile
+									output.add("" + q); // question
+									output.add("" + a); // answer
+
+									double v;
+									if (question.getYesOnly()) {
+										v = ans == 0 ? 0 : +1;
+									} else {
+										v = ans == 0 ? -1 : +1;
+									}
+									output.add("" + v); // answer given
+									for (double d : profile.weights.get(q).get(a)) {
+										output.add("" + (v * d)); // P(x)
+									}
+									output.add(""); // H(avg)
+									content.add(String.join("\t", output));
 								}
+
 							}
 
 							checked.forEach(qa -> agent.check(new Answer(qa)));
@@ -438,32 +514,30 @@ public class Experiments {
 							state = agent.getState();
 
 							output = new ArrayList<>();
-							output.add("" + profile.name);
-							output.add("" + q);
-							for (String s : skills) {
-								output.add("" + profile.skills.get(s));
-							}
+							output.add("" + profile.name); // profile
+							output.add("" + q); // question
+							output.add(""); // answer
+							output.add(""); // answer given
+
 							for (String s : skills) {
 								final double d = state.getProbabilities().get(s)[1];
-								output.add("" + d);
+								output.add("" + d); // P(x)
 							}
 							avgScore = 0.0;
 							for (String skill : skills) {
 								final double score = state.score.get(skill);
 								avgScore += score / skills.size();
-								output.add("" + score);
 							}
-							output.add("" + avgScore);
-							output.add(String.join(",", answers));
+							output.add("" + avgScore); // H(avg)
 							output.add("" + agent.getObservations());
 
 							content.add(String.join("\t", output));
 
-							final long endTime = System.currentTimeMillis();
+//							final long endTime = System.currentTimeMillis();
 
 							logger.debug("{}", output);
 
-							p.update(endTime - startTime);
+//							p.update(endTime - startTime);
 						}
 
 					} catch (Exception ex) {
@@ -474,9 +548,20 @@ public class Experiments {
 						}
 					}
 
+					output = new ArrayList<>();
+					output.add("" + profile.name); // profile
+					output.add("TRUE"); // question
+					output.add(""); // answer
+					output.add(""); // answer given
+					for (String s : skills) {
+						output.add("" + profile.skills.get(s)); // P(x)
+					}
+					content.add("");
+					content.add(String.join("\t", output));
+
 					write(content);
 
-					p.print();
+//					p.print();
 					e.shutdown();
 
 					return null;
