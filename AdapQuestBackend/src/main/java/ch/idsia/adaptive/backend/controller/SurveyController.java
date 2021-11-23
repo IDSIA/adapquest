@@ -355,6 +355,53 @@ public class SurveyController {
 		}
 	}
 
+	@Transactional
+	@GetMapping("/rank/{token}")
+	public ResponseEntity<List<ResponseQuestion>> rankQuestions(@PathVariable("token") String token, HttpServletRequest request) {
+		logger.info("User with token={} request a new ranking", token);
+
+		Session session = null;
+		SurveyData data = null;
+		try {
+			session = sessions.getSession(token);
+			data = new SurveyData()
+					.setFromSession(session)
+					.setUserAgent(request.getHeader("User-Agent"))
+					.setRemoteAddress(request.getRemoteAddr());
+
+			// check for end time
+			if (sessions.getRemainingTime(data) <= 0) {
+				logger.info("User with token={} has ended with no remaining time", token);
+				manager.complete(data);
+				sessions.endSurvey(session);
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+
+			if (manager.isFinished(data)) {
+				logger.info("User with token={} has ended with a finished survey", token);
+				manager.complete(data);
+				sessions.endSurvey(session);
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+
+			final List<Question> q = manager.rankQuestions(data);
+			final List<ResponseQuestion> res = q.stream().map(Convert::toResponse).collect(Collectors.toList());
+			return new ResponseEntity<>(res, HttpStatus.OK);
+		} catch (SessionException e) {
+			logger.error(e.getMessage());
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		} catch (SurveyException e) {
+			if (e.getMessage().equals("Finished")) {
+				logger.info("User with token={} has ended with a lower info gain", token);
+				manager.complete(data);
+				sessions.endSurvey(session);
+			} else {
+				logger.info("User with token={} has no more questions", token);
+			}
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+	}
+
 	@GetMapping("/results/{token}")
 	public ResponseEntity<ResponseResult> surveyResults(@PathVariable("token") String token) {
 		logger.info("User with token={} request the results", token);

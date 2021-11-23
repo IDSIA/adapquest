@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:include="fragments/layout :: layout">
-    <title id="pageTitle">Adaptive Survey</title>
+    <title id="pageTitle">AdapQuest</title>
 </head>
 <body>
 
@@ -9,14 +9,14 @@
     <div th:replace="fragments/layout :: header"></div>
 
     <div class="jumbotron">
-        <h1>AdapQuest Demo</h1>
-        <p>This demo is not intended to be a final product or usable in a production environment.</p>
+        <h1 th:text="${title}"></h1>
+        <p th:text="${description}"></p>
 
-        <p>Adaptive Surveys available:</p>
+        <p>Surveys available:</p>
 
         <ul>
             <li th:each="code : ${codes}">
-                <a th:href="@{/demo/start/}+${code}" th:text="${code}"></a>
+                <a th:href="|@{./start/}${code}|" th:text="${code}"></a>
             </li>
         </ul>
     </div>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/layout :: layout">
+    <title id="pageTitle">Adaptive Survey</title>
+</head>
+<body>
+
+<div class="container">
+    <div th:replace="fragments/layout :: header"></div>
+
+    <div class="jumbotron" th:if="${error != null}">
+        <p>Error</p>
+        <p th:text="'Code: '+${code}"></p>
+        <p th:text="'Error: '+${error}"></p>
+    </div>
+
+    <div th:each="question: ${questions}">
+        <form method="post" th:action="''">
+            <input th:name="questionId" th:value="${question.id}" type="hidden">
+            <div class="jumbotron">
+                <div>
+                    <h3 th:text="'Q' + ${question.id}"></h3>
+                    <p th:text="${question.score}"></p>
+                    <p th:text="${question.explanation}"></p>
+                    <p th:text="${question.question}"></p>
+
+                    <div th:class="${question.multipleChoice} ? 'answers multi' : 'answers'">
+                        <div class="answer"
+                             th:each="answer : ${question.answers}"
+                             th:with="aid = ${'a'+answer.id}"
+                             th:if="${(question.multipleChoice && answer.state == 1) || !question.multipleChoice}"
+                        >
+                            <input class="check-custom"
+                                   type="checkbox"
+                                   th:if="${question.multipleChoice}"
+                                   th:id="${aid}"
+                                   th:name="checkboxes"
+                                   th:value="${answer.id}"
+                            />
+                            <input class="radio-custom"
+                                   type="radio"
+                                   th:unless="${question.multipleChoice}"
+                                   th:id="${aid}"
+                                   th:name="answerId"
+                                   th:value="${answer.id}"
+                            />
+                            <label th:class="${question.multipleChoice} ? 'check-custom-label' : 'radio-custom-label'"
+                                   th:for="${aid}"
+                                   th:text="${answer.text}"
+                            ></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="submit">
+                    <input th:value="'▶'" type="submit"/>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div>
+        <div class="charts">
+            <div id="chart-entropy"></div>
+            <div id="chart-distribution"></div>
+        </div>
+
+        <script th:src="@{/js/charts.js}"></script>
+    </div>
+
+    <div th:replace="fragments/layout :: footer"></div>
+</div>
+
+</body>
+</html>

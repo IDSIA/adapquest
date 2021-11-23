@@ -25,6 +25,7 @@ public class Convert {
 		rq.score = question.getScore();
 
 		rq.isExample = question.getIsExample();
+		rq.isMandatory = question.getMandatory();
 		rq.randomAnswers = question.getRandomAnswers();
 		rq.multipleChoice = question.getMultipleChoice();
 

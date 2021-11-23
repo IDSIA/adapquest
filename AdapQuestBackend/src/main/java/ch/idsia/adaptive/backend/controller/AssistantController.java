@@ -1,11 +1,9 @@
 package ch.idsia.adaptive.backend.controller;
 
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
-import ch.idsia.adaptive.backend.persistence.model.Answer;
 import ch.idsia.adaptive.backend.persistence.model.SurveyData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
-import ch.idsia.adaptive.backend.persistence.responses.ResponseResult;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,56 +17,34 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Author:  Claudio "Dna" Bonesana
- * Project: AdapQuest
- * Date:    12.01.2021 15:15
+ * Project: adapquest
+ * Date:    04.11.2021 11:08
  */
 @Controller
-@RequestMapping("/demo")
-public class DemoController {
-	private static final Logger logger = LoggerFactory.getLogger(DemoController.class);
+@RequestMapping("/assistant")
+public class AssistantController {
+	public static final Logger logger = LoggerFactory.getLogger(AssistantController.class);
 
 	final SurveyRepository surveys;
 	final SurveyController controller;
 
 	@Autowired
-	public DemoController(SurveyRepository surveys, SurveyController controller) {
+	public AssistantController(SurveyRepository surveys, SurveyController controller) {
 		this.surveys = surveys;
 		this.controller = controller;
 	}
 
 	@GetMapping("/")
 	public String index(Model model) {
-		final Collection<String> codes = surveys.findAllAccessCodes();
-		model.addAttribute("codes", new ArrayList<>(codes));
-		model.addAttribute("title", "AdapQuest Demo");
-		model.addAttribute("description", "This demo is not intended to be a final product or usable in a production environment.");
+		final Collection<String> code = surveys.findAllAccessCodesAdaptive();
+		model.addAttribute("codes", new ArrayList<>(code));
+		model.addAttribute("title", "AdapQuest Assistant");
+		model.addAttribute("description", "The AdapQuest Assistant is intended to guide a human during an interview to another human.");
 		return "index";
-	}
-
-	@GetMapping("/results/{token}")
-	public String results(@PathVariable String token, Model model) {
-		final ResponseEntity<ResponseResult> resResult = this.controller.surveyResults(token);
-		final List<Answer> answers = this.controller.getAnswers(token);
-
-		final HttpStatus statusCode = resResult.getStatusCode();
-
-		if (statusCode.is4xxClientError()) {
-			model.addAttribute("code", statusCode);
-			model.addAttribute("error", "Cannot load results");
-			logger.error("Error loading results for token={}, status={}", token, statusCode);
-			return "error";
-		}
-
-		final ResponseResult r = resResult.getBody();
-		model.addAttribute("result", r);
-		model.addAttribute("answers", answers);
-
-		return "results";
 	}
 
 	@GetMapping("/start/{code}")
@@ -77,6 +53,8 @@ public class DemoController {
 			Model model,
 			HttpServletRequest request
 	) {
+		logger.info("assistant initialization for code={}", code);
+
 		// initialization
 		final ResponseEntity<ResponseData> resData = this.controller.initTest(code, request);
 		final HttpStatus statusCode = resData.getStatusCode();
@@ -97,7 +75,7 @@ public class DemoController {
 			return "error";
 		}
 
-		return "redirect:/demo/survey/" + rd.token;
+		return "redirect:/assistant/survey/" + rd.token;
 	}
 
 	@RequestMapping(value = "/survey/{token}", method = {RequestMethod.GET, RequestMethod.POST})
@@ -106,16 +84,14 @@ public class DemoController {
 			@RequestParam(required = false) Long questionId,
 			@RequestParam(required = false) Long answerId,
 			@RequestParam(value = "checkboxes", required = false) Long[] multipleAnswersId,
-			@RequestParam(required = false, defaultValue = "true") Boolean show,
 			Model model,
 			HttpServletRequest request
 	) {
+		logger.info("ranking for token={}", token);
 		model.addAttribute("token", token);
-		model.addAttribute("show", show);
 
 		// check answer
 		if (questionId != null) {
-
 			final Long[] answers;
 			if (answerId != null) {
 				// we have an answer of a question: check it
@@ -153,7 +129,7 @@ public class DemoController {
 		}
 
 		// ask for the next question
-		final ResponseEntity<ResponseQuestion> resQuestion = controller.nextQuestion(token, request);
+		final ResponseEntity<List<ResponseQuestion>> resQuestion = controller.rankQuestions(token, request);
 
 		if (!resQuestion.getStatusCode().is2xxSuccessful()) {
 			// this happens when something went wrong
@@ -165,10 +141,10 @@ public class DemoController {
 
 		if (resQuestion.getStatusCode() == HttpStatus.NO_CONTENT) {
 			// this happens when the survey ends
-			return "redirect:/demo/results/" + token;
+			return "redirect:/assistant/results/" + token;
 		}
 
-		final ResponseQuestion q = resQuestion.getBody();
+		final List<ResponseQuestion> q = resQuestion.getBody();
 
 		if (q == null) {
 			model.addAttribute("code", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -177,12 +153,9 @@ public class DemoController {
 			return "error";
 		}
 
-		if (q.randomAnswers) {
-			Collections.shuffle(q.answers);
-		}
-		model.addAttribute("question", q);
+		logger.info("rank for token={}, found {} questions: higher score={}, lower score={}", token, q.size(), q.get(0), q.get(q.size() - 1));
+		model.addAttribute("questions", q);
 
-		return "survey";
+		return "assist";
 	}
-
 }

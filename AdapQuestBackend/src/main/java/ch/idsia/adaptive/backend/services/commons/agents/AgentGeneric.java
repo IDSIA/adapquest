@@ -92,6 +92,7 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 	@Setter
 	protected ExecutorService executor = Executors.newSingleThreadExecutor();
 
+	protected Boolean rankedMode = false;
 
 	public AgentGeneric(Survey survey, Long seed, Scoring<F> scoring) {
 		this.survey = survey;
@@ -178,13 +179,17 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 
 	@Override
 	public boolean check(Answer answer) {
-		if (currentQuestion != null && currentQuestion.equals(answer.getQuestion())) {
-			if (!answer.getQuestion().getIsExample()) {
+		final Question question = answer.getQuestion();
+		if (rankedMode && currentQuestion == null) {
+			register(question);
+		}
+		if (currentQuestion != null && currentQuestion.equals(question)) {
+			if (!question.getIsExample()) {
 				logger.debug("checking answer: variable={} state={} question={} direct={}",
 						answer.getQuestionAnswer().getVariable(),
 						answer.getQuestionAnswer().getState(),
 						answer.getQuestionAnswer().getDirectEvidence(),
-						answer.getQuestion()
+						question
 				);
 				answer.getQuestionAnswer().observe(observations);
 			}
@@ -192,7 +197,7 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 			return true;
 		}
 		logger.warn("invalid answer: expected={} received={}",
-				answer.getQuestion(),
+				question,
 				currentQuestion
 		);
 		return false;
@@ -221,6 +226,27 @@ public abstract class AgentGeneric<F extends GenericFactor> implements Agent {
 		register(question);
 
 		return question;
+	}
+
+	@Override
+	public List<Question> rank() throws SurveyException {
+		rankedMode = true;
+
+		if (finished) {
+			executor.shutdown();
+			throw new SurveyException("Survey is finished");
+		}
+
+		// this will assign a score for each question
+		nextQuestion();
+
+		final List<Question> rank = new ArrayList<>(mandatoryQuestions);
+		questions.stream().sorted(Comparator.comparingDouble(q -> -q.getScore())).forEach(rank::add);
+
+		// clear currentQuestion
+		register(null);
+
+		return rank;
 	}
 
 	/**
