@@ -13,16 +13,12 @@ d3.json('/survey/states/' + token)
 
         data.sort((a, b) => a.totalAnswers - b.totalAnswers)
             .forEach(d => {
-                d.skills.forEach(s => {
-                    entropies.push({'answers': d.totalAnswers, 'skill': s.name, 'value': d.scoreDistribution[s.name]})
-                });
+                entropies.push({'answers': d.totalAnswers, 'value': d.scoreAverage})
             });
+
         return entropies;
     })
     .then(data => {
-        // group the data: I want to draw one line per group
-        const groups = d3.group(data, d => d.skill);
-
         const svg = d3.select('#chart-entropy')
             .append('svg')
             .attr('width', width + margin.left + margin.right)
@@ -44,22 +40,16 @@ d3.json('/survey/states/' + token)
         svg.append('g')
             .call(d3.axisLeft(y));
 
-        const keys = Array.from(groups.keys());
-        const color = d3.scaleOrdinal()
-            .domain(keys)
-            .range(colors.slice(0, keys.length));
-
         svg.append('path')
-            .data(groups)
+            .data(data)
             .join('path')
             .attr('class', 'chart-line')
-            .attr('stroke', d => color(d[0]))
-            .attr('d', d => {
-                return d3.line()
-                    .x(d => x(d.answers))
-                    .y(d => y(d.value))
-                    (d[1])
-            });
+            .attr('stroke', colors[0])
+            .attr('d', d3.line()
+                .x(d => x(d.answers))
+                .y(d => y(d.value))
+                (data)
+            );
 
         // This allows to find the closest X index of the mouse:
         const bisect = d3.bisector(d => d.answers).left;
@@ -79,7 +69,7 @@ d3.json('/survey/states/' + token)
         };
         const mouseMove = (event) => {
             const [ex, ey] = d3.pointer(event)
-            const values = groups.get(keys[0]);
+            const values = data;
             const x0 = x.invert(ex);
             const i = bisect(values, x0, 1);
             const d = values[i];
@@ -112,11 +102,11 @@ d3.json('/survey/state/' + token)
     .then(data => {
         const distributions = []
         data.skills.forEach(s => {
-            s.states.forEach(st => {
-                distributions.push({
-                    'name': `P(${s.name}=${st.name})`,
-                    'value': data.skillDistribution[s.name][st.state]
-                })
+            // s.states.forEach(st => {
+            distributions.push({
+                'name': `${s.name}`,
+                'value': data.skillDistribution[s.name][1].toFixed(2)
+                // })
             });
         });
         return distributions;

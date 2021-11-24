@@ -38,6 +38,11 @@ public class State {
 	public Map<String, Double> score = new HashMap<>();
 
 	/**
+	 * Average of all the scores.
+	 */
+	public Double scoreAverage;
+
+	/**
 	 * If a skill is completed (no more questions) its name should be saved there there.
 	 */
 	@Convert(converter = SetStringConverter.class)

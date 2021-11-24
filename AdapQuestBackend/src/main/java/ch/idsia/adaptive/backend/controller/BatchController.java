@@ -45,15 +45,16 @@ public class BatchController {
 				logger.warn("Received empty file");
 				throw new IOException("Empty file");
 			}
-			if (file.getOriginalFilename() == null) {
+			final String filename = file.getOriginalFilename();
+			if (filename == null) {
 				logger.warn("Received file without name");
 				throw new IOException("Invalid file name");
 			}
-			Path dest = Paths.get("", "data", "batch").resolve(Paths.get(file.getOriginalFilename())).toAbsolutePath();
+			final Path dest = Paths.get("", "data", "batch").resolve(Paths.get(filename)).toAbsolutePath();
 			try (InputStream is = file.getInputStream()) {
 				Files.copy(is, dest, StandardCopyOption.REPLACE_EXISTING);
 			}
-			model.addAttribute("message", "Added new file: " + file.getOriginalFilename());
+			model.addAttribute("message", "Added new file: " + filename);
 		} catch (IOException e) {
 			logger.error("Could not save file to disk", e);
 			model.addAttribute("error", "Could not save file to disk: " + e.getMessage());
