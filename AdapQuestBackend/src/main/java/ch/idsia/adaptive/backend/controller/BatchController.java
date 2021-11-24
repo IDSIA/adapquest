@@ -5,16 +5,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -28,16 +28,36 @@ public class BatchController {
 
 
 	@GetMapping("/")
-	public String index(Model model) {
-		model.addAttribute("title", "AdapQuest Batch Experiments");
-		model.addAttribute("description", "The AdapQuest Batch Experiments page is intended to use XLSX templates to perform experiments.");
+	public String index() {
 		return "batch";
 	}
 
 	@PostMapping("/")
-	public String consume(Model model) {
-		model.addAttribute("title", "AdapQuest Batch Experiments");
-		model.addAttribute("description", "The AdapQuest Batch Experiments page is intended to use XLSX templates to perform experiments.");
+	public String consume(@RequestParam("file") MultipartFile file, Model model) {
+		logger.info("received new data for batch experiment");
+		// TODO: manage errors, make this an ajax-call
+		try {
+			if (file == null) {
+				logger.warn("Null file");
+				throw new IOException("File null");
+			}
+			if (file.isEmpty()) {
+				logger.warn("Received empty file");
+				throw new IOException("Empty file");
+			}
+			if (file.getOriginalFilename() == null) {
+				logger.warn("Received file without name");
+				throw new IOException("Invalid file name");
+			}
+			Path dest = Paths.get("", "data", "batch").resolve(Paths.get(file.getOriginalFilename())).toAbsolutePath();
+			try (InputStream is = file.getInputStream()) {
+				Files.copy(is, dest, StandardCopyOption.REPLACE_EXISTING);
+			}
+			model.addAttribute("message", "Added new file: " + file.getOriginalFilename());
+		} catch (IOException e) {
+			logger.error("Could not save file to disk", e);
+			model.addAttribute("error", "Could not save file to disk: " + e.getMessage());
+		}
 		return "batch";
 	}
 

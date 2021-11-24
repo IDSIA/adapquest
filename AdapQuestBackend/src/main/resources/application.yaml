@@ -13,5 +13,5 @@ logging:
     name: logs/application.log
 
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-50c{1} %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-64c %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%15t] %-50c{1} %msg%n"

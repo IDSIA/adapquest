@@ -9,10 +9,16 @@
     <div th:replace="fragments/layout :: header"></div>
 
     <div class="jumbotron">
-        <h1 th:text="${title}"></h1>
-        <p th:text="${description}"></p>
+        <div>
+            <h1>AdapQuest Batch Experiments</h1>
+            <p>The AdapQuest Batch Experiments page is intended to use XLSX templates to perform experiments.</p>
+        </div>
+
+        <div class="alert alert-danger" role="alert" th:if="${error != null}" th:text="${error}"></div>
+        <div class="alert alert-primary" role="alert" th:if="${message != null}" th:text="${message}"></div>
+
         <div class="container" style="width: 60%">
-            <form method="post" action="">
+            <form method="post" action="" enctype="multipart/form-data">
                 <div class="input-group mb-3">
                     <div class="">
                         <a class="btn btn-primary" th:href="@{/batch/template}" role="button">
@@ -27,7 +33,7 @@
                         </a>
                     </div>
                     <div class="custom-file input-group-append">
-                        <input type="file" class="custom-file-input" id="inputGroupFile04"
+                        <input type="file" name="file" class="custom-file-input" id="inputGroupFile04"
                                aria-describedby="inputGroupFileAddon04">
                         <label class="custom-file-label" for="inputGroupFile04">Choose file</label>
                     </div>
