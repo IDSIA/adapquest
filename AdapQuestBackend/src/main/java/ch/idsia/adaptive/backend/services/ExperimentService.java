@@ -65,7 +65,8 @@ public class ExperimentService {
 					});
 
 			// parse profiles
-			final Experiment experiment = new Experiment(path, survey, poolSize);
+			final int nThread = poolSize < 0 ? Runtime.getRuntime().availableProcessors() : poolSize;
+			final Experiment experiment = new Experiment(filename, path, survey, nThread);
 			experiment.run();
 		} catch (Exception e) {
 			logger.error("", e);

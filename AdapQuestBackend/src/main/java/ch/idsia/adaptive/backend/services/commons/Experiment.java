@@ -1,27 +1,27 @@
 package ch.idsia.adaptive.backend.services.commons;
 
+
 import ch.idsia.adaptive.backend.persistence.model.*;
 import ch.idsia.adaptive.backend.services.commons.agents.AgentPreciseAdaptiveStructural;
+import ch.idsia.adaptive.backend.services.commons.profiles.Content;
 import ch.idsia.adaptive.backend.services.commons.profiles.Profile;
 import ch.idsia.adaptive.backend.services.commons.scoring.precise.ScoringFunctionExpectedEntropy;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -36,23 +36,16 @@ public class Experiment {
 	private final int nThread;
 
 	private final String filename;
-	private final Path path;
 
 	private final Survey survey;
 	private final List<Profile> profiles;
 
 	public Experiment(String filename, Path path, Survey survey, Integer nThread) throws IOException {
 		this.filename = filename;
-		this.path = path;
 		this.survey = survey;
 		this.nThread = nThread;
 
 		profiles = readProfiles(path);
-
-		final Path src = Paths.get("", "data", "templates", "adaptive.results.template.xlsx");
-		final Path dst = Paths.get("", "data", "results", "wip.results." + filename);
-
-		Files.copy(src, dst);
 
 		es = Executors.newFixedThreadPool(Math.min(nThread, profiles.size()));
 	}
@@ -92,7 +85,7 @@ public class Experiment {
 				if (row.getCell(1) == null)
 					break;
 
-				final String n = row.getCell(1).getStringCellValue();
+				final String n = row.getCell(iValSkills).getStringCellValue();
 				for (int j = iValSkills + 1, k = 0; k < names.size(); j++, k++) {
 					final int s = Double.valueOf(row.getCell(j).getNumericCellValue()).intValue();
 					profiles.get(names.get(j)).add(n, s);
@@ -106,7 +99,7 @@ public class Experiment {
 			for (Row row : sheetAnswers) {
 				if (row.getRowNum() == 0) {
 					for (int j = 0; j < row.getLastCellNum(); j++) {
-						switch (row.getCell(j).getStringCellValue()) {
+						switch (row.getCell(j).getStringCellValue().toUpperCase()) {
 							case "QUESTION_ID":
 								iValQuestionId = j;
 								break;
@@ -210,20 +203,17 @@ public class Experiment {
 		return new ArrayList<>(profiles.values());
 	}
 
-	public void run() throws InterruptedException {
+	public void run() throws InterruptedException, IOException {
 		logger.info("Experiment {}", filename);
 
-		// TODO: write on XLSX file
+		final Set<String> skills = profiles.get(0).getSkills().keySet();
 
-		final List<Callable<Void>> tasks = profiles.stream()
-				.map(profile -> (Callable<Void>) () -> {
-					final List<String> content = new ArrayList<>();
+		final List<Callable<Content>> tasks = profiles.stream()
+				.map(profile -> (Callable<Content>) () -> {
+					final Content content = new Content();
 					final ExecutorService e = Executors.newFixedThreadPool(nThread);
 					final AgentPreciseAdaptiveStructural agent = new AgentPreciseAdaptiveStructural(survey, 42L, new ScoringFunctionExpectedEntropy());
 					agent.setExecutor(e);
-					final Set<String> skills = profile.getSkills().keySet();
-
-					List<String> output;
 
 					try {
 						Question question;
@@ -232,27 +222,25 @@ public class Experiment {
 
 						state = agent.getState();
 
-						output = new ArrayList<>();
-						output.add("" + profile.getName()); // profile name
-						output.add("INIT"); // question
-						output.add(""); // answer
-						output.add(""); // answer given
+						content.add("" + profile.getName()); // profile name
+						content.add("INIT"); // question
+						content.add(""); // answer
+						content.add(""); // answer given
 						for (String skill : skills) {
 							final double d = state.probabilities.get(skill)[1];
-							output.add("" + d); // P(skill)
+							content.add("" + d); // P(skill)
 						}
 						avgScore = 0.0;
 						for (String skill : skills) {
 							final double score = state.score.get(skill);
 							avgScore += score / skills.size();
 						}
-						output.add("" + avgScore); // H(avg)
-						output.add("" + agent.getObservations()); // observations
+						content.add("" + avgScore); // H(avg)
+						content.add("" + agent.getObservations()); // observations
 
-						content.add(String.join("\t", output));
+						content.newLine();
 
 						while ((question = agent.next()) != null) {
-							content.add("");
 							final String q = question.getName();
 
 							final List<QuestionAnswer> checked = new ArrayList<>();
@@ -264,10 +252,10 @@ public class Experiment {
 									checked.add(qa);
 									logger.debug("{} {} {} {}", profile.getName(), q, a, ans);
 
-									output = new ArrayList<>();
-									output.add("" + profile.getName()); // profile
-									output.add("" + q); // question
-									output.add("" + a); // answer
+									content.newLine();
+									content.add("" + profile.getName()); // profile
+									content.add("" + q); // question
+									content.add("" + a); // answer
 
 									double v;
 									if (question.getYesOnly()) {
@@ -275,39 +263,37 @@ public class Experiment {
 									} else {
 										v = ans == 0 ? -1 : +1;
 									}
-									output.add("" + v); // answer given
+									content.add("" + v); // answer given
 									for (double d : profile.getWeights().get(q).get(a)) {
-										output.add("" + (v * d)); // P(x)
+										content.add("" + (v * d)); // P(x)
 									}
-									output.add(""); // H(avg)
-									content.add(String.join("\t", output));
+									content.add(""); // H(avg)
 								}
-
 							}
 
 							checked.forEach(qa -> agent.check(new Answer(qa)));
 
 							state = agent.getState();
 
-							output = new ArrayList<>();
-							output.add("" + profile.getName()); // profile
-							output.add("" + q); // question
-							output.add(""); // answer
-							output.add(""); // answer given
+							content.newLine();
+							content.add("" + profile.getName()); // profile
+							content.add("" + q); // question
+							content.add(""); // answer
+							content.add(""); // answer given
 
 							for (String s : skills) {
 								final double d = state.getProbabilities().get(s)[1];
-								output.add("" + d); // P(x)
+								content.add("" + d); // P(x)
 							}
 							avgScore = 0.0;
 							for (String skill : skills) {
 								final double score = state.score.get(skill);
 								avgScore += score / skills.size();
 							}
-							output.add("" + avgScore); // H(avg)
-							output.add("" + agent.getObservations());
+							content.add("" + avgScore); // H(avg)
+							content.add("" + agent.getObservations());
 
-							content.add(String.join("\t", output));
+							content.newLine();
 						}
 
 					} catch (Exception ex) {
@@ -318,26 +304,79 @@ public class Experiment {
 						}
 					}
 
-					output = new ArrayList<>();
-					output.add("" + profile.getName()); // profile
-					output.add("TRUE"); // question
-					output.add(""); // answer
-					output.add(""); // answer given
+					content.newLine();
+					content.add("" + profile.getName()); // profile
+					content.add("TRUE"); // question
+					content.add(""); // answer
+					content.add(""); // answer given
 					for (String s : skills) {
-						output.add("" + profile.getSkills().get(s)); // P(x)
+						content.add("" + profile.getSkills().get(s)); // P(x)
 					}
-					content.add("");
-					content.add(String.join("\t", output));
-
-//					write(content);
+					content.newLine();
 
 					e.shutdown();
 
-					return null;
+					return content;
 				})
 				.collect(Collectors.toList());
 
-		es.invokeAll(tasks);
+		final List<Future<Content>> futures = es.invokeAll(tasks);
+		final List<Content> contents = new ArrayList<>();
+		for (Future<Content> future : futures) {
+			try {
+				contents.add(future.get());
+			} catch (Exception e) {
+				logger.error("Could not get future: {}", e.getMessage(), e);
+			}
+		}
+
+		final Path dst = Paths.get("", "data", "results", "results." + filename);
+
+		try (FileOutputStream fos = new FileOutputStream(dst.toFile(), false)) {
+			final XSSFWorkbook workbook = new XSSFWorkbook();
+			final XSSFSheet results = workbook.createSheet("results");
+
+			int r = 0;
+			int l = Content.header(results.createRow(r++), skills);
+
+			for (Content content : contents) {
+				r = content.row(results, r);
+			}
+
+			// set filters
+			results.setAutoFilter(new CellRangeAddress(0, r, 0, l));
+
+			// style for header row
+			final CellStyle hStyle = workbook.createCellStyle();
+			final Font font = workbook.createFont();
+			font.setBold(true);
+			hStyle.setFont(font);
+			hStyle.setBorderBottom(BorderStyle.THIN);
+
+			// style for columns
+			final CellStyle cStyle = workbook.createCellStyle();
+			cStyle.setBorderLeft(BorderStyle.THIN);
+			cStyle.setBorderRight(BorderStyle.THIN);
+
+			for (Cell cell : results.getRow(0)) {
+				cell.setCellStyle(hStyle);
+			}
+
+			final int[] cols = {0, 1, 2, 3, l - 1};
+			for (int i = 1; i < results.getLastRowNum(); i++) {
+				final XSSFRow row = results.getRow(i);
+				for (int c : cols) {
+					XSSFCell cell = row.getCell(c);
+					if (cell == null)
+						cell = row.createCell(c);
+					cell.setCellStyle(cStyle);
+				}
+			}
+
+			// write to disk the results
+			workbook.write(fos);
+		}
+
 		es.shutdown();
 	}
 
