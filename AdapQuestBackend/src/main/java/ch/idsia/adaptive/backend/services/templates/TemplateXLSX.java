@@ -238,7 +238,7 @@ public class TemplateXLSX {
 			tmpl.setSettings(settings);
 
 			// reading model elicitation
-			int qid = -1, iValQuestionId = 0, iValQuestionText = 0, iValYesOnly = 0, iValMandatory = 0, iValAnswerId = 0, iValAnswerText = 0, iStartSkills = 0, limit = 0;
+			int qid, iValQuestionId = 0, iValQuestionText = 0, iValYesOnly = 0, iValMandatory = 0, iValAnswerId = 0, iValAnswerText = 0, iStartSkills = 0, limit = 0;
 
 			QuestionStructure question = null;
 
@@ -248,7 +248,7 @@ public class TemplateXLSX {
 					// parse header
 					for (int j = row.getFirstCellNum(); j < row.getLastCellNum(); j++) {
 						switch (row.getCell(j).getStringCellValue().toUpperCase()) {
-							case "Q_ID":
+							case "QUESTION_ID":
 								iValQuestionId = j;
 								break;
 							case "MANDATORY":
@@ -260,7 +260,7 @@ public class TemplateXLSX {
 							case "YES_ONLY":
 								iValYesOnly = j;
 								break;
-							case "ID_ANS":
+							case "ANSWER_ID":
 								iValAnswerId = j;
 								break;
 							case "ANSWER_TEXT":
