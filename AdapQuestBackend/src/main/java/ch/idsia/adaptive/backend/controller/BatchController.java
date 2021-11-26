@@ -1,6 +1,7 @@
 package ch.idsia.adaptive.backend.controller;
 
 import ch.idsia.adaptive.backend.services.ExperimentService;
+import ch.idsia.adaptive.backend.services.commons.OutFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -36,34 +34,28 @@ public class BatchController {
 
 	private final ExperimentService experimentService;
 
+	final PathMatcher matchXLSX = FileSystems.getDefault().getPathMatcher("glob:**.xlsx");
+
 	@Autowired
 	public BatchController(ExperimentService experimentService) {
 		this.experimentService = experimentService;
 	}
 
-	private List<File> listExperiments() {
-		final File file = Paths.get("", "data", "batch").toFile();
+	private List<OutFile> listFiles(String folder) {
+		final File file = Paths.get("", "data", folder).toFile();
 		final File[] files = file.listFiles();
 		if (files == null)
 			return new ArrayList<>();
 		return Arrays.stream(files)
+				.filter(x -> matchXLSX.matches(x.toPath()))
 				.sorted(Comparator.comparingLong(File::lastModified))
-				.collect(Collectors.toList());
-	}
-
-	private List<File> listResults() {
-		final File file = Paths.get("", "data", "results").toFile();
-		final File[] files = file.listFiles();
-		if (files == null)
-			return new ArrayList<>();
-		return Arrays.stream(files)
-				.sorted(Comparator.comparingLong(File::lastModified))
+				.map(OutFile::new)
 				.collect(Collectors.toList());
 	}
 
 	private String defaultView(Model model) {
-		model.addAttribute("experiments", listExperiments());
-		model.addAttribute("results", listResults());
+		model.addAttribute("experiments", listFiles("batch"));
+		model.addAttribute("results", listFiles("results"));
 		return "batch";
 	}
 
@@ -116,13 +108,27 @@ public class BatchController {
 		return Files.readAllBytes(path);
 	}
 
-	@GetMapping("/results/{filename}")
-	public String downloadResults(Model model) {
-		// TODO: given the id (guid?) of a results, download the tasks
-		return defaultView(model);
+	@GetMapping(value = "/experiment/{filename}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	@ResponseBody
+	public byte[] downloadExperiments(@PathVariable("filename") String filename, HttpServletResponse response) throws IOException {
+		logger.info("Request download of experiment {}", filename);
+		final Path path = Paths.get("", "data", "batch", filename);
+		// TODO: check that the path exists and that the file is only XLSX
+		response.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+		return Files.readAllBytes(path);
 	}
 
-	@GetMapping("/delete/{filename}")
+	@GetMapping(value = "/result/{filename}", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+	@ResponseBody
+	public byte[] downloadResults(@PathVariable("filename") String filename, HttpServletResponse response) throws IOException {
+		logger.info("Request download of results {}", filename);
+		final Path path = Paths.get("", "data", "results", filename);
+		// TODO: check that the path exists and that the file is only XLSX
+		response.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+		return Files.readAllBytes(path);
+	}
+
+	@DeleteMapping("/delete/{filename}")
 	public String deleteResults(Model model) {
 		// TODO: delete the results based on id
 		return "error";

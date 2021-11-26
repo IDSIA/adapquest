@@ -8,10 +8,7 @@ import ch.idsia.adaptive.backend.services.commons.profiles.Profile;
 import ch.idsia.adaptive.backend.services.commons.scoring.precise.ScoringFunctionExpectedEntropy;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -372,6 +369,12 @@ public class Experiment {
 					cell.setCellStyle(cStyle);
 				}
 			}
+
+			// conditional formatting
+			final XSSFSheetConditionalFormatting cf = results.getSheetConditionalFormatting();
+			final XSSFConditionalFormattingRule rule = cf.createConditionalFormattingColorScaleRule();
+			final CellRangeAddress[] regions = {new CellRangeAddress(1, r, 4, l - 2)};
+			cf.addConditionalFormatting(regions, rule);
 
 			// write to disk the results
 			workbook.write(fos);

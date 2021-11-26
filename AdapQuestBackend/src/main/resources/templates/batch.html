@@ -22,12 +22,7 @@
                 <div class="input-group mb-3">
                     <div class="">
                         <a class="btn btn-primary" th:href="@{/batch/template}" role="button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                 class="bi bi-download" viewBox="0 0 16 16"
-                                 style="background: none; border: none;">
-                                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"></path>
-                                <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"></path>
-                            </svg>
+                            <i class="bi bi-download"></i>
                             &nbsp;
                             Template
                         </a>
@@ -39,16 +34,37 @@
                     </div>
                     <div class="input-group-append">
                         <button class="btn btn-primary" type="submit" id="inputGroupFileAddon04">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                 class="bi bi-upload" viewBox="0 0 16 16"
-                                 style="background: none; border: none;">
-                                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-                                <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
-                            </svg>
+                            <i class="bi bi-upload"></i>
                         </button>
                     </div>
                 </div>
             </form>
+
+            <div class="row mt-5">
+                <div class="col">
+                    <h3>Experiments stored</h3>
+                </div>
+            </div>
+            <div class="row row-cols-3" th:each="experiment : ${experiments}">
+                <div class="col-sm-1">
+                    <a th:href="|@{/batch/experiment/}${experiment.name()}|"><i class="bi bi-download"></i></a>
+                </div>
+                <div class="col-sm-6" th:text="${experiment.name()}"></div>
+                <div class="col" th:text="${experiment.date()}"></div>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col">
+                    <h3>Results completed</h3>
+                </div>
+            </div>
+            <div class="row" th:each="result : ${results}">
+                <div class="col-sm-1">
+                    <a th:href="|@{/batch/result/}${result.name()}|"><i class="bi bi-download"></i></a>
+                </div>
+                <div class="col-sm-6" th:text="${result.name()}"></div>
+                <div class="col" th:text="${result.date()}"></div>
+            </div>
         </div>
     </div>
 
