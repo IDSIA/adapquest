@@ -11,7 +11,7 @@
     <div class="jumbotron">
         <div class="card-group">
 
-            <div class="card text-center" style="width: 18rem;">
+            <div class="card text-center" th:if="${demo}" style="width: 18rem;">
                 <div class="card-body">
                     <h5 class="card-title">Demo</h5>
                     <p class="card-text">Complete surveys using the adaptive engine as a final user.</p>
@@ -19,7 +19,7 @@
                 </div>
             </div>
 
-            <div class="card text-center" style="width: 18rem;">
+            <div class="card text-center" th:if="${assistant}" style="width: 18rem;">
                 <div class="card-body">
                     <h5 class="card-title">Assistant</h5>
                     <p class="card-text">Use the adaptive engine as a guide to complete a survey.</p>
@@ -27,15 +27,15 @@
                 </div>
             </div>
 
-            <div class="card text-center" style="width: 18rem;">
+            <div class="card text-center" th:if="${experiments}" style="width: 18rem;">
                 <div class="card-body">
-                    <h5 class="card-title">Batch</h5>
+                    <h5 class="card-title">Experiments</h5>
                     <p class="card-text">Use the adaptive engine to perform batch experiments.</p>
-                    <a th:href="@{/batch/}" class="btn btn-primary">Go to Batch</a>
+                    <a th:href="@{/experiments/}" class="btn btn-primary">Go to Experiments</a>
                 </div>
             </div>
 
-            <div class="card text-center" style="width: 18rem;">
+            <div class="card text-center" th:if="${dashboard}" style="width: 18rem;">
                 <div class="card-body">
                     <h5 class="card-title">Dashboard</h5>
                     <p class="card-text">Summary and control over the available surveys.</p>

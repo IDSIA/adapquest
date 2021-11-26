@@ -1,6 +1,14 @@
+adapquest:
+  controller:
+    assistant: false
+    console: true
+    dashboard: false
+    demo: false
+    experiments: false
+
 logging:
   level:
-    ch.idsia: info
+    ch.idsia: warn
     ch.idsia.adaptive.backend.services:
       templates: warn
       InitializationService: warn

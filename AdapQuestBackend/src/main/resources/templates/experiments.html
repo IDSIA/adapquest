@@ -10,8 +10,8 @@
 
     <div class="jumbotron">
         <div>
-            <h1>AdapQuest Batch Experiments</h1>
-            <p>The AdapQuest Batch Experiments page is intended to use XLSX templates to perform experiments.</p>
+            <h1>AdapQuest Experiments</h1>
+            <p>The AdapQuest Experiments page is intended to use XLSX templates to perform experiments.</p>
         </div>
 
         <div class="alert alert-danger" role="alert" th:if="${error != null}" th:text="${error}"></div>
@@ -21,7 +21,7 @@
             <form method="post" action="" enctype="multipart/form-data">
                 <div class="input-group mb-3">
                     <div class="">
-                        <a class="btn btn-primary" th:href="@{/batch/template}" role="button">
+                        <a class="btn btn-primary" th:href="@{/experiments/template}" role="button">
                             <i class="bi bi-download"></i>
                             &nbsp;
                             Template
@@ -47,7 +47,7 @@
             </div>
             <div class="row row-cols-3" th:each="experiment : ${experiments}">
                 <div class="col-sm-1">
-                    <a th:href="|@{/batch/experiment/}${experiment.name()}|"><i class="bi bi-download"></i></a>
+                    <a th:href="|@{/experiments/experiment/}${experiment.name()}|"><i class="bi bi-download"></i></a>
                 </div>
                 <div class="col-sm-6" th:text="${experiment.name()}"></div>
                 <div class="col" th:text="${experiment.date()}"></div>
@@ -60,7 +60,7 @@
             </div>
             <div class="row" th:each="result : ${results}">
                 <div class="col-sm-1">
-                    <a th:href="|@{/batch/result/}${result.name()}|"><i class="bi bi-download"></i></a>
+                    <a th:href="|@{/experiments/result/}${result.name()}|"><i class="bi bi-download"></i></a>
                 </div>
                 <div class="col-sm-6" th:text="${result.name()}"></div>
                 <div class="col" th:text="${result.date()}"></div>

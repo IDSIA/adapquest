@@ -1,3 +1,11 @@
+adapquest:
+  controller:
+    assistant: true
+    console: true
+    dashboard: true
+    demo: true
+    experiments: true
+
 spring:
   jpa:
     open-in-view: false

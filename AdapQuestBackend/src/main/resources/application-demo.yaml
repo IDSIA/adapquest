@@ -1,3 +1,11 @@
+adapquest:
+  controller:
+    assistant: false
+    console: false
+    dashboard: false
+    demo: true
+    experiments: false
+
 logging:
   level:
     ch.idsia: info

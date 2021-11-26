@@ -41,7 +41,7 @@ public class ExperimentService {
 		logger.info("Starting new experiment: filename={}", filename);
 
 		try {
-			final Path path = Paths.get("", "data", "batch", filename);
+			final Path path = Paths.get("", "data", "experiments", filename);
 			final ImportStructure structure = initService.parseStructure(path);
 
 			if (structure == null)

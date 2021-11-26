@@ -5,6 +5,7 @@ import ch.idsia.adaptive.backend.services.commons.OutFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,16 +29,17 @@ import java.util.stream.Collectors;
  * Date:    23.11.2021 14:23
  */
 @Controller
-@RequestMapping("/batch")
-public class BatchController {
-	public static final Logger logger = LoggerFactory.getLogger(BatchController.class);
+@ConditionalOnProperty(prefix = "adapquest.controller", name = "experiments")
+@RequestMapping("/experiments")
+public class ExperimentsController {
+	public static final Logger logger = LoggerFactory.getLogger(ExperimentsController.class);
 
 	private final ExperimentService experimentService;
 
 	final PathMatcher matchXLSX = FileSystems.getDefault().getPathMatcher("glob:**.xlsx");
 
 	@Autowired
-	public BatchController(ExperimentService experimentService) {
+	public ExperimentsController(ExperimentService experimentService) {
 		this.experimentService = experimentService;
 	}
 
@@ -54,9 +56,9 @@ public class BatchController {
 	}
 
 	private String defaultView(Model model) {
-		model.addAttribute("experiments", listFiles("batch"));
+		model.addAttribute("experiments", listFiles("experiments"));
 		model.addAttribute("results", listFiles("results"));
-		return "batch";
+		return "experiments";
 	}
 
 	@GetMapping("/")
@@ -66,7 +68,7 @@ public class BatchController {
 
 	@PostMapping("/")
 	public String consume(@RequestParam("file") MultipartFile file, Model model) {
-		logger.info("received new data for batch experiment");
+		logger.info("received new data for experiments");
 		// TODO: manage errors, make this an ajax-call
 		try {
 			if (file == null) {
@@ -82,7 +84,7 @@ public class BatchController {
 				logger.warn("Received file without name");
 				throw new IOException("Invalid file name");
 			}
-			final Path dest = Paths.get("", "data", "batch").resolve(Paths.get(filename)).toAbsolutePath();
+			final Path dest = Paths.get("", "data", "experiments").resolve(Paths.get(filename)).toAbsolutePath();
 			try (InputStream is = file.getInputStream()) {
 				Files.copy(is, dest, StandardCopyOption.REPLACE_EXISTING);
 			}
@@ -112,7 +114,7 @@ public class BatchController {
 	@ResponseBody
 	public byte[] downloadExperiments(@PathVariable("filename") String filename, HttpServletResponse response) throws IOException {
 		logger.info("Request download of experiment {}", filename);
-		final Path path = Paths.get("", "data", "batch", filename);
+		final Path path = Paths.get("", "data", "experiments", filename);
 		// TODO: check that the path exists and that the file is only XLSX
 		response.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 		return Files.readAllBytes(path);
