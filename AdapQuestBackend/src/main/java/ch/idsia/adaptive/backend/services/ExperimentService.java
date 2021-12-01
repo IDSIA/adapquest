@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +21,10 @@ import java.nio.file.Paths;
  * Date:    25.11.2021 09:32
  */
 @Service
-@PropertySource("classpath:settings.properties")
 public class ExperimentService {
-	public static final Logger logger = LoggerFactory.getLogger(ExperimentService.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExperimentService.class);
 
-	@Value("${experiment.parallel.pool.size}")
+	@Value("${experiment.parallel.pool.size:-1}")
 	private Integer poolSize = -1;
 
 	final InitializationService initService;

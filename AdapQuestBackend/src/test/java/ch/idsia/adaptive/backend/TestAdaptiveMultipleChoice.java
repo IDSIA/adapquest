@@ -1,5 +1,6 @@
 package ch.idsia.adaptive.backend;
 
+import ch.idsia.adaptive.backend.config.JobsConfig;
 import ch.idsia.adaptive.backend.config.PersistenceConfig;
 import ch.idsia.adaptive.backend.config.WebConfig;
 import ch.idsia.adaptive.backend.controller.ConsoleController;
@@ -15,10 +16,7 @@ import ch.idsia.adaptive.backend.services.InitializationService;
 import ch.idsia.adaptive.backend.services.SessionService;
 import ch.idsia.adaptive.backend.services.SurveyManagerService;
 import ch.idsia.adaptive.backend.utils.TestTool;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +38,7 @@ import java.util.List;
 @WebMvcTest({
 		WebConfig.class,
 		PersistenceConfig.class,
+		JobsConfig.class,
 		ClientRepository.class,
 		AnswerRepository.class,
 		QuestionAnswerRepository.class,
@@ -98,38 +97,23 @@ public class TestAdaptiveMultipleChoice {
 		final ResponseData data = tool.init(key);
 
 		ResponseQuestion question;
-		List<Answer> answers;
+
+		int i = 0;
 
 		// request first question
 		question = tool.next(data.token);
-		logger.info("1st question: {}", question.id); // 1
-		// choices available: no(0), yes(1), no(2) yes(3)
-		tool.answer(data.token, question.id, question.answers.get(1).id);
-		answers = ar.findAllBySessionTokenOrderByCreationAsc(data.token);
-		Assertions.assertEquals(2, answers.size());
-		Assertions.assertEquals("yes", answers.get(0).getQuestionAnswer().getText());
-		Assertions.assertEquals("no", answers.get(1).getQuestionAnswer().getText());
+		logger.info("1st question: {}", question.id);
+		i = answer(data, question, i);
 
 		// request second question
 		question = tool.next(data.token);
-		logger.info("2nd question: {}", question.id); // 3
-		// choices available: no(0), yes(1), no(2) yes(3)
-		tool.answer(data.token, question.id, question.answers.get(1).id, question.answers.get(3).id);
-		answers = ar.findAllBySessionTokenOrderByCreationAsc(data.token);
-		Assertions.assertEquals(4, answers.size());
-		Assertions.assertEquals("yes", answers.get(2).getQuestionAnswer().getText());
-		Assertions.assertEquals("yes", answers.get(3).getQuestionAnswer().getText());
+		logger.info("2nd question: {}", question.id);
+		i = answer(data, question, i);
 
 		// request third question
 		question = tool.next(data.token);
-		logger.info("3rd question: {}", question.id); // 2
-		// choices available: no(0), yes(1), no(2) yes(3), no(4) yes(5)
-		tool.answer(data.token, question.id, question.answers.get(3).id, question.answers.get(5).id);
-		answers = ar.findAllBySessionTokenOrderByCreationAsc(data.token);
-		Assertions.assertEquals(7, answers.size());
-		Assertions.assertEquals("no", answers.get(4).getQuestionAnswer().getText());
-		Assertions.assertEquals("yes", answers.get(5).getQuestionAnswer().getText());
-		Assertions.assertEquals("yes", answers.get(6).getQuestionAnswer().getText());
+		logger.info("3rd question: {}", question.id);
+		i = answer(data, question, i);
 
 		// request last question, no more available
 		question = tool.next(data.token);
@@ -146,6 +130,55 @@ public class TestAdaptiveMultipleChoice {
 				state.skillDistribution.get("S1")[0],
 				state.skillDistribution.get("S2")[0]
 		);
+	}
+
+	private int answer(ResponseData data, ResponseQuestion question, int i) throws Exception {
+		final int qid = question.id.intValue();
+		switch (qid) {
+			case 1:
+				i = answerTo1(data, question, i);
+				break;
+			case 2:
+				i = answerTo2(data, question, i);
+				break;
+			case 3:
+				i = answerTo3(data, question, i);
+				break;
+		}
+		return i;
+	}
+
+	private int answerTo1(ResponseData data, ResponseQuestion question, int i) throws Exception {
+		// choices available: no(0), yes(1), no(2) yes(3)
+		tool.answer(data.token, question.id, question.answers.get(1).id);
+		final List<Answer> answers = ar.findAllBySessionTokenOrderByCreationAsc(data.token);
+		Assertions.assertEquals(i + 2, answers.size());
+		Assertions.assertEquals("yes", answers.get(i++).getQuestionAnswer().getText());
+		Assertions.assertEquals("no", answers.get(i++).getQuestionAnswer().getText());
+		return i;
+	}
+
+	private int answerTo2(ResponseData data, ResponseQuestion question, int i) throws Exception {
+		List<Answer> answers;
+		// choices available: no(0), yes(1), no(2) yes(3), no(4) yes(5)
+		tool.answer(data.token, question.id, question.answers.get(3).id, question.answers.get(5).id);
+		answers = ar.findAllBySessionTokenOrderByCreationAsc(data.token);
+		Assertions.assertEquals(i + 3, answers.size());
+		Assertions.assertEquals("no", answers.get(i++).getQuestionAnswer().getText());
+		Assertions.assertEquals("yes", answers.get(i++).getQuestionAnswer().getText());
+		Assertions.assertEquals("yes", answers.get(i++).getQuestionAnswer().getText());
+		return i;
+	}
+
+	private int answerTo3(ResponseData data, ResponseQuestion question, int i) throws Exception {
+		List<Answer> answers;
+		// choices available: no(0), yes(1), no(2) yes(3)
+		tool.answer(data.token, question.id, question.answers.get(1).id, question.answers.get(3).id);
+		answers = ar.findAllBySessionTokenOrderByCreationAsc(data.token);
+		Assertions.assertEquals(i + 2, answers.size());
+		Assertions.assertEquals("yes", answers.get(i++).getQuestionAnswer().getText());
+		Assertions.assertEquals("yes", answers.get(i++).getQuestionAnswer().getText());
+		return i;
 	}
 
 	@Test

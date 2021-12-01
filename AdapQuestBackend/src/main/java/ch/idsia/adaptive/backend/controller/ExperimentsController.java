@@ -2,18 +2,22 @@ package ch.idsia.adaptive.backend.controller;
 
 import ch.idsia.adaptive.backend.services.ExperimentService;
 import ch.idsia.adaptive.backend.services.commons.OutFile;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
@@ -32,11 +36,11 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(prefix = "adapquest.controller", name = "experiments")
 @RequestMapping("/experiments")
 public class ExperimentsController {
-	public static final Logger logger = LoggerFactory.getLogger(ExperimentsController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExperimentsController.class);
 
 	private final ExperimentService experimentService;
 
-	final PathMatcher matchXLSX = FileSystems.getDefault().getPathMatcher("glob:**.xlsx");
+	private final PathMatcher matchXLSX = FileSystems.getDefault().getPathMatcher("glob:**.xlsx");
 
 	@Autowired
 	public ExperimentsController(ExperimentService experimentService) {
@@ -69,7 +73,7 @@ public class ExperimentsController {
 	@PostMapping("/")
 	public String consume(@RequestParam("file") MultipartFile file, Model model) {
 		logger.info("received new data for experiments");
-		// TODO: manage errors, make this an ajax-call
+		// TODO: make this an ajax-call
 		try {
 			if (file == null) {
 				logger.warn("Null file");
@@ -89,6 +93,8 @@ public class ExperimentsController {
 				Files.copy(is, dest, StandardCopyOption.REPLACE_EXISTING);
 			}
 
+			checkForValidXLSX(dest, filename);
+
 			model.addAttribute("message", "Added new file: " + filename);
 			// this start the async experiment
 			experimentService.exec(filename);
@@ -101,11 +107,34 @@ public class ExperimentsController {
 		return defaultView(model);
 	}
 
+	private void checkForValidXLSX(Path path, String filename) {
+		if (!Files.exists(path)) {
+			logger.error("Filename={} not found or does not exists", filename);
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "File not found");
+		}
+
+		if (!Files.isRegularFile(path)) {
+			logger.error("Filename={} is not a regular file", filename);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid file name");
+		}
+
+		try (FileInputStream fis = new FileInputStream(path.toFile())) {
+			new XSSFWorkbook(fis); // this is just to test that the file is a valid format
+		} catch (Exception e) {
+			logger.error("Filename={} is an invalid file type", filename);
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid file type");
+		}
+	}
+
 	@GetMapping(value = "/template", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
 	@ResponseBody
 	public byte[] downloadTemplate(HttpServletResponse response) throws IOException {
+		logger.info("Download template request");
 		final String template = "adaptive.questionnaire.template.xlsx";
 		final Path path = Paths.get("", "data", "templates", template);
+
+		checkForValidXLSX(path, template);
+
 		response.addHeader("Content-Disposition", "attachment; filename=\"" + template + "\"");
 		return Files.readAllBytes(path);
 	}
@@ -115,7 +144,9 @@ public class ExperimentsController {
 	public byte[] downloadExperiments(@PathVariable("filename") String filename, HttpServletResponse response) throws IOException {
 		logger.info("Request download of experiment {}", filename);
 		final Path path = Paths.get("", "data", "experiments", filename);
-		// TODO: check that the path exists and that the file is only XLSX
+
+		checkForValidXLSX(path, filename);
+
 		response.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 		return Files.readAllBytes(path);
 	}
@@ -125,7 +156,9 @@ public class ExperimentsController {
 	public byte[] downloadResults(@PathVariable("filename") String filename, HttpServletResponse response) throws IOException {
 		logger.info("Request download of results {}", filename);
 		final Path path = Paths.get("", "data", "results", filename);
-		// TODO: check that the path exists and that the file is only XLSX
+
+		checkForValidXLSX(path, filename);
+
 		response.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 		return Files.readAllBytes(path);
 	}

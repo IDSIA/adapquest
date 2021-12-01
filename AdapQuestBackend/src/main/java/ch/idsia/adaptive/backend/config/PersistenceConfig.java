@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -28,11 +27,10 @@ import java.util.Properties;
  */
 @Configuration
 @AutoConfigureAfter(WebConfig.class)
-@PropertySource("classpath:persistence.properties")
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = "ch.idsia.adaptive.backend.persistence.dao")
 public class PersistenceConfig {
-	public static final Logger logger = LoggerFactory.getLogger(PersistenceConfig.class);
+	private static final Logger logger = LoggerFactory.getLogger(PersistenceConfig.class);
 
 	@Value("${db.dbms:memory}")
 	private String dbms;

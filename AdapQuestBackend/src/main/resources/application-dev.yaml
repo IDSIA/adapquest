@@ -1,9 +1,0 @@
-logging:
-  level:
-    ch.idsia: info
-    ch.idsia.adaptive.backend.services:
-      templates: warn
-      InitializationService: warn
-    org.apache.catalina: warn
-    org.springframework: warn
-    org.hibernate: warn

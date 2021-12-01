@@ -243,13 +243,13 @@ public class SurveyStructureRepository {
 
 		// noisy-or inhibitors
 		final double[][] inh = {
-				{.1, .2}, // Inh(a0)
-				{.3, .4}, // Inh(a1)
-				{.2, .3}, // Inh(a2)
-				{.1, .2}, // Inh(a3)
-				{.5, .6}, // Inh(a4)
-				{.1, .4}, // Inh(a5)
-				{.5, .7}, // Inh(a6)
+				{.9, .8}, // Inh(a0)
+				{.7, .6}, // Inh(a1)
+				{.8, .7}, // Inh(a2)
+				{.9, .8}, // Inh(a3)
+				{.5, .4}, // Inh(a4)
+				{.9, .6}, // Inh(a5)
+				{.5, .3}, // Inh(a6)
 		};
 		// answer nodes for each question
 		final int[][] q = {
@@ -344,14 +344,14 @@ public class SurveyStructureRepository {
 				BayesianFactorFactory.factory().domain(bn.getDomain(s1)).data(new double[]{.5, .5}).get(),
 				BayesianFactorFactory.factory().domain(bn.getDomain(s2)).data(new double[]{.5, .5}).get(),
 
-				BayesianFactorFactory.factory().domain(bn.getDomain(q0c0, s0, s1)).noisyOr(bn.getParents(q0c0), new double[]{.4, .6}),
-				BayesianFactorFactory.factory().domain(bn.getDomain(q0c1, s0, s2)).noisyOr(bn.getParents(q0c1), new double[]{.6, .4}),
+				BayesianFactorFactory.factory().domain(bn.getDomain(q0c0, s0, s1)).noisyOr(bn.getParents(q0c0), new double[]{.6, .4}),
+				BayesianFactorFactory.factory().domain(bn.getDomain(q0c1, s0, s2)).noisyOr(bn.getParents(q0c1), new double[]{.4, .6}),
 
 				BayesianFactorFactory.factory().domain(bn.getDomain(q1c0, s0, s1)).noisyOr(bn.getParents(q1c0), new double[]{.5, .5}),
-				BayesianFactorFactory.factory().domain(bn.getDomain(q1c1, s1, s2)).noisyOr(bn.getParents(q1c1), new double[]{.3, .7}),
+				BayesianFactorFactory.factory().domain(bn.getDomain(q1c1, s1, s2)).noisyOr(bn.getParents(q1c1), new double[]{.7, .3}),
 
-				BayesianFactorFactory.factory().domain(bn.getDomain(q2c0, s0, s2)).noisyOr(bn.getParents(q2c0), new double[]{.6, .4}),
-				BayesianFactorFactory.factory().domain(bn.getDomain(q2c1, s0, s2)).noisyOr(bn.getParents(q2c1), new double[]{.8, .2}),
+				BayesianFactorFactory.factory().domain(bn.getDomain(q2c0, s0, s2)).noisyOr(bn.getParents(q2c0), new double[]{.4, .6}),
+				BayesianFactorFactory.factory().domain(bn.getDomain(q2c1, s0, s2)).noisyOr(bn.getParents(q2c1), new double[]{.2, .8}),
 		};
 
 		bn.setFactors(f);
@@ -401,8 +401,8 @@ public class SurveyStructureRepository {
 				BayesianFactorFactory.factory().domain(bn.getDomain(s1)).data(new double[]{.5, .5}).get(),
 				BayesianFactorFactory.factory().domain(bn.getDomain(s2)).data(new double[]{.5, .5}).get(),
 
-				BayesianFactorFactory.factory().domain(bn.getDomain(q1, s0, s1)).noisyOr(bn.getParents(q1), new double[]{.0, .0}),
-				BayesianFactorFactory.factory().domain(bn.getDomain(q2, s1, s2)).noisyOr(bn.getParents(q2), new double[]{.0, .0}),
+				BayesianFactorFactory.factory().domain(bn.getDomain(q1, s0, s1)).noisyOr(bn.getParents(q1), new double[]{1.0, 1.0}),
+				BayesianFactorFactory.factory().domain(bn.getDomain(q2, s1, s2)).noisyOr(bn.getParents(q2), new double[]{1.0, 1.0}),
 		};
 
 		bn.setFactors(f);

@@ -29,7 +29,7 @@ import java.util.List;
 @ConditionalOnProperty(prefix = "adapquest.controller", name = "assistant")
 @RequestMapping("/assistant")
 public class AssistantController {
-	public static final Logger logger = LoggerFactory.getLogger(AssistantController.class);
+	private static final Logger logger = LoggerFactory.getLogger(AssistantController.class);
 
 	final SurveyRepository surveys;
 	final SurveyController controller;

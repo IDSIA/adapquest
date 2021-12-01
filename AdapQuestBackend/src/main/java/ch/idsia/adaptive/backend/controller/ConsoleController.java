@@ -47,7 +47,7 @@ import static ch.idsia.adaptive.backend.security.APIKeyGenerator.validateApiKey;
 @ConditionalOnProperty(prefix = "adapquest.controller", name = "console")
 @RequestMapping(value = "/console", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ConsoleController {
-	public static final Logger logger = LoggerFactory.getLogger(ConsoleController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ConsoleController.class);
 
 	private final InitializationService initService;
 

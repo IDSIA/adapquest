@@ -3,9 +3,9 @@ package ch.idsia.adaptive.backend.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -19,21 +19,27 @@ import java.util.concurrent.Executor;
  * Date:    25.11.2021 09:31
  */
 @Configuration
-@PropertySource("classpath:settings.properties")
 @EnableAsync
 public class JobsConfig implements AsyncConfigurer {
 	private static final Logger logger = LoggerFactory.getLogger(JobsConfig.class);
 
-	@Value("${experiment.pool.size}")
-	private Integer poolSize = -1;
+	private final Integer poolSize;
+
+	private final Environment env;
+
+	@Autowired
+	public JobsConfig(Environment env) {
+		this.env = env;
+		final Integer n = env.getProperty("experiment.pool.size", Integer.class, 1);
+		poolSize = n < 0 ? Runtime.getRuntime().availableProcessors() : n;
+	}
 
 	@Override
 	public Executor getAsyncExecutor() {
-		final int size = poolSize < 0 ? Runtime.getRuntime().availableProcessors() : poolSize;
-		logger.debug("Initializing executor with maxPoolSize={}", size);
+		logger.debug("Initializing executor with maxPoolSize={}", poolSize);
 
 		final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setMaxPoolSize(size);
+		executor.setMaxPoolSize(poolSize);
 		executor.initialize();
 		return executor;
 	}
