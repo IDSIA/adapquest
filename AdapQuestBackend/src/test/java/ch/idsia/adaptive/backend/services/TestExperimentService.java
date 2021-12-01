@@ -2,6 +2,7 @@ package ch.idsia.adaptive.backend.services;
 
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -25,6 +26,7 @@ public class TestExperimentService {
 		es = new ExperimentService(new InitializationService(sr));
 	}
 
+	@Disabled // TODO: make this a real test
 	@Test
 	public void testExperiment() {
 		es.exec("adapquest.small.xlsx");

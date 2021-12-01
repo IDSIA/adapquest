@@ -8,7 +8,10 @@ import ch.idsia.adaptive.backend.services.commons.profiles.Profile;
 import ch.idsia.adaptive.backend.services.commons.scoring.precise.ScoringFunctionExpectedEntropy;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +23,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
+
+import static org.apache.poi.ss.usermodel.ConditionalFormattingThreshold.RangeType;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -51,7 +56,6 @@ public class Experiment {
 		logger.info("Parsing for profiles path={}", path.getFileName());
 
 		// reading answers and profiles
-		final Map<Integer, String> names = new HashMap<>();
 		final Map<String, Profile> profiles = new HashMap<>();
 
 		try (FileInputStream fis = new FileInputStream(path.toFile())) {
@@ -66,31 +70,32 @@ public class Experiment {
 			for (Row row : sheetProfiles) {
 				if (row.getRowNum() == 0) {
 					for (int j = 0; j < row.getLastCellNum(); j++) {
+						if (row.getCell(j) == null || row.getCell(j).toString().isEmpty())
+							continue;
 
 						final String profile = row.getCell(j).getStringCellValue();
 						if ("SKILLS".equalsIgnoreCase(profile)) {
 							iValSkills = j;
 						} else {
-							names.put(j, profile);
-							profiles.put(profile, new Profile(profile));
+							profiles.put(profile, new Profile(profile, j));
 						}
 					}
 
 					continue;
 				}
 
-				if (row.getCell(1) == null)
+				if (row.getCell(1) == null) {
 					break;
+				}
 
 				final String n = row.getCell(iValSkills).getStringCellValue();
-				for (int j = iValSkills + 1, k = 0; k < names.size(); j++, k++) {
-					final int s = Double.valueOf(row.getCell(j).getNumericCellValue()).intValue();
-					profiles.get(names.get(j)).add(n, s);
+				for (Profile p : profiles.values()) {
+					final int s = Double.valueOf(row.getCell(p.getCol()).getNumericCellValue()).intValue();
+					p.add(n, s);
 				}
 			}
 
 			// answers parsing
-			names.clear();
 			int iValQuestionId = 0, iValAnswerId = 0, iValProfilesStart = 0;
 
 			for (Row row : sheetAnswers) {
@@ -114,8 +119,10 @@ public class Experiment {
 
 				if (row.getRowNum() == 1) {
 					for (int j = iValProfilesStart, k = 0; k < profiles.size(); j++, k++) {
+						if (row.getCell(j) == null || row.getCell(j).toString().isEmpty())
+							continue;
 						final String profile = row.getCell(j).getStringCellValue();
-						names.put(j, profile);
+						profiles.get(profile).setCol(j);
 					}
 
 					continue;
@@ -128,8 +135,8 @@ public class Experiment {
 				final int q = Double.valueOf(row.getCell(iValQuestionId).getNumericCellValue()).intValue();
 				final int a = Double.valueOf(row.getCell(iValAnswerId).getNumericCellValue()).intValue();
 
-				for (int j = iValProfilesStart, k = 0; k < names.size(); j++, k++) {
-					profiles.get(names.get(j)).add("Q" + q, "A" + a, Double.valueOf(row.getCell(j).getNumericCellValue()).intValue());
+				for (Profile p : profiles.values()) {
+					p.add("Q" + q, "A" + a, Double.valueOf(row.getCell(p.getCol()).getNumericCellValue()).intValue());
 				}
 			}
 
@@ -219,21 +226,21 @@ public class Experiment {
 
 						state = agent.getState();
 
-						content.add("" + profile.getName()); // profile name
+						content.add(profile.getName()); // profile name
 						content.add("INIT"); // question
 						content.add(""); // answer
 						content.add(""); // answer given
 						for (String skill : skills) {
 							final double d = state.probabilities.get(skill)[1];
-							content.add("" + d); // P(skill)
+							content.add(d); // P(skill)
 						}
 						avgScore = 0.0;
 						for (String skill : skills) {
 							final double score = state.score.get(skill);
 							avgScore += score / skills.size();
 						}
-						content.add("" + avgScore); // H(avg)
-						content.add("" + agent.getObservations()); // observations
+						content.add(avgScore); // H(avg)
+						content.add(agent.getObservations().toString()); // observations
 
 						content.newLine();
 
@@ -250,9 +257,9 @@ public class Experiment {
 									logger.debug("{} {} {} {}", profile.getName(), q, a, ans);
 
 									content.newLine();
-									content.add("" + profile.getName()); // profile
-									content.add("" + q); // question
-									content.add("" + a); // answer
+									content.add(profile.getName()); // profile
+									content.add(q); // question
+									content.add(a); // answer
 
 									double v;
 									if (question.getYesOnly()) {
@@ -260,9 +267,9 @@ public class Experiment {
 									} else {
 										v = ans == 0 ? -1 : +1;
 									}
-									content.add("" + v); // answer given
+									content.add(v); // answer given
 									for (double d : profile.getWeights().get(q).get(a)) {
-										content.add("" + (v * d)); // P(x)
+										content.add(v * d); // P(x)
 									}
 									content.add(""); // H(avg)
 								}
@@ -273,22 +280,22 @@ public class Experiment {
 							state = agent.getState();
 
 							content.newLine();
-							content.add("" + profile.getName()); // profile
-							content.add("" + q); // question
+							content.add(profile.getName()); // profile
+							content.add(q); // question
 							content.add(""); // answer
 							content.add(""); // answer given
 
 							for (String s : skills) {
 								final double d = state.getProbabilities().get(s)[1];
-								content.add("" + d); // P(x)
+								content.add(d); // P(x)
 							}
 							avgScore = 0.0;
 							for (String skill : skills) {
 								final double score = state.score.get(skill);
 								avgScore += score / skills.size();
 							}
-							content.add("" + avgScore); // H(avg)
-							content.add("" + agent.getObservations());
+							content.add(avgScore); // H(avg)
+							content.add(agent.getObservations().toString());
 
 							content.newLine();
 						}
@@ -307,7 +314,7 @@ public class Experiment {
 					content.add(""); // answer
 					content.add(""); // answer given
 					for (String s : skills) {
-						content.add("" + profile.getSkills().get(s)); // P(x)
+						content.add(profile.getSkills().get(s)); // P(x)
 					}
 					content.newLine();
 
@@ -348,33 +355,96 @@ public class Experiment {
 			final Font font = workbook.createFont();
 			font.setBold(true);
 			hStyle.setFont(font);
+			hStyle.setAlignment(HorizontalAlignment.CENTER);
 			hStyle.setBorderBottom(BorderStyle.THIN);
 
-			// style for columns
-			final CellStyle cStyle = workbook.createCellStyle();
-			cStyle.setBorderLeft(BorderStyle.THIN);
-			cStyle.setBorderRight(BorderStyle.THIN);
+			// style for columns with borders
+			final CellStyle cStyleBorder = workbook.createCellStyle();
+			cStyleBorder.setAlignment(HorizontalAlignment.CENTER);
+			cStyleBorder.setBorderLeft(BorderStyle.THIN);
+			cStyleBorder.setBorderRight(BorderStyle.THIN);
 
+			// style for columns without borders
+			final CellStyle cStyle = workbook.createCellStyle();
+			cStyle.setAlignment(HorizontalAlignment.CENTER);
+			cStyle.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+
+			// style for Havg column
+			final CellStyle cStyleHavg = workbook.createCellStyle();
+			cStyleHavg.setAlignment(HorizontalAlignment.CENTER);
+			cStyleHavg.setBorderLeft(BorderStyle.THIN);
+			cStyleHavg.setBorderRight(BorderStyle.THIN);
+			cStyleHavg.setAlignment(HorizontalAlignment.CENTER);
+			cStyleHavg.setDataFormat(workbook.createDataFormat().getFormat("0.00"));
+
+			// applying styles
 			for (Cell cell : results.getRow(0)) {
 				cell.setCellStyle(hStyle);
 			}
 
-			final int[] cols = {0, 1, 2, 3, l - 1};
+			final Set<Integer> cols = Set.of(0, 1, 2, 3, l - 1);
 			for (int i = 1; i < results.getLastRowNum(); i++) {
-				final XSSFRow row = results.getRow(i);
-				for (int c : cols) {
+				XSSFRow row = results.getRow(i);
+				if (row == null)
+					row = results.createRow(i);
+
+				for (int c = 0; c < l; c++) {
 					XSSFCell cell = row.getCell(c);
 					if (cell == null)
 						cell = row.createCell(c);
-					cell.setCellStyle(cStyle);
+					if (c == l - 1)
+						cell.setCellStyle(cStyleHavg);
+					else if (cols.contains(c))
+						cell.setCellStyle(cStyleBorder);
+					else
+						cell.setCellStyle(cStyle);
 				}
 			}
 
-			// conditional formatting
-			final XSSFSheetConditionalFormatting cf = results.getSheetConditionalFormatting();
-			final XSSFConditionalFormattingRule rule = cf.createConditionalFormattingColorScaleRule();
-			final CellRangeAddress[] regions = {new CellRangeAddress(1, r, 4, l - 2)};
-			cf.addConditionalFormatting(regions, rule);
+			// conditional formatting skills
+			final SheetConditionalFormatting cf1 = results.getSheetConditionalFormatting();
+			final ConditionalFormattingRule rule1 = cf1.createConditionalFormattingColorScaleRule();
+			final ColorScaleFormatting csf1 = rule1.getColorScaleFormatting();
+
+			csf1.getThresholds()[0].setRangeType(RangeType.MIN);
+			csf1.getThresholds()[1].setRangeType(RangeType.PERCENTILE);
+			csf1.getThresholds()[1].setValue(0.5);
+			csf1.getThresholds()[2].setRangeType(RangeType.MAX);
+
+			((ExtendedColor) csf1.getColors()[0]).setARGBHex("FFF8696B");
+			((ExtendedColor) csf1.getColors()[1]).setARGBHex("FFFFEB84");
+			((ExtendedColor) csf1.getColors()[2]).setARGBHex("FF63BE7B");
+
+			final CellRangeAddress[] regions1 = {new CellRangeAddress(1, r, 4, l - 2)};
+			cf1.addConditionalFormatting(regions1, rule1);
+
+			// conditional formatting Havg
+			final SheetConditionalFormatting cf2 = results.getSheetConditionalFormatting();
+			final ConditionalFormattingRule rule2 = cf2.createConditionalFormattingColorScaleRule();
+			final ColorScaleFormatting csf2 = rule2.getColorScaleFormatting();
+
+			csf2.getThresholds()[0].setRangeType(RangeType.MIN);
+			csf2.getThresholds()[1].setRangeType(RangeType.PERCENTILE);
+			csf2.getThresholds()[1].setValue(0.5);
+			csf2.getThresholds()[2].setRangeType(RangeType.MAX);
+
+			((ExtendedColor) csf2.getColors()[0]).setARGBHex("FF63BE7B");
+			((ExtendedColor) csf2.getColors()[1]).setARGBHex("FFFFEB84");
+			((ExtendedColor) csf2.getColors()[2]).setARGBHex("FFF8696B");
+
+			final CellRangeAddress[] regions2 = {new CellRangeAddress(1, r, l - 1, l - 1)};
+			cf2.addConditionalFormatting(regions2, rule2);
+
+			// auto size columns
+
+			for (int c = 0; c < l; c++) {
+				results.autoSizeColumn(c);
+				try {
+					results.setColumnWidth(c, results.getColumnWidth(c) + 1300);
+				} catch (Exception ignored) {
+					
+				}
+			}
 
 			// write to disk the results
 			workbook.write(fos);

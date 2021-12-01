@@ -19,11 +19,16 @@ public class Profile {
 	final String name;
 	final Map<String, Integer> skills = new LinkedHashMap<>();
 	final Map<String, Integer> answers = new HashMap<>();
+
 	@Setter
 	Map<String, Map<String, double[]>> weights = new HashMap<>();
 
-	public Profile(String name) {
+	@Setter
+	Integer col;
+
+	public Profile(String name, Integer col) {
 		this.name = name;
+		this.col = col;
 	}
 
 	private String key(String qid, String aid) {
