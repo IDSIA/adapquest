@@ -46,8 +46,9 @@
                 </div>
             </div>
             <div class="row row-cols-3" th:each="experiment : ${experiments}">
-                <div class="col-sm-1">
+                <div class="col-sm-2">
                     <a th:href="|@{~/experiments/experiment/}${experiment.name()}|"><i class="bi bi-download"></i></a>
+                    <a th:href="|@{~/experiments/delete/experiment/}${experiment.name()}|"><i class="bi bi-trash"></i></a>
                 </div>
                 <div class="col-sm-6" th:text="${experiment.name()}"></div>
                 <div class="col" th:text="${experiment.date()}"></div>
@@ -59,8 +60,9 @@
                 </div>
             </div>
             <div class="row" th:each="result : ${results}">
-                <div class="col-sm-1">
+                <div class="col-sm-2">
                     <a th:href="|@{~/experiments/result/}${result.name()}|"><i class="bi bi-download"></i></a>
+                    <a th:href="|@{~/experiments/delete/result/}${result.name()}|"><i class="bi bi-trash"></i></a>
                 </div>
                 <div class="col-sm-6" th:text="${result.name()}"></div>
                 <div class="col" th:text="${result.date()}"></div>

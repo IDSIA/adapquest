@@ -83,12 +83,24 @@ public class ExperimentsController {
 				logger.warn("Received empty file");
 				throw new IOException("Empty file");
 			}
-			final String filename = file.getOriginalFilename();
+
+			String filename = file.getOriginalFilename();
 			if (filename == null) {
 				logger.warn("Received file without name");
 				throw new IOException("Invalid file name");
 			}
-			final Path dest = Paths.get("", "data", "experiments").resolve(Paths.get(filename)).toAbsolutePath();
+
+			if (!filename.endsWith(".xlsx")) {
+				logger.warn("Received file with wrong extension filename={}", filename);
+				throw new IOException("Invalid extension.");
+			}
+
+			Path dest = Paths.get("", "data", "experiments").resolve(Paths.get(filename)).toAbsolutePath();
+			int i = 1;
+			while (dest.toFile().exists()) {
+				filename = filename.replace(".xlsx", "v" + i++ + ".xslx");
+				dest = Paths.get("", "data", "experiments").resolve(Paths.get(filename)).toAbsolutePath();
+			}
 			try (InputStream is = file.getInputStream()) {
 				Files.copy(is, dest, StandardCopyOption.REPLACE_EXISTING);
 			}
@@ -163,10 +175,38 @@ public class ExperimentsController {
 		return Files.readAllBytes(path);
 	}
 
-	@DeleteMapping("/delete/{filename}")
-	public String deleteResults(Model model) {
-		// TODO: delete the results based on id
-		return "error";
+	@GetMapping("/delete/experiment/{filename}")
+	public String deleteExperiment(@PathVariable("filename") String filename, Model model) {
+		logger.info("Request delete of experiment {}", filename);
+		final Path path = Paths.get("", "data", "experiments", filename);
+
+		checkForValidXLSX(path, filename);
+
+		try {
+			Files.delete(path);
+			model.addAttribute("message", "Deleted experiment file " + filename);
+		} catch (IOException e) {
+			model.addAttribute("error", "Could not delete file " + filename);
+		}
+
+		return defaultView(model);
+	}
+
+	@GetMapping("/delete/result/{filename}")
+	public String deleteResult(@PathVariable("filename") String filename, Model model) {
+		logger.info("Request delete of results {}", filename);
+		final Path path = Paths.get("", "data", "results", filename);
+
+		checkForValidXLSX(path, filename);
+
+		try {
+			Files.delete(path);
+			model.addAttribute("message", "Deleted result file " + filename);
+		} catch (IOException e) {
+			model.addAttribute("error", "Could not delete result file " + filename);
+		}
+
+		return defaultView(model);
 	}
 
 }

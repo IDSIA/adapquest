@@ -96,7 +96,7 @@ public class Experiment {
 			}
 
 			// answers parsing
-			int iValQuestionId = 0, iValAnswerId = 0, iValProfilesStart = 0;
+			int iValQuestionId = 0, iValAnswerId = 0, iValProfilesStart = 0, q = -1;
 
 			for (Row row : sheetAnswers) {
 				if (row.getRowNum() == 0) {
@@ -132,8 +132,10 @@ public class Experiment {
 					break;
 				}
 
-				final int q = Double.valueOf(row.getCell(iValQuestionId).getNumericCellValue()).intValue();
-				final int a = Double.valueOf(row.getCell(iValAnswerId).getNumericCellValue()).intValue();
+				if (row.getCell(iValQuestionId) != null && !row.getCell(iValQuestionId).toString().isEmpty()) {
+					q = Double.valueOf(row.getCell(iValQuestionId).getNumericCellValue()).intValue();
+				}
+				int a = Double.valueOf(row.getCell(iValAnswerId).getNumericCellValue()).intValue();
 
 				for (Profile p : profiles.values()) {
 					p.add("Q" + q, "A" + a, Double.valueOf(row.getCell(p.getCol()).getNumericCellValue()).intValue());
@@ -436,13 +438,12 @@ public class Experiment {
 			cf2.addConditionalFormatting(regions2, rule2);
 
 			// auto size columns
-
 			for (int c = 0; c < l; c++) {
 				results.autoSizeColumn(c);
 				try {
 					results.setColumnWidth(c, results.getColumnWidth(c) + 1300);
 				} catch (Exception ignored) {
-					
+
 				}
 			}
 
