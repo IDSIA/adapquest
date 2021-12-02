@@ -6,6 +6,7 @@ import ch.idsia.adaptive.backend.services.commons.agents.AgentPreciseAdaptiveStr
 import ch.idsia.adaptive.backend.services.commons.profiles.Content;
 import ch.idsia.adaptive.backend.services.commons.profiles.Profile;
 import ch.idsia.adaptive.backend.services.commons.scoring.precise.ScoringFunctionExpectedEntropy;
+import lombok.Getter;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -31,18 +32,20 @@ import static org.apache.poi.ss.usermodel.ConditionalFormattingThreshold.RangeTy
  * Project: adapquest
  * Date:    25.11.2021 11:29
  */
-public class Experiment {
-	private static final Logger logger = LoggerFactory.getLogger(Experiment.class);
+public class JobExperiment {
+	private static final Logger logger = LoggerFactory.getLogger(JobExperiment.class);
 
 	private final ExecutorService es;
 	private final int nThread;
 
 	private final String filename;
+	@Getter
+	private String resultFilename;
 
 	private final Survey survey;
 	private final List<Profile> profiles;
 
-	public Experiment(String filename, Path path, Survey survey, Integer nThread) throws IOException {
+	public JobExperiment(String filename, Path path, Survey survey, Integer nThread) throws IOException {
 		this.filename = filename;
 		this.survey = survey;
 		this.nThread = nThread;
@@ -336,7 +339,8 @@ public class Experiment {
 			}
 		}
 
-		final Path dst = Paths.get("", "data", "results", "results." + filename);
+		resultFilename = "results." + filename;
+		final Path dst = Paths.get("", "data", "results", resultFilename);
 
 		try (FileOutputStream fos = new FileOutputStream(dst.toFile(), false)) {
 			final XSSFWorkbook workbook = new XSSFWorkbook();

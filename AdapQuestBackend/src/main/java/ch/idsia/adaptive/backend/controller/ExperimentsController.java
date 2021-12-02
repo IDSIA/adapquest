@@ -1,7 +1,8 @@
 package ch.idsia.adaptive.backend.controller;
 
+import ch.idsia.adaptive.backend.persistence.dao.ExperimentRepository;
+import ch.idsia.adaptive.backend.persistence.model.Experiment;
 import ch.idsia.adaptive.backend.services.ExperimentService;
-import ch.idsia.adaptive.backend.services.commons.OutFile;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,16 +17,14 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -39,29 +38,17 @@ public class ExperimentsController {
 	private static final Logger logger = LoggerFactory.getLogger(ExperimentsController.class);
 
 	private final ExperimentService experimentService;
-
-	private final PathMatcher matchXLSX = FileSystems.getDefault().getPathMatcher("glob:**.xlsx");
+	private final ExperimentRepository experimentRepository;
 
 	@Autowired
-	public ExperimentsController(ExperimentService experimentService) {
+	public ExperimentsController(ExperimentService experimentService, ExperimentRepository experimentRepository) {
 		this.experimentService = experimentService;
-	}
-
-	private List<OutFile> listFiles(String folder) {
-		final File file = Paths.get("", "data", folder).toFile();
-		final File[] files = file.listFiles();
-		if (files == null)
-			return new ArrayList<>();
-		return Arrays.stream(files)
-				.filter(x -> matchXLSX.matches(x.toPath()))
-				.sorted(Comparator.comparingLong(File::lastModified))
-				.map(OutFile::new)
-				.collect(Collectors.toList());
+		this.experimentRepository = experimentRepository;
 	}
 
 	private String defaultView(Model model) {
-		model.addAttribute("experiments", listFiles("experiments"));
-		model.addAttribute("results", listFiles("results"));
+		final List<Experiment> exps = experimentRepository.findAllByOrderByCreationDesc();
+		model.addAttribute("experiments", exps);
 		return "experiments";
 	}
 
@@ -71,7 +58,14 @@ public class ExperimentsController {
 	}
 
 	@PostMapping("/")
-	public String consume(@RequestParam("file") MultipartFile file, Model model) {
+	public String consume(
+			@RequestParam(value = "file", required = false) MultipartFile file,
+			@RequestParam(value = "filename", required = false) String filename,
+			Model model
+	) {
+		if (filename != null)
+			return delete(filename, model);
+
 		logger.info("received new data for experiments");
 		// TODO: make this an ajax-call
 		try {
@@ -84,7 +78,7 @@ public class ExperimentsController {
 				throw new IOException("Empty file");
 			}
 
-			String filename = file.getOriginalFilename();
+			filename = file.getOriginalFilename();
 			if (filename == null) {
 				logger.warn("Received file without name");
 				throw new IOException("Invalid file name");
@@ -98,7 +92,7 @@ public class ExperimentsController {
 			Path dest = Paths.get("", "data", "experiments").resolve(Paths.get(filename)).toAbsolutePath();
 			int i = 1;
 			while (dest.toFile().exists()) {
-				filename = filename.replace(".xlsx", "v" + i++ + ".xslx");
+				filename = filename.replace(".xlsx", ".v" + i++ + ".xlsx");
 				dest = Paths.get("", "data", "experiments").resolve(Paths.get(filename)).toAbsolutePath();
 			}
 			try (InputStream is = file.getInputStream()) {
@@ -114,6 +108,36 @@ public class ExperimentsController {
 		} catch (IOException e) {
 			logger.error("Could not save file to disk", e);
 			model.addAttribute("error", "Could not save file to disk: " + e.getMessage());
+		}
+
+		return defaultView(model);
+	}
+
+	private String delete(String filename, Model model) {
+		logger.info("received request to delete filename={}", filename);
+
+		try {
+			final Experiment exp = experimentRepository.findByName(filename);
+			if (exp == null)
+				throw new Exception("filename not found");
+
+			final Path path1 = Paths.get("", "data", "experiments", filename);
+			checkForValidXLSX(path1, filename);
+			Files.delete(path1);
+
+			final String result = exp.getResult();
+			if (result != null) {
+				final Path path2 = Paths.get("", "data", "results", result);
+				checkForValidXLSX(path2, filename);
+				Files.delete(path2);
+			}
+
+			experimentRepository.delete(exp);
+
+			model.addAttribute("message", "Deleted experiment " + filename);
+		} catch (Exception e) {
+			logger.error("Could not delete file " + filename, e);
+			model.addAttribute("error", "Could not delete file " + filename);
 		}
 
 		return defaultView(model);
@@ -173,40 +197,6 @@ public class ExperimentsController {
 
 		response.addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 		return Files.readAllBytes(path);
-	}
-
-	@GetMapping("/delete/experiment/{filename}")
-	public String deleteExperiment(@PathVariable("filename") String filename, Model model) {
-		logger.info("Request delete of experiment {}", filename);
-		final Path path = Paths.get("", "data", "experiments", filename);
-
-		checkForValidXLSX(path, filename);
-
-		try {
-			Files.delete(path);
-			model.addAttribute("message", "Deleted experiment file " + filename);
-		} catch (IOException e) {
-			model.addAttribute("error", "Could not delete file " + filename);
-		}
-
-		return defaultView(model);
-	}
-
-	@GetMapping("/delete/result/{filename}")
-	public String deleteResult(@PathVariable("filename") String filename, Model model) {
-		logger.info("Request delete of results {}", filename);
-		final Path path = Paths.get("", "data", "results", filename);
-
-		checkForValidXLSX(path, filename);
-
-		try {
-			Files.delete(path);
-			model.addAttribute("message", "Deleted result file " + filename);
-		} catch (IOException e) {
-			model.addAttribute("error", "Could not delete result file " + filename);
-		}
-
-		return defaultView(model);
 	}
 
 }

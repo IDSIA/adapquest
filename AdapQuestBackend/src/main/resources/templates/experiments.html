@@ -39,34 +39,47 @@
                     </div>
                 </div>
             </form>
+        </div>
+        <div class="container" style="width: 90%">
+            <table class="table">
+                <thead>
+                <tr class="">
+                    <th scope="row">Experiment</th>
+                    <th scope="row">Created</th>
+                    <th scope="row"></th>
+                    <th scope="row">Completed</th>
+                    <th scope="row"></th>
+                    <th scope="row">Status</th>
+                    <th scope="row"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="experiment : ${experiments}">
+                    <td th:text="${experiment.getName()}"></td>
+                    <td th:text="${#temporals.format(experiment.getCreation(), 'yyyy-MM-dd HH:mm')}"></td>
+                    <td>
+                        <a th:href="|@{~/experiments/experiment/}${experiment.getName()}|"><i
+                                class="bi bi-download"></i></a>
+                    </td>
+                    <td th:text="${#temporals.format(experiment.getCompletion(), 'yyyy-MM-dd HH:mm')}"></td>
+                    <td>
+                        <a th:if="${experiment.getCompleted()}"
+                           th:href="|@{~/experiments/result/}${experiment.getResult()}|">
+                            <i class="bi bi-download">
 
-            <div class="row mt-5">
-                <div class="col">
-                    <h3>Experiments stored</h3>
-                </div>
-            </div>
-            <div class="row row-cols-3" th:each="experiment : ${experiments}">
-                <div class="col-sm-2">
-                    <a th:href="|@{~/experiments/experiment/}${experiment.name()}|"><i class="bi bi-download"></i></a>
-                    <a th:href="|@{~/experiments/delete/experiment/}${experiment.name()}|"><i class="bi bi-trash"></i></a>
-                </div>
-                <div class="col-sm-6" th:text="${experiment.name()}"></div>
-                <div class="col" th:text="${experiment.date()}"></div>
-            </div>
-
-            <div class="row mt-5">
-                <div class="col">
-                    <h3>Results completed</h3>
-                </div>
-            </div>
-            <div class="row" th:each="result : ${results}">
-                <div class="col-sm-2">
-                    <a th:href="|@{~/experiments/result/}${result.name()}|"><i class="bi bi-download"></i></a>
-                    <a th:href="|@{~/experiments/delete/result/}${result.name()}|"><i class="bi bi-trash"></i></a>
-                </div>
-                <div class="col-sm-6" th:text="${result.name()}"></div>
-                <div class="col" th:text="${result.date()}"></div>
-            </div>
+                            </i></a>
+                    </td>
+                    <td th:text="${experiment.getStatus()}"></td>
+                    <td>
+                        <form action="" method="post">
+                            <input type="hidden" name="filename" th:value="${experiment.getName()}"/>
+                            <input type="hidden" name="delete" th:value="true"/>
+                            <button class="btn btn-danger btn-sm" type="submit"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 

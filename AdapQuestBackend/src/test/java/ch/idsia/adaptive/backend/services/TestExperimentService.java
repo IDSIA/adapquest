@@ -1,5 +1,6 @@
 package ch.idsia.adaptive.backend.services;
 
+import ch.idsia.adaptive.backend.persistence.dao.ExperimentRepository;
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -18,12 +19,14 @@ public class TestExperimentService {
 
 	@Mock
 	SurveyRepository sr;
+	@Mock
+	ExperimentRepository er;
 
 	ExperimentService es;
 
 	@BeforeEach
 	void setup() {
-		es = new ExperimentService(new InitializationService(sr));
+		es = new ExperimentService(new InitializationService(sr), er);
 	}
 
 	@Disabled // TODO: make this a real test

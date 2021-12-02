@@ -1,10 +1,12 @@
 package ch.idsia.adaptive.backend.services;
 
+import ch.idsia.adaptive.backend.persistence.dao.ExperimentRepository;
 import ch.idsia.adaptive.backend.persistence.external.ImportStructure;
+import ch.idsia.adaptive.backend.persistence.model.Experiment;
 import ch.idsia.adaptive.backend.persistence.model.QuestionAnswer;
 import ch.idsia.adaptive.backend.persistence.model.Skill;
 import ch.idsia.adaptive.backend.persistence.model.Survey;
-import ch.idsia.adaptive.backend.services.commons.Experiment;
+import ch.idsia.adaptive.backend.services.commons.JobExperiment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -27,16 +30,22 @@ public class ExperimentService {
 	@Value("${experiment.parallel.pool.size:-1}")
 	private Integer poolSize = -1;
 
-	final InitializationService initService;
+	private final InitializationService initService;
+	private final ExperimentRepository experimentRepository;
 
 	@Autowired
-	public ExperimentService(InitializationService initService) {
+	public ExperimentService(InitializationService initService, ExperimentRepository experimentRepository) {
 		this.initService = initService;
+		this.experimentRepository = experimentRepository;
 	}
 
 	@Async
 	public void exec(String filename) {
 		logger.info("Starting new experiment: filename={}", filename);
+		Experiment exp = new Experiment()
+				.setStatus("INIT")
+				.setName(filename);
+		experimentRepository.save(exp);
 
 		try {
 			final Path path = Paths.get("", "data", "experiments", filename);
@@ -64,9 +73,22 @@ public class ExperimentService {
 
 			// parse profiles
 			final int nThread = poolSize < 0 ? Runtime.getRuntime().availableProcessors() : poolSize;
-			final Experiment experiment = new Experiment(filename, path, survey, nThread);
+			final JobExperiment experiment = new JobExperiment(filename, path, survey, nThread);
+
+			exp.setStatus("RUNNING");
+			experimentRepository.save(exp);
+
 			experiment.run();
+
+			exp.setResult(experiment.getResultFilename())
+					.setStatus("COMPLETED")
+					.setCompletion(LocalDateTime.now())
+					.setCompleted(true);
+			experimentRepository.save(exp);
+
 		} catch (Exception e) {
+			exp.setStatus("FAILED");
+			experimentRepository.save(exp);
 			logger.error("", e);
 		}
 
