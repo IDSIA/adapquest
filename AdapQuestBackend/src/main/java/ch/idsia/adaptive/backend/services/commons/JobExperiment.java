@@ -354,7 +354,7 @@ public class JobExperiment {
 			}
 
 			// set filters
-			results.setAutoFilter(new CellRangeAddress(0, r, 0, l));
+			results.setAutoFilter(new CellRangeAddress(0, r, 0, 3));
 
 			// style for header row
 			final CellStyle hStyle = workbook.createCellStyle();
@@ -363,6 +363,13 @@ public class JobExperiment {
 			hStyle.setFont(font);
 			hStyle.setAlignment(HorizontalAlignment.CENTER);
 			hStyle.setBorderBottom(BorderStyle.THIN);
+
+			final CellStyle hStyleSkills = workbook.createCellStyle();
+			hStyleSkills.setFont(font);
+			hStyleSkills.setRotation((short) 90);
+			hStyleSkills.setWrapText(true);
+			hStyleSkills.setAlignment(HorizontalAlignment.CENTER);
+			hStyleSkills.setBorderBottom(BorderStyle.THIN);
 
 			// style for columns with borders
 			final CellStyle cStyleBorder = workbook.createCellStyle();
@@ -385,7 +392,10 @@ public class JobExperiment {
 
 			// applying styles
 			for (Cell cell : results.getRow(0)) {
-				cell.setCellStyle(hStyle);
+				if (cell.getAddress().getColumn() > 3 && cell.getAddress().getColumn() < l - 1)
+					cell.setCellStyle(hStyleSkills);
+				else
+					cell.setCellStyle(hStyle);
 			}
 
 			final Set<Integer> cols = Set.of(0, 1, 2, 3, l - 1);
@@ -442,13 +452,12 @@ public class JobExperiment {
 			cf2.addConditionalFormatting(regions2, rule2);
 
 			// auto size columns
-			for (int c = 0; c < l; c++) {
-				results.autoSizeColumn(c);
-				try {
-					results.setColumnWidth(c, results.getColumnWidth(c) + 1300);
-				} catch (Exception ignored) {
-
-				}
+			results.setColumnWidth(0, 3112); // 85px
+			results.setColumnWidth(1, 1556); // 42px
+			results.setColumnWidth(2, 1556); // 42px
+			results.setColumnWidth(3, 1556); // 85px
+			for (int i = 4; i <l-1; i++) {
+				results.setColumnWidth(3, 2737); // 75px
 			}
 
 			// write to disk the results
