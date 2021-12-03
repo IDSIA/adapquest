@@ -16,7 +16,10 @@ import ch.idsia.adaptive.backend.services.InitializationService;
 import ch.idsia.adaptive.backend.services.SessionService;
 import ch.idsia.adaptive.backend.services.SurveyManagerService;
 import ch.idsia.adaptive.backend.utils.TestTool;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,22 +136,22 @@ public class TestAdaptiveMultipleChoice {
 	}
 
 	private int answer(ResponseData data, ResponseQuestion question, int i) throws Exception {
-		final int qid = question.id.intValue();
+		final String qid = question.name;
 		switch (qid) {
-			case 1:
+			case "Q0":
+				i = answerTo0(data, question, i);
+				break;
+			case "Q1":
 				i = answerTo1(data, question, i);
 				break;
-			case 2:
+			case "Q2":
 				i = answerTo2(data, question, i);
-				break;
-			case 3:
-				i = answerTo3(data, question, i);
 				break;
 		}
 		return i;
 	}
 
-	private int answerTo1(ResponseData data, ResponseQuestion question, int i) throws Exception {
+	private int answerTo0(ResponseData data, ResponseQuestion question, int i) throws Exception {
 		// choices available: no(0), yes(1), no(2) yes(3)
 		tool.answer(data.token, question.id, question.answers.get(1).id);
 		final List<Answer> answers = ar.findAllBySessionTokenOrderByCreationAsc(data.token);
@@ -158,7 +161,7 @@ public class TestAdaptiveMultipleChoice {
 		return i;
 	}
 
-	private int answerTo2(ResponseData data, ResponseQuestion question, int i) throws Exception {
+	private int answerTo1(ResponseData data, ResponseQuestion question, int i) throws Exception {
 		List<Answer> answers;
 		// choices available: no(0), yes(1), no(2) yes(3), no(4) yes(5)
 		tool.answer(data.token, question.id, question.answers.get(3).id, question.answers.get(5).id);
@@ -170,7 +173,7 @@ public class TestAdaptiveMultipleChoice {
 		return i;
 	}
 
-	private int answerTo3(ResponseData data, ResponseQuestion question, int i) throws Exception {
+	private int answerTo2(ResponseData data, ResponseQuestion question, int i) throws Exception {
 		List<Answer> answers;
 		// choices available: no(0), yes(1), no(2) yes(3)
 		tool.answer(data.token, question.id, question.answers.get(1).id, question.answers.get(3).id);

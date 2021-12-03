@@ -456,7 +456,7 @@ public class JobExperiment {
 			results.setColumnWidth(1, 1556); // 42px
 			results.setColumnWidth(2, 1556); // 42px
 			results.setColumnWidth(3, 1556); // 85px
-			for (int i = 4; i <l-1; i++) {
+			for (int i = 4; i < l - 1; i++) {
 				results.setColumnWidth(3, 2737); // 75px
 			}
 

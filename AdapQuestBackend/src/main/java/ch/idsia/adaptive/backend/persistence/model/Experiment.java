@@ -26,15 +26,32 @@ public class Experiment {
 	@EqualsAndHashCode.Include
 	private Long id;
 
+	/**
+	 * Filename on disk of the template used by this experiment. The file will be put in the data/experiments folder.
+	 */
 	private String name;
+	/**
+	 * Filename on disk of the results file created by this experiment. The file will be put in the data/results folder.
+	 */
 	private String result;
 
-	// failed, running, completed
+	/**
+	 * Status of the job. Can be INIT, RUNNING, COMPLETED, or FAILED.
+	 */
 	private String status;
 
+	/**
+	 * When the initial template has been submitted.
+	 */
 	private LocalDateTime creation = LocalDateTime.now();
+	/**
+	 * When the result file has been created after a successful experiment.
+	 */
 	private LocalDateTime completion = null;
 
+	/**
+	 * True if the experiment is completed without errors.
+	 */
 	private Boolean completed = false;
 
 }

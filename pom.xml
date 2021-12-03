@@ -7,7 +7,7 @@
 	<groupId>ch.idsia.adaptive</groupId>
 	<artifactId>adapquest</artifactId>
 	<packaging>pom</packaging>
-	<version>1.4</version>
+	<version>1.5</version>
 	<modules>
 		<module>AdapQuestBackend</module>
 		<module>AdapQuestExchange</module>
@@ -18,7 +18,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<adapquest.version>1.4</adapquest.version>
+		<adapquest.version>1.5</adapquest.version>
 	</properties>
 
 	<build>
