@@ -61,6 +61,12 @@ public class QuestionStructure {
 	public Boolean multipleChoice = false;
 
 	/**
+	 * If true, and {@link #multipleChoice} is also true, only the evidence of checked (true) answers are considered by
+	 * the inference engine.
+	 */
+	public Boolean yesOnly = false;
+
+	/**
 	 * If true, this question influence a number of {@link SkillStructure} greater than 1.
 	 */
 	public Boolean multipleSkills = false;

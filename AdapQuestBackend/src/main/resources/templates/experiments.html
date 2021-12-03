@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/layout :: layout">
+    <title id="pageTitle">AdapQuest</title>
+</head>
+<body>
+
+<div class="container">
+    <div th:replace="fragments/layout :: header"></div>
+
+    <div class="jumbotron">
+        <div>
+            <h1>AdapQuest Experiments</h1>
+            <p>The AdapQuest Experiments page is intended to use XLSX templates to perform experiments.</p>
+        </div>
+
+        <div class="alert alert-danger" role="alert" th:if="${error != null}" th:text="${error}"></div>
+        <div class="alert alert-primary" role="alert" th:if="${message != null}" th:text="${message}"></div>
+
+        <div class="container" style="width: 60%">
+            <form method="post" action="" enctype="multipart/form-data">
+                <div class="input-group mb-3">
+                    <div class="">
+                        <a class="btn btn-primary" th:href="@{~/experiments/template}" role="button">
+                            <i class="bi bi-download"></i>
+                            &nbsp;
+                            Template
+                        </a>
+                    </div>
+                    <div class="custom-file input-group-append">
+                        <input type="file" name="file" class="custom-file-input" id="inputGroupFile04"
+                               aria-describedby="inputGroupFileAddon04">
+                        <label class="custom-file-label" for="inputGroupFile04">Choose file</label>
+                    </div>
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="submit" id="inputGroupFileAddon04">
+                            <i class="bi bi-upload"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="container" style="width: 90%">
+            <table class="table">
+                <thead>
+                <tr class="">
+                    <th scope="row">Experiment</th>
+                    <th scope="row">Created</th>
+                    <th scope="row"></th>
+                    <th scope="row">Completed</th>
+                    <th scope="row"></th>
+                    <th scope="row">Status</th>
+                    <th scope="row"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="experiment : ${experiments}">
+                    <td th:text="${experiment.getName()}"></td>
+                    <td th:text="${#temporals.format(experiment.getCreation(), 'yyyy-MM-dd HH:mm')}"></td>
+                    <td>
+                        <a th:href="|@{~/experiments/experiment/}${experiment.getName()}|"><i
+                                class="bi bi-download"></i></a>
+                    </td>
+                    <td th:text="${#temporals.format(experiment.getCompletion(), 'yyyy-MM-dd HH:mm')}"></td>
+                    <td>
+                        <a th:if="${experiment.getCompleted()}"
+                           th:href="|@{~/experiments/result/}${experiment.getResult()}|">
+                            <i class="bi bi-download">
+
+                            </i></a>
+                    </td>
+                    <td th:text="${experiment.getStatus()}"></td>
+                    <td>
+                        <form action="" method="post">
+                            <input type="hidden" name="filename" th:value="${experiment.getName()}"/>
+                            <input type="hidden" name="delete" th:value="true"/>
+                            <button class="btn btn-danger btn-sm" type="submit"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div th:replace="fragments/layout :: footer"></div>
+</div>
+
+<script>
+
+</script>
+
+</body>
+</html>

@@ -1,5 +1,6 @@
 package ch.idsia.adaptive.backend;
 
+import ch.idsia.adaptive.backend.config.JobsConfig;
 import ch.idsia.adaptive.backend.config.PersistenceConfig;
 import ch.idsia.adaptive.backend.config.WebConfig;
 import ch.idsia.adaptive.backend.controller.ConsoleController;
@@ -19,9 +20,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
@@ -36,8 +39,9 @@ import java.util.stream.IntStream;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestApplication.class)
-@WebMvcTest({
+@WebMvcTest(value = {
 		WebConfig.class,
+		JobsConfig.class,
 		PersistenceConfig.class,
 		ClientRepository.class,
 		AnswerRepository.class,

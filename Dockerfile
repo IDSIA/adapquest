@@ -26,8 +26,8 @@ FROM openjdk:11-jre-slim
 WORKDIR /adaptive
 
 # Copy executable fat-jar
-COPY --from=build /build/AdapQuestBackend/target/adapquest-backend-1.0.jar adapquest-backend.jar
-RUN mkdir "data"
+COPY --from=build /build/AdapQuestBackend/target/adapquest-backend-*.jar adapquest-backend.jar
+RUN mkdir -p "data/experiments" "data/results" "data/surveys" "data/templates"
 
 # Expose service to port
 EXPOSE 8080

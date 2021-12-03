@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/layout :: layout">
+    <title id="pageTitle">AdapQuest Home</title>
+</head>
+<body>
+
+<div class="container">
+    <div th:replace="fragments/layout :: header"></div>
+
+    <div class="jumbotron">
+        <div class="card-group">
+
+            <div class="card text-center" th:if="${demo}" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">Demo</h5>
+                    <p class="card-text">Complete surveys using the adaptive engine as a final user.</p>
+                    <a th:href="@{~/demo/}" class="btn btn-primary">Go to Demo</a>
+                </div>
+            </div>
+
+            <div class="card text-center" th:if="${assistant}" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">Assistant</h5>
+                    <p class="card-text">Use the adaptive engine as a guide to complete a survey.</p>
+                    <a th:href="@{~/assistant/}" class="btn btn-primary">Go to Assistant</a>
+                </div>
+            </div>
+
+            <div class="card text-center" th:if="${experiments}" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">Experiments</h5>
+                    <p class="card-text">Use the adaptive engine to perform batch experiments.</p>
+                    <a th:href="@{~/experiments/}" class="btn btn-primary">Go to Experiments</a>
+                </div>
+            </div>
+
+            <div class="card text-center" th:if="${dashboard}" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">Dashboard</h5>
+                    <p class="card-text">Summary and control over the available surveys.</p>
+                    <div class="card-footer">
+                        <small class="text-muted">Work in Progress</small>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div th:replace="fragments/layout :: footer"></div>
+</div>
+
+<script>
+
+</script>
+
+</body>
+</html>

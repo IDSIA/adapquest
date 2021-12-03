@@ -6,6 +6,7 @@ package ch.idsia.adaptive.backend.config;
  * Date:    25.11.2020 15:56
  */
 public class Consts {
+
 	/**
 	 * Stop the skill query when its precision is above this threshold.
 	 */

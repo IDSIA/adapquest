@@ -14,6 +14,8 @@ public class KQuestion {
 	final boolean exclusivity;
 	final String questionText;
 
+	boolean yesOnly = false;
+
 	public KQuestion(int questionId, int sectionId, boolean mandatory, boolean exclusivity, String questionText) {
 		this.questionId = questionId;
 		this.sectionId = sectionId;

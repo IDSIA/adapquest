@@ -17,7 +17,7 @@ class TestTemplateXLSX {
 
 	@Test
 	public void testLoadFromXLSXTemplate() throws Exception {
-		final ImportStructure structure = TemplateXLSX.parse(Paths.get("data", "AdaptiveQuestionnaireTemplate.xlsx"));
+		final ImportStructure structure = TemplateXLSX.parse(Paths.get("data", "surveys", "AdaptiveQuestionnaireTemplate.xlsx"));
 
 		assertFalse(structure.getSkills().isEmpty());
 		assertFalse(structure.getQuestions().isEmpty());

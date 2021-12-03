@@ -25,7 +25,7 @@ public class ReadXLSX {
 
 		try (final Workbook workbook = new XSSFWorkbook(new FileInputStream("AdaptiveQuestionnaire.xlsx"))) {
 			final Sheet sheetSections = workbook.getSheet("Sections");
-			final Sheet sheetAllQuestions = workbook.getSheet("All Questions");
+			final Sheet sheetAllQuestions = workbook.getSheet("Questions");
 			final Sheet sheetAnswers = workbook.getSheet("Answers");
 			final Sheet sheetBinaryQuestions = workbook.getSheet("Binary questions");
 
@@ -110,7 +110,7 @@ public class ReadXLSX {
 					continue;
 				}
 				if (i == 1) {
-					for (int j = 5; j < row.getLastCellNum(); j++) {
+					for (int j = 7; j < row.getLastCellNum(); j++) {
 						if (row.getCell(j) != null && !row.getCell(j).toString().isEmpty())
 							variables.add(row.getCell(j).getStringCellValue());
 					}
@@ -118,7 +118,7 @@ public class ReadXLSX {
 					continue;
 				}
 
-				if (row.getCell(5) == null || row.getCell(5).toString().isEmpty())
+				if (row.getCell(7) == null || row.getCell(7).toString().isEmpty())
 					// skip empty rows or not model-related questions
 					continue;
 
@@ -128,18 +128,19 @@ public class ReadXLSX {
 				final int qid = Double.valueOf(regions.get(i).get(0).getNumericCellValue()).intValue();
 				final int man = Double.valueOf(regions.get(i).get(2).getNumericCellValue()).intValue();
 				final String qText = regions.get(i).get(3).getStringCellValue();
-				final int aid = Double.valueOf(row.getCell(4).getNumericCellValue()).intValue();
-				final String bqText = row.getCell(5).getStringCellValue();
+				final boolean onlyYes = "SOLO SI".equalsIgnoreCase(regions.get(i).get(4).getStringCellValue().trim());
+				final int aid = Double.valueOf(row.getCell(5).getNumericCellValue()).intValue();
+				final String bqText = row.getCell(6).getStringCellValue();
 
 				if (man < 0)
 					continue;
 
 				bqid++;
 
-				final KBinaryQuestion bq = new KBinaryQuestion(qid, aid, bqid, man == 1, qText, bqText);
+				final KBinaryQuestion bq = new KBinaryQuestion(qid, aid, bqid, man == 1, onlyYes, qText, bqText);
 				binaryQuestions.add(bq);
 
-				for (int j = 6, k = 0; k < limit; j++, k++) {
+				for (int j = 7, k = 0; k < limit; j++, k++) {
 					final Cell c = row.getCell(j);
 					final double v = c.toString().equals("KO") ? -1.0 : c.getNumericCellValue();
 					bq.values.put(variables.get(k), v);

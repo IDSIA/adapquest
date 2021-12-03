@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -110,6 +111,10 @@ public class SurveyManagerService {
 
 	public Question nextQuestion(SurveyData data) throws SurveyException {
 		return getSurvey(data).next();
+	}
+
+	public List<Question> rankQuestions(SurveyData data) throws SurveyException {
+		return getSurvey(data).rank();
 	}
 
 	public void complete(SurveyData data) {

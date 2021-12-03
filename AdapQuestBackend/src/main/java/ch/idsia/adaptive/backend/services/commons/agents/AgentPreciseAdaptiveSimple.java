@@ -123,11 +123,11 @@ public class AgentPreciseAdaptiveSimple extends AgentPrecise {
 			}
 
 			logger.debug("question={} with average infoGain={}", question.getName(), meanInfoGain);
+			question.setScore(meanInfoGain);
 
 			if (meanInfoGain > maxIG) {
 				maxIG = meanInfoGain;
 				nextQuestion = question;
-				nextQuestion.setScore(maxIG);
 			}
 		}
 

@@ -15,16 +15,18 @@ public class KBinaryQuestion {
 	final int answerId;
 	final int binaryQuestionId;
 	final boolean mandatory;
+	final boolean yesOnly;
 	final String questionText;
 	final String binaryQuestionText;
 
 	final Map<String, Double> values = new HashMap<>();
 
-	public KBinaryQuestion(int questionId, int answerId, int binaryQuestionId, boolean mandatory, String questionText, String binaryQuestionText) {
+	public KBinaryQuestion(int questionId, int answerId, int binaryQuestionId, boolean mandatory, boolean yesOnly, String questionText, String binaryQuestionText) {
 		this.questionId = questionId;
 		this.answerId = answerId;
 		this.binaryQuestionId = binaryQuestionId;
 		this.mandatory = mandatory;
+		this.yesOnly = yesOnly;
 		this.questionText = questionText;
 		this.binaryQuestionText = binaryQuestionText;
 	}

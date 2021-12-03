@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @TestComponent
 public class TestTool {
-	public static final Logger logger = LoggerFactory.getLogger(ConsoleController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ConsoleController.class);
 
 	ObjectMapper om;
 	MockMvc mvc;

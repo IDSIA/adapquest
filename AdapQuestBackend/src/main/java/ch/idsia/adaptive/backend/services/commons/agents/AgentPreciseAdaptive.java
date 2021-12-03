@@ -167,13 +167,13 @@ public class AgentPreciseAdaptive extends AgentPrecise {
 				}
 
 				final double infoGain = Math.max(0, HS - HSQ);
+				question.setScore(infoGain);
 
 				logger.debug("skill={} question={} with average infoGain={}", skill.getName(), question.getName(), infoGain);
 
 				if (infoGain > maxIG) {
 					maxIG = infoGain;
 					nextQuestion = question;
-					nextQuestion.setScore(maxIG);
 				}
 			}
 		}

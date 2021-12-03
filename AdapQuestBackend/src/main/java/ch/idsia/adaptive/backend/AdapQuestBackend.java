@@ -16,7 +16,6 @@ import org.springframework.context.event.EventListener;
 public class AdapQuestBackend {
 
 	public static void main(String[] args) {
-		System.setProperty("server.servlet.context-path", "/");
 		SpringApplication.run(AdapQuestBackend.class, args);
 	}
 

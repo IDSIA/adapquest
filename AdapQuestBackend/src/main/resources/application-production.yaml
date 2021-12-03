@@ -1,6 +1,0 @@
-logging:
-
-  level:
-    ch.idsia: info
-    org.springframework.web: warn
-    org.hibernate: warn

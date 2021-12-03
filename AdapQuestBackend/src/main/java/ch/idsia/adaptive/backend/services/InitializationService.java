@@ -51,14 +51,13 @@ public class InitializationService {
 			return;
 		}
 
-		readDataFolder();
+		readDataSurveysFolder();
 
 		logger.info("Data initialization completed with {} survey(s)", surveys.count());
 	}
 
-	void readDataFolder() {
-		final Path cwd = Paths.get("");
-		try (Stream<Path> paths = Files.walk(cwd.resolve("data"))) {
+	void readDataSurveysFolder() {
+		try (Stream<Path> paths = Files.walk(Paths.get("", "data", "surveys"))) {
 			paths
 					.filter(Files::isRegularFile)
 					.map(this::parseStructure)
@@ -176,6 +175,7 @@ public class InitializationService {
 						.setRandomAnswers(q.randomAnswers)
 						.setMandatory(q.mandatory)
 						.setMultipleChoice(q.multipleChoice)
+						.setYesOnly(q.yesOnly)
 						.setMultipleSkills(q.multipleSkills)
 						.addAnswersAvailable(q.answers.stream()
 								.map(a -> new QuestionAnswer()
