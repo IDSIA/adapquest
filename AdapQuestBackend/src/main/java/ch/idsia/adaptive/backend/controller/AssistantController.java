@@ -8,6 +8,7 @@ import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,9 +26,10 @@ import java.util.List;
  * Date:    04.11.2021 11:08
  */
 @Controller
+@ConditionalOnProperty(prefix = "adapquest.controller", name = "assistant")
 @RequestMapping("/assistant")
 public class AssistantController {
-	public static final Logger logger = LoggerFactory.getLogger(AssistantController.class);
+	private static final Logger logger = LoggerFactory.getLogger(AssistantController.class);
 
 	final SurveyRepository surveys;
 	final SurveyController controller;

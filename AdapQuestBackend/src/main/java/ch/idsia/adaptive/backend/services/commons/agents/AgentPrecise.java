@@ -33,6 +33,7 @@ public abstract class AgentPrecise extends AgentGeneric<BayesianFactor> {
 	public State getState() {
 		final State state = new State();
 
+		double avgScore = 0.0;
 		for (Skill skill : skills) {
 			final String s = skill.getName();
 
@@ -45,6 +46,7 @@ public abstract class AgentPrecise extends AgentGeneric<BayesianFactor> {
 				f = inference.query(model, observations, v);
 
 			final double h = scoring.score(f);
+			avgScore += h / skills.size();
 
 			state.getSkills().put(skill.getName(), skill);
 			state.getProbabilities().put(s, f.getData());
@@ -59,6 +61,7 @@ public abstract class AgentPrecise extends AgentGeneric<BayesianFactor> {
 			}
 		}
 
+		state.setScoreAverage(avgScore);
 		state.setTotalAnswers(questionsDone.size());
 
 		return state;

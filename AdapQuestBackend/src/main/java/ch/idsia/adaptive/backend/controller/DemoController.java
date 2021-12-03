@@ -2,6 +2,7 @@ package ch.idsia.adaptive.backend.controller;
 
 import ch.idsia.adaptive.backend.persistence.dao.SurveyRepository;
 import ch.idsia.adaptive.backend.persistence.model.Answer;
+import ch.idsia.adaptive.backend.persistence.model.Question;
 import ch.idsia.adaptive.backend.persistence.model.SurveyData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseData;
 import ch.idsia.adaptive.backend.persistence.responses.ResponseQuestion;
@@ -10,6 +11,7 @@ import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,10 +19,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -28,6 +28,7 @@ import java.util.List;
  * Date:    12.01.2021 15:15
  */
 @Controller
+@ConditionalOnProperty(prefix = "adapquest.controller", name = "demo")
 @RequestMapping("/demo")
 public class DemoController {
 	private static final Logger logger = LoggerFactory.getLogger(DemoController.class);
@@ -53,7 +54,12 @@ public class DemoController {
 	@GetMapping("/results/{token}")
 	public String results(@PathVariable String token, Model model) {
 		final ResponseEntity<ResponseResult> resResult = this.controller.surveyResults(token);
-		final List<Answer> answers = this.controller.getAnswers(token);
+		final Map<Question, List<Answer>> answers = this.controller.getAnswers(token)
+				.stream()
+				.collect(Collectors.groupingBy(
+						Answer::getQuestion,
+						Collectors.toList()
+				));
 
 		final HttpStatus statusCode = resResult.getStatusCode();
 

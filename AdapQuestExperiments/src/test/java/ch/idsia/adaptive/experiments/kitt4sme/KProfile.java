@@ -75,6 +75,8 @@ public class KProfile {
 			for (Row row : sheetSkills) {
 				if (row.getRowNum() == 0) {
 					for (int j = 2; j < row.getLastCellNum(); j++) {
+						if (row.getCell(j) == null)
+							continue;
 						final String profile = row.getCell(j).getStringCellValue();
 						names.put(j, profile);
 						profiles.put(profile, new KProfile(profile));
@@ -87,7 +89,7 @@ public class KProfile {
 					break;
 
 				final String n = row.getCell(1).getStringCellValue();
-				for (int j = 2, k = 0; k < names.size(); j++, k++) { // two columns on the left
+				for (Integer j : names.keySet()) {
 					final int s = Double.valueOf(row.getCell(j).getNumericCellValue()).intValue();
 					profiles.get(names.get(j)).add(n, s);
 				}
@@ -121,7 +123,7 @@ public class KProfile {
 				final int a = A;
 				final int q = Q;
 
-				for (int j = 5, k = 0; k < names.size(); j++, k++) {
+				for (Integer j : names.keySet()) {
 					profiles.get(names.get(j)).add("Q" + q, "A" + a, Double.valueOf(row.getCell(j).getNumericCellValue()).intValue());
 				}
 			}

@@ -169,6 +169,7 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 
 		final State state = new State();
 
+		double avgScore = 0.0;
 		for (Skill skill : skills) {
 			final String s = skill.getName();
 
@@ -176,6 +177,7 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 			final BayesianFactor f = model.getFactor(v);
 
 			final double h = scoring.score(f);
+			avgScore += h / skills.size();
 
 			state.getSkills().put(skill.getName(), skill);
 			state.getProbabilities().put(s, f.getData());
@@ -190,6 +192,7 @@ public class AgentPreciseAdaptiveStructural extends AgentGeneric<BayesianFactor>
 			}
 		}
 
+		state.setScoreAverage(avgScore);
 		state.setTotalAnswers(questionsDone.size());
 
 		return state;

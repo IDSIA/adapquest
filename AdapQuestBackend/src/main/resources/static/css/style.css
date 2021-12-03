@@ -76,6 +76,7 @@ svg {
     background-color: white;
     padding: 2pt 4pt;
     min-width: 5em;
+    max-width: 42em;
     flex-grow: 1;
     text-align: left;
 }

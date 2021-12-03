@@ -119,12 +119,13 @@ public class TemplateXLSX {
 			survey.setGlobalMeanScoreLowerThreshold(settings.get(GLOBAL_MEAN_SCORE_LOWER_THRESHOLD).getNumericCellValue());
 	}
 
-	private QuestionStructure addQuestion(int qid, String qText, boolean mandatory) {
+	private QuestionStructure addQuestion(int qid, String qText, boolean mandatory, boolean yesOnly) {
 		logger.debug("Adding question={}", qid);
 		final QuestionStructure question = new QuestionStructure()
 				.setName("Q" + qid)
 				.setQuestion(qText)
 				.setMandatory(mandatory)
+				.setYesOnly(yesOnly)
 				.setMultipleChoice(true)
 				.setMultipleSkills(true)
 				.setSkills(new HashSet<>())
@@ -205,12 +206,9 @@ public class TemplateXLSX {
 		logger.info("Reading template XLSX file={}", path.toFile());
 		final TemplateXLSX tmpl = new TemplateXLSX();
 
-		final Map<String, String> answerTexts = new HashMap<>();
-
 		try (final Workbook workbook = new XSSFWorkbook(new FileInputStream(path.toFile()))) {
 			final Sheet sheetSettings = workbook.getSheet("Settings");
-			final Sheet sheetAnswers = workbook.getSheet("Answers");
-			final Sheet sheetBinaryQuestions = workbook.getSheet("Binary questions");
+			final Sheet sheetBinaryQuestions = workbook.getSheet("Questions");
 
 			// reading settings
 			final Map<String, Cell> settings = new HashMap<>();
@@ -239,49 +237,8 @@ public class TemplateXLSX {
 
 			tmpl.setSettings(settings);
 
-			// reading answers
-			int iAnswerQuestionId = 0, iAnswerStart = 2, limit = 0;
-			for (Row row : sheetAnswers) {
-				if (row.getRowNum() == 0) {
-					limit = row.getLastCellNum();
-					for (int i = row.getFirstCellNum(); i < row.getLastCellNum(); i++) {
-						switch (row.getCell(i).getStringCellValue().toUpperCase()) {
-							case "QUESTION_ID":
-								iAnswerQuestionId = i;
-								break;
-							case "ID_ANS_01":
-								iAnswerStart = i;
-								break;
-						}
-					}
-					continue;
-				}
-
-				if (row.getCell(iAnswerQuestionId) == null || row.getCell(iAnswerQuestionId).toString().isEmpty())
-					continue;
-
-				final int qid = Double.valueOf(row.getCell(iAnswerQuestionId).getNumericCellValue()).intValue();
-
-				for (int j = iAnswerStart; j < limit; j += 2) {
-					final Cell cid = row.getCell(j);
-					final Cell txt = row.getCell(j + 1);
-					if (row.getCell(j) == null
-							|| row.getCell(j + 1) == null
-							|| cid.toString().isEmpty()
-							|| txt.toString().isEmpty()
-					)
-						continue;
-
-					final int aid = Double.valueOf(row.getCell(j).getNumericCellValue()).intValue();
-					final String text = row.getCell(j + 1).getStringCellValue();
-
-					answerTexts.put(qid + "$" + aid, text);
-				}
-			}
-
 			// reading model elicitation
-			int qid = -1, iValQuestionId = 0, iValQuestionText = 0, iValMandatory = 0, iValAnswerId = 0, iStartSkills = 0;
-			limit = 0;
+			int qid, iValQuestionId = 0, iValQuestionText = 0, iValYesOnly = 0, iValMandatory = 0, iValAnswerId = 0, iValAnswerText = 0, iStartSkills = 0, limit = 0;
 
 			QuestionStructure question = null;
 
@@ -291,7 +248,7 @@ public class TemplateXLSX {
 					// parse header
 					for (int j = row.getFirstCellNum(); j < row.getLastCellNum(); j++) {
 						switch (row.getCell(j).getStringCellValue().toUpperCase()) {
-							case "Q_ID":
+							case "QUESTION_ID":
 								iValQuestionId = j;
 								break;
 							case "MANDATORY":
@@ -300,12 +257,15 @@ public class TemplateXLSX {
 							case "QUESTIONS_TEXT":
 								iValQuestionText = j;
 								break;
-							case "ID_ANS":
+							case "YES_ONLY":
+								iValYesOnly = j;
+								break;
+							case "ANSWER_ID":
 								iValAnswerId = j;
 								break;
-//							case "BINARY_QUESTIONS_TEXT":
-//								iValAnswerText = j;
-//								break;
+							case "ANSWER_TEXT":
+								iValAnswerText = j;
+								break;
 						}
 					}
 
@@ -334,20 +294,17 @@ public class TemplateXLSX {
 				if (row.getCell(iValQuestionId) != null && !row.getCell(iValQuestionId).toString().isEmpty()) {
 					// update questions
 					qid = Double.valueOf(row.getCell(iValQuestionId).getNumericCellValue()).intValue();
-					int man = Double.valueOf(row.getCell(iValMandatory).getNumericCellValue()).intValue();
-					String qText = row.getCell(iValQuestionText).getStringCellValue();
+					final int man = Double.valueOf(row.getCell(iValMandatory).getNumericCellValue()).intValue();
+					final String qText = row.getCell(iValQuestionText).getStringCellValue();
+					final int yesOnly = Double.valueOf(row.getCell(iValYesOnly).getNumericCellValue()).intValue();
 
 					logger.debug("Found new question={}", qid);
 
-					if (man < 0) {
-						logger.debug("Invalid mandatory value for question={}, skipping", qid);
-						continue;
-					}
-
-					question = tmpl.addQuestion(qid, qText, man == 1);
+					question = tmpl.addQuestion(qid, qText, man == 1, yesOnly == 1);
 				}
 
 				final int aid = Double.valueOf(row.getCell(iValAnswerId).getNumericCellValue()).intValue();
+				final String answerText = row.getCell(iValAnswerText).toString();
 				final Map<String, Double> values = new HashMap<>();
 
 				for (int j = iStartSkills, k = 0; k < limit; j++, k++) {
@@ -357,7 +314,7 @@ public class TemplateXLSX {
 				}
 
 				if (question != null)
-					tmpl.addAnswer(question, aid, answerTexts.get(qid + "$" + aid), values);
+					tmpl.addAnswer(question, aid, answerText, values);
 			}
 		}
 

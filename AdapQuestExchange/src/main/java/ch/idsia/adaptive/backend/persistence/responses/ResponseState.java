@@ -26,6 +26,11 @@ public class ResponseState {
 	public Map<String, Double> scoreDistribution = new HashMap<>();
 
 	/**
+	 * Average of all the scores.
+	 */
+	public Double scoreAverage;
+
+	/**
 	 * Set of completed skills.
 	 */
 	public Set<String> skillCompleted = new HashSet<>();

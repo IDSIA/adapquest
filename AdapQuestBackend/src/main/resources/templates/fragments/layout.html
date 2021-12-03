@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="layout">
-    <link rel="shortcut icon" th:href="@{/img/favicon.ico}" type="image/ico"/>
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="shortcut icon" th:href="@{~/img/favicon.ico}" type="image/ico"/>
+    <link rel="stylesheet" th:href="@{~/css/style.css}"/>
 
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.5.3/css/bootstrap.min.css}"/>
-    <link rel="text/javascript" th:href="@{/webjars/jquery/3.6.0/jquery.min.js}"/>
+    <link rel="stylesheet" th:href="@{~/webjars/bootstrap/4.5.3/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{~/webjars/bootstrap-icons/1.7.0/font/bootstrap-icons.css}">
+    <link rel="text/javascript" th:href="@{~/webjars/jquery/3.6.0/jquery.min.js}"/>
 
     <script th:fragment="paths" th:inline="javascript" type="text/javascript">
-        const context = /*[[@{/}]]*/ '';
+        const context = /*[[@{~/}]]*/ '';
         const token = /*[[${token}]]*/ '';
 
         console.debug('context: ' + context)
@@ -27,7 +28,7 @@
     <div th:fragment="header">
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" th:fragment="navbar">
             <div class="container">
-                <a class="navbar-brand" href="#" th:href="@{/}">AdapQuest</a>
+                <a class="navbar-brand" href="#" th:href="@{~/}">AdapQuest</a>
                 <button aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation"
                         class="navbar-toggler"
                         data-target="#navbarColor01" data-toggle="collapse" type="button">

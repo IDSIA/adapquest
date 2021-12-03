@@ -26,7 +26,7 @@ import static ch.idsia.adaptive.backend.security.APIKeyGenerator.validateApiKey;
 @EnableWebSecurity
 @AutoConfigureAfter(PersistenceConfig.class)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-	public static final Logger logger = LoggerFactory.getLogger(WebSecurityConfigurerAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfigurerAdapter.class);
 
 	private final ClientRepository clients;
 

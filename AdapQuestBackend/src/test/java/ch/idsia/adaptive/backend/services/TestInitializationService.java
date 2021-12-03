@@ -49,11 +49,11 @@ public class TestInitializationService {
 
 	@Test
 	public void testLoadFromDataFolder() {
-		final File[] files = Paths.get("").resolve("data").toFile().listFiles();
-		final int n = files == null ? 0 : files.length;
+		final File[] files = Paths.get("", "data", "surveys").toFile().listFiles();
+		final int n = files == null ? 0 : files.length -1;
 		final long count = surveys.count();
 
-		is.readDataFolder();
+		is.readDataSurveysFolder();
 
 		assertEquals(count + n, surveys.count());
 
@@ -86,7 +86,7 @@ public class TestInitializationService {
 		assertNotNull(survey);
 		survey.getQuestions().forEach(q -> {
 					assertTrue(q.getVariable() >= 0);
-			q.getSkills().forEach(s -> assertTrue(s.getVariable() >= 0));
+					q.getSkills().forEach(s -> assertTrue(s.getVariable() >= 0));
 				}
 		);
 	}

@@ -92,6 +92,7 @@ public class Convert {
 
 		rs.skillDistribution = state.getProbabilities();
 		rs.scoreDistribution = state.getScore();
+		rs.scoreAverage = state.getScoreAverage();
 		rs.skillCompleted = state.getSkillCompleted();
 		rs.questionsPerSkill = state.getQuestionsPerSkill();
 		rs.creationTime = state.getCreation();
