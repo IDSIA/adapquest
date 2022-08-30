@@ -7,7 +7,7 @@
 	<groupId>ch.idsia.adaptive</groupId>
 	<artifactId>adapquest</artifactId>
 	<packaging>pom</packaging>
-	<version>1.6</version>
+	<version>1.7-SNAPSHOT</version>
 	<modules>
 		<module>AdapQuestBackend</module>
 		<module>AdapQuestExchange</module>
