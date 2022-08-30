@@ -27,10 +27,19 @@ services:
       DB_PASSWORD: "ada"
 
       ADAPQUEST_CONTROLLER_ASSISTANT: "false"
-      ADAPQUEST_CONTROLLER_CONSOLE: "false"
+      ADAPQUEST_CONTROLLER_CONSOLE: "true"
       ADAPQUEST_CONTROLLER_DASHBOARD: "false"
       ADAPQUEST_CONTROLLER_DEMO: "true"
       ADAPQUEST_CONTROLLER_EXPERIMENTS: "false"
+
+      ADAPQUEST_KEYCLOAK_ROLE: "user"
+      ADAPQUEST_KEYCLOAK_ADMIN: "admin"
+
+      KEYCLOAK_ENABLED: "true"
+      KEYCLOAK_REALM: "<realm>"
+      KEYCLOAK_AUTH_SERVER_URL: "<url>"
+      KEYCLOAK_RESOURCE: "<client-name>"
+      KEYCLOAK_PRINCIPAL_ATTRIBUTE: "preferred_username"
 
     restart: unless-stopped
     ports:
