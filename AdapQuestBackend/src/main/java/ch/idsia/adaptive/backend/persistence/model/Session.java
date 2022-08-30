@@ -50,6 +50,11 @@ public class Session {
 	private String accessCode;
 
 	/**
+	 * Group id from keaycloak (if used).
+	 */
+	private String groupId;
+
+	/**
 	 * When this session started. This is also used as a seed for the randomness.
 	 */
 	private LocalDateTime startTime = LocalDateTime.now();

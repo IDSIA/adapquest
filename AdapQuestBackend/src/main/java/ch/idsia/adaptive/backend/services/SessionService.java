@@ -6,12 +6,19 @@ import ch.idsia.adaptive.backend.persistence.model.Session;
 import ch.idsia.adaptive.backend.persistence.model.Survey;
 import ch.idsia.adaptive.backend.persistence.model.SurveyData;
 import ch.idsia.adaptive.backend.persistence.model.SurveyToken;
+import org.keycloak.KeycloakPrincipal;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
+import org.keycloak.representations.AccessToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -22,21 +29,26 @@ import java.time.temporal.ChronoUnit;
 public class SessionService {
 	private static final Logger logger = LoggerFactory.getLogger(SessionService.class);
 
+	boolean keycloakEnabled;
+
 	final SessionRepository repository;
 	final SurveyRepository surveys;
 
-	public SessionService(SessionRepository repository, SurveyRepository surveys) {
+	public SessionService(SessionRepository repository, SurveyRepository surveys, Environment env) {
 		this.repository = repository;
 		this.surveys = surveys;
+
+		keycloakEnabled = "true".equalsIgnoreCase(env.getProperty("keycloak.enabled", "false"));
+		logger.info("SessionService keycloak status: {}", keycloakEnabled);
 	}
 
 	/**
 	 * Check if exists a session with the given parameters. If it exists, returns this session, otherwise initializes
-	 * and returns a new one. In this second case, the input {@link SurveyData} will be update with information from
+	 * and returns a new one. In this second case, the input {@link SurveyData} will be updated with information from
 	 * the session itself (token for the session, survey id, start time).
 	 *
 	 * @param data User's {@link SurveyData}, this will be updated
-	 * @return a new session if one does not already exists.
+	 * @return a new session if one does not already exist.
 	 * @throws SessionException is the session already exists or the accessCode is not valid
 	 */
 	public Session registerNewSession(SurveyData data) throws SessionException {
@@ -56,6 +68,7 @@ public class SessionService {
 					.setAccessCode(data.getAccessCode())
 					.setRemoteAddr(data.getRemoteAddress())
 					.setSurvey(survey)
+					.setGroupId(getGroupIdFromKeycloak())
 					.setToken(SurveyToken.GUID());
 
 			session = repository.save(session);
@@ -72,7 +85,7 @@ public class SessionService {
 	 *
 	 * @param token session token
 	 * @return The associated session if exists, otherwise null.
-	 * @throws SessionException is the session does not exists
+	 * @throws SessionException is the session does not exist
 	 */
 	public Session getSession(String token) throws SessionException {
 		if (token == null)
@@ -113,7 +126,7 @@ public class SessionService {
 	/**
 	 * @param data {@link SurveyData} for a valid {@link Session}
 	 * @return the number of seconds still available to complete the survey of the session
-	 * @throws SessionException is the session does not exists
+	 * @throws SessionException is the session does not exist
 	 */
 	public Long getRemainingTime(SurveyData data) throws SessionException {
 		Session session = getSession(data.getToken());
@@ -133,5 +146,28 @@ public class SessionService {
 		int questionTotal = session.getSurvey().getQuestions().size();
 
 		return questionTotal - questionsDone;
+	}
+
+	private String getGroupIdFromKeycloak() {
+		String groupId = "";
+
+		if (keycloakEnabled) {
+			logger.info("Request group_id from keycloak");
+			// if keycloak is enabled, get group_id
+			final KeycloakAuthenticationToken token = (KeycloakAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+			final KeycloakPrincipal<?> principal = (KeycloakPrincipal<?>) token.getPrincipal();
+			final KeycloakSecurityContext session = principal.getKeycloakSecurityContext();
+			final AccessToken accessToken = session.getToken();
+			final Map<String, Object> customClaims = accessToken.getOtherClaims();
+
+			logger.info("(KC) Username={} id={}", accessToken.getPreferredUsername(), accessToken.getId());
+
+			if (customClaims.containsKey("group_id")) {
+				groupId = String.valueOf(customClaims.get("group_id"));
+				logger.info("Init for group_id={} from keycloak", groupId);
+			}
+		}
+
+		return groupId;
 	}
 }

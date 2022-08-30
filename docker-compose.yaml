@@ -18,12 +18,29 @@ services:
       context: .
     environment:
       MAGIC_API_KEY: "QWRhcHRpdmUgU3VydmV5"
+
       DB_DBMS: "postgresql"
       DB_HOSTNAME: "db"
       DB_PORT: "5432"
       DB_SCHEMA: "adaptive"
       DB_USERNAME: "ada"
       DB_PASSWORD: "ada"
+
+      ADAPQUEST_CONTROLLER_ASSISTANT: "false"
+      ADAPQUEST_CONTROLLER_CONSOLE: "true"
+      ADAPQUEST_CONTROLLER_DASHBOARD: "false"
+      ADAPQUEST_CONTROLLER_DEMO: "true"
+      ADAPQUEST_CONTROLLER_EXPERIMENTS: "false"
+
+      ADAPQUEST_KEYCLOAK_ROLE: "user"
+      ADAPQUEST_KEYCLOAK_ADMIN: "admin"
+
+      KEYCLOAK_ENABLED: "true"
+      KEYCLOAK_REALM: "<realm>"
+      KEYCLOAK_AUTH_SERVER_URL: "<url>"
+      KEYCLOAK_RESOURCE: "<client-name>"
+      KEYCLOAK_PRINCIPAL_ATTRIBUTE: "preferred_username"
+
     restart: unless-stopped
     ports:
       - "8080:8080"

@@ -1,6 +1,6 @@
 <img src="docs/logo.png" alt="Adapquest" width="480"/>
 
-**ADAP**tive **QUEST**ionnarie is a web-based micro-service tool that permit the creation of adaptive tests, surveys,
+**ADAP**tive **QUEST**ionnarie is a web-based microservice tool that permit the creation of adaptive tests, surveys,
 and questionnaires based on a pool of questions and a graphical model.
 
 The idea behind this project, is to have a simple way to assess the _skill level_ of a person based on a series of
@@ -28,7 +28,7 @@ In addition, the `Backend` module is also available as a **Docker** image and in
 This tool allows the user to build a survey with an _adaptive_ choice of the questions. In other words, the next
 questions depends on the model and the previous answers of a person.
 
-For each survey/questionnaire, an unique `access code` allows multiple person to complete the questions in an anonymous
+For each survey/questionnaire, a unique `access code` allows multiple person to complete the questions in an anonymous
 way. Each survey has its own `model` that can be crafted to the specific scenarios and questions available.
 
 Some configurations are available, such as:
@@ -74,9 +74,34 @@ The easiest way to run the tool, is to use the **Docker** image. Using the provi
 to have a running application in few minutes reachable on port `:8080`.
 
 The stack is composed by a database for storing the questions and the session and the backend engine. We
-chosed `Postgres 13.1` but any other SQL-based engine supported by *Hibernate* should be compatible.
+chose `Postgres 13.1` but any other SQL-based engine supported by *Hibernate* should be compatible.
 
 Refer to the [Wiki](https://github.com/IDSIA/adapquest/wiki) for more details on the `docker-compose` configuration.
+
+## Keycloak integration
+
+It is possible to use Keycloak as identity provider instead of the simple APIkey internal mechanism.
+
+In order to do so, the following environment variables must be set:
+
+````
+KEYCLOAK_ENABLED: "true"
+KEYCLOAK_REALM: "<realm>"
+KEYCLOAK_AUTH_SERVER_URL: "<url>"
+KEYCLOAK_RESOURCE: "<client-name>"
+KEYCLOAK_PRINCIPAL_ATTRIBUTE: "preferred_username"
+````
+
+To control the roles, set the following two environment variables to the correct roles:
+
+````
+ADAPQUEST_KEYCLOAK_ROLE: "user"
+ADAPQUEST_KEYCLOAK_ADMIN: "admin"
+````
+
+The `user` role is who performs the survey; the `admin` role is who can add and manage surveys.
+
+Both these variables can be used in a `docker-compose` file.
 
 # Citation
 

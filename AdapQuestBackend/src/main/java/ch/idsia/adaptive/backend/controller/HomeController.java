@@ -34,10 +34,10 @@ public class HomeController {
 		model.addAttribute("demo", demo);
 		model.addAttribute("experiments", experiments);
 
-		logger.info("assistant flag={}", assistant);
-		logger.info("dashboard flag={}", dashboard);
-		logger.info("demo flag={}", demo);
-		logger.info("experiments flag={}", experiments);
+		logger.debug("assistant flag={}", assistant);
+		logger.debug("dashboard flag={}", dashboard);
+		logger.debug("demo flag={}", demo);
+		logger.debug("experiments flag={}", experiments);
 
 		return "home";
 	}
