@@ -2,10 +2,7 @@ package ch.idsia.adaptive.backend.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -33,5 +30,10 @@ public class WebConfig implements WebMvcConfigurer {
 				.useRegisteredExtensionsOnly(true)
 				.defaultContentType(MediaType.APPLICATION_JSON)
 				.mediaType("json", MediaType.APPLICATION_JSON);
+	}
+
+	@Override
+	public void addInterceptors(final InterceptorRegistry registry) {
+		registry.addInterceptor(new ActiveRoutesInterceptor());
 	}
 }

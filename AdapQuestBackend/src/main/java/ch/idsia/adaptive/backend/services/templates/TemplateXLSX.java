@@ -44,6 +44,9 @@ public class TemplateXLSX {
 	private double eps = 0.1;
 	private double INHIBITOR_MAX_VALUE = 0.95;
 	private double INHIBITOR_MIN_VALUE = 0.05;
+	private double INHIBITOR_DEFAULT_VALUE = 0.6;
+
+	private boolean OVERRIDE_INHIBITOR_VALUE_WITH_DEFAULT = true;
 
 	private final SurveyStructure survey = new SurveyStructure();
 
@@ -70,6 +73,8 @@ public class TemplateXLSX {
 		final String K_EPS = "EPS";
 		final String K_INHIBITOR_MAX_VALUE = "INHIBITOR_MAX_VALUE";
 		final String K_INHIBITOR_MIN_VALUE = "INHIBITOR_MIN_VALUE";
+		final String K_INHIBITOR_DEFAULT_VALUE = "INHIBITOR_DEFAULT_VALUE";
+		final String K_OVERRIDE_INHIBITOR_VALUE_WITH_DEFAULT = "INHIBITOR_OVERRIDE_VALUE_WITH_DEFAULT";
 
 		if (settings.containsKey(K_EPS))
 			eps = settings.get(K_EPS).getNumericCellValue();
@@ -77,6 +82,10 @@ public class TemplateXLSX {
 			INHIBITOR_MAX_VALUE = settings.get(K_INHIBITOR_MAX_VALUE).getNumericCellValue();
 		if (settings.containsKey(K_INHIBITOR_MIN_VALUE))
 			INHIBITOR_MIN_VALUE = settings.get(K_INHIBITOR_MIN_VALUE).getNumericCellValue();
+		if (settings.containsKey(K_INHIBITOR_DEFAULT_VALUE))
+			INHIBITOR_DEFAULT_VALUE = settings.get(K_INHIBITOR_DEFAULT_VALUE).getNumericCellValue();
+		if (settings.containsKey(K_OVERRIDE_INHIBITOR_VALUE_WITH_DEFAULT))
+			OVERRIDE_INHIBITOR_VALUE_WITH_DEFAULT = settings.get(K_OVERRIDE_INHIBITOR_VALUE_WITH_DEFAULT).getBooleanCellValue();
 
 		if (settings.containsKey(ACCESS_CODE))
 			survey.setAccessCode(settings.get(ACCESS_CODE).toString());
@@ -143,7 +152,12 @@ public class TemplateXLSX {
 
 		values.forEach((k, v) -> {
 			if (v > 0) {
-				final double inh = min(INHIBITOR_MAX_VALUE, max(INHIBITOR_MIN_VALUE, 1.0 - v + eps));
+				final double inh;
+				if (OVERRIDE_INHIBITOR_VALUE_WITH_DEFAULT) {
+					inh = INHIBITOR_DEFAULT_VALUE;
+				} else {
+					inh = min(INHIBITOR_MAX_VALUE, max(INHIBITOR_MIN_VALUE, 1.0 - v + eps));
+				}
 				parents.add(nameVariables.get(k));
 				inhibitors.add(inh);
 				question.getSkills().add(k);

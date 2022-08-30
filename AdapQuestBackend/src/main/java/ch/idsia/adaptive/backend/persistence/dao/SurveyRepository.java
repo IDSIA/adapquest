@@ -20,6 +20,6 @@ public interface SurveyRepository extends CrudRepository<Survey, Long> {
 	@Query("SELECT accessCode FROM Survey")
 	Collection<String> findAllAccessCodes();
 
-	@Query("SELECT accessCode FROM Survey WHERE isAdaptive = 1")
+	@Query("SELECT accessCode FROM Survey WHERE isAdaptive = true")
 	Collection<String> findAllAccessCodesAdaptive();
 }
