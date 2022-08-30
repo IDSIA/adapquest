@@ -18,12 +18,20 @@ services:
       context: .
     environment:
       MAGIC_API_KEY: "QWRhcHRpdmUgU3VydmV5"
+
       DB_DBMS: "postgresql"
       DB_HOSTNAME: "db"
       DB_PORT: "5432"
       DB_SCHEMA: "adaptive"
       DB_USERNAME: "ada"
       DB_PASSWORD: "ada"
+
+      ADAPQUEST_CONTROLLER_ASSISTANT: "false"
+      ADAPQUEST_CONTROLLER_CONSOLE: "false"
+      ADAPQUEST_CONTROLLER_DASHBOARD: "false"
+      ADAPQUEST_CONTROLLER_DEMO: "true"
+      ADAPQUEST_CONTROLLER_EXPERIMENTS: "false"
+
     restart: unless-stopped
     ports:
       - "8080:8080"
