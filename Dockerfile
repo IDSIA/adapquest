@@ -1,5 +1,5 @@
 # Build stage
-FROM maven:3.6.3-openjdk-11-slim AS build
+FROM maven:3.8.7-openjdk-18-slim AS build
 
 # create working directory for building
 WORKDIR /build
@@ -20,7 +20,7 @@ COPY AdapQuestExperiments/src AdapQuestExperiments/src
 RUN mvn clean install package -Dmaven.test.skip
 
 # Package stage
-FROM openjdk:11-jre-slim
+FROM openjdk:18.0-slim
 
 # create app directory
 WORKDIR /adaptive
