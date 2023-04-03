@@ -29,12 +29,14 @@
         <div>
             Answers:
             <ul>
-                <li th:each="question : ${answers.keySet()}">
+                <li th:each="question : ${questions}">
                     <div>
-                        <span style="font-weight: bold" th:text="${question.getQuestion()}"></span>
+                        <span style="font-weight: bold" th:text="${question.name}"></span>
+                        &nbsp;
+                        <span style="font-weight: bold" th:text="${question.question}"></span>
                     </div>
                     <div th:each="answer : ${answers.get(question)}"
-                         th:with="text=${answer.getQuestionAnswer().getText()}">
+                         th:with="text=${answer.questionAnswer.text}">
                         <span th:if="${!text.equals('no')}" th:text="${text}"></span>
                     </div>
                 </li>

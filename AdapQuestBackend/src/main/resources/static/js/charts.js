@@ -11,14 +11,15 @@ d3.json('/survey/states/' + token)
     .then((data) => {
         const entropies = []
 
-        data.sort((a, b) => a.totalAnswers - b.totalAnswers)
-            .forEach(d => {
-                entropies.push({'answers': d.totalAnswers, 'value': d.scoreAverage})
-            });
+        data.forEach(d => {
+            entropies.push({
+                'answers': d.totalAnswers, 'value': d.scoreAverage.toFixed(2)
+            })
+        });
 
         return entropies;
     })
-    .then(data => {
+    .then((data) => {
         const svg = d3.select('#chart-entropy')
             .append('svg')
             .attr('width', width + margin.left + margin.right)
@@ -115,7 +116,7 @@ d3.json('/survey/state/' + token)
         const svg = d3.select('#chart-distribution')
             .append('svg')
             .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
+            .attr('height', 1.7*height + margin.top + margin.bottom)
             .append('g')
             .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
@@ -129,7 +130,7 @@ d3.json('/survey/state/' + token)
             .attr('transform', `translate(0, ${height})`)
             .call(d3.axisBottom(x))
             .selectAll('text')
-            .attr('transform', 'translate(-10,0)rotate(-35)')
+            .attr('transform', 'translate(-12,+10)rotate(-90)')
             .style('text-anchor', 'end');
 
         const y = d3.scaleLinear()

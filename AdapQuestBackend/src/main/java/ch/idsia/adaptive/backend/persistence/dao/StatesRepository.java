@@ -17,7 +17,7 @@ public interface StatesRepository extends CrudRepository<State, Long> {
 
 	State findFirstBySessionOrderByCreationDesc(Session s);
 
-	List<State> findAllBySessionOrderByCreationDesc(Session s);
+	List<State> findAllBySessionOrderByCreationAsc(Session s);
 
 	List<State> findAllBySessionIn(List<Session> sessions);
 

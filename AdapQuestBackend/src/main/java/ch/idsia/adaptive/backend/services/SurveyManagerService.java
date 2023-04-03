@@ -57,38 +57,45 @@ public class SurveyManagerService {
 
 		final Long seed = data.getStartTime().toEpochSecond(OffsetDateTime.now().getOffset());
 
-		// TODO: allow also imprecise agents
+		final AgentGeneric<BayesianFactor> agent = getAgentForSurvey(survey, seed);
+		agent.setExecutor(es);
+
+		activeSurveys.put(data.getToken(), agent);
+	}
+
+	public static AgentGeneric<BayesianFactor> getAgentForSurvey(Survey survey, Long seed) {
 		final AgentGeneric<BayesianFactor> agent;
+
+		// TODO: allow also imprecise agents
 
 		if (survey.getIsAdaptive()) {
 			Scoring<BayesianFactor> scoring;
 
 			if (survey.getScoring().equals("mode")) {
-				logger.debug("using ScoringFunctionBayesianMode for {}", surveyId);
+				logger.debug("using ScoringFunctionBayesianMode for {}", survey.getId());
 				scoring = new ScoringFunctionBayesianMode();
 			} else {
-				logger.debug("using ScoringFunctionExpectedEntropy for {}", surveyId);
+				logger.debug("using ScoringFunctionExpectedEntropy for {}", survey.getId());
 				scoring = new ScoringFunctionExpectedEntropy();
 			}
 
 			if (survey.getIsStructural()) {
-				logger.debug("new AgentPreciseAdaptiveStructural for {}", surveyId);
+				logger.debug("new AgentPreciseAdaptiveStructural for {}", survey.getId());
 				agent = new AgentPreciseAdaptiveStructural(survey, seed, scoring);
 			} else if (survey.getIsSimple()) {
-				logger.debug("new AgentPreciseAdaptiveSimple for {}", surveyId);
+				logger.debug("new AgentPreciseAdaptiveSimple for {}", survey.getId());
 				agent = new AgentPreciseAdaptiveSimple(survey, seed, scoring);
 			} else {
-				logger.debug("new AgentPreciseAdaptiveSimple for {}", surveyId);
+				logger.debug("new AgentPreciseAdaptiveSimple for {}", survey.getId());
 				agent = new AgentPreciseAdaptive(survey, seed, scoring);
 			}
+
 		} else {
-			logger.debug("new AgentPreciseNonAdaptive for {}", surveyId);
+			logger.debug("new AgentPreciseNonAdaptive for {}", survey.getId());
 			agent = new AgentPreciseNonAdaptive(survey, seed);
 		}
 
-		agent.setExecutor(es);
-
-		activeSurveys.put(data.getToken(), agent);
+		return agent;
 	}
 
 	public Agent getSurvey(SurveyData data) {

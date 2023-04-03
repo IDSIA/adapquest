@@ -2,10 +2,11 @@ package ch.idsia.adaptive.backend.services.commons;
 
 
 import ch.idsia.adaptive.backend.persistence.model.*;
-import ch.idsia.adaptive.backend.services.commons.agents.AgentPreciseAdaptiveStructural;
+import ch.idsia.adaptive.backend.services.SurveyManagerService;
+import ch.idsia.adaptive.backend.services.commons.agents.AgentGeneric;
 import ch.idsia.adaptive.backend.services.commons.profiles.Content;
 import ch.idsia.adaptive.backend.services.commons.profiles.Profile;
-import ch.idsia.adaptive.backend.services.commons.scoring.precise.ScoringFunctionExpectedEntropy;
+import ch.idsia.crema.factor.bayesian.BayesianFactor;
 import lombok.Getter;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -221,7 +222,7 @@ public class JobExperiment {
 				.map(profile -> (Callable<Content>) () -> {
 					final Content content = new Content();
 					final ExecutorService e = Executors.newFixedThreadPool(nThread);
-					final AgentPreciseAdaptiveStructural agent = new AgentPreciseAdaptiveStructural(survey, 42L, new ScoringFunctionExpectedEntropy());
+					final AgentGeneric<BayesianFactor> agent = SurveyManagerService.getAgentForSurvey(survey, 42L);
 					agent.setExecutor(e);
 
 					try {
@@ -314,7 +315,7 @@ public class JobExperiment {
 					}
 
 					content.newLine();
-					content.add("" + profile.getName()); // profile
+					content.add(profile.getName()); // profile
 					content.add("TRUE"); // question
 					content.add(""); // answer
 					content.add(""); // answer given
@@ -342,8 +343,10 @@ public class JobExperiment {
 		resultFilename = "results." + filename;
 		final Path dst = Paths.get("", "data", "results", resultFilename);
 
-		try (FileOutputStream fos = new FileOutputStream(dst.toFile(), false)) {
-			final XSSFWorkbook workbook = new XSSFWorkbook();
+		try (
+				FileOutputStream fos = new FileOutputStream(dst.toFile(), false);
+				XSSFWorkbook workbook = new XSSFWorkbook()
+		) {
 			final XSSFSheet results = workbook.createSheet("results");
 
 			int r = 0;
