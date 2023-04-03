@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -61,6 +62,13 @@ public class DemoController {
 						Collectors.toList()
 				));
 
+		final List<Question> questions = answers.keySet()
+				.stream()
+				.sorted(Comparator.comparing(
+						q -> answers.get(q).get(0).getCreation())
+				)
+				.collect(Collectors.toList());
+
 		final HttpStatus statusCode = resResult.getStatusCode();
 
 		if (statusCode.is4xxClientError()) {
@@ -72,6 +80,7 @@ public class DemoController {
 
 		final ResponseResult r = resResult.getBody();
 		model.addAttribute("result", r);
+		model.addAttribute("questions", questions);
 		model.addAttribute("answers", answers);
 
 		return "results";
@@ -112,7 +121,7 @@ public class DemoController {
 			@RequestParam(required = false) Long questionId,
 			@RequestParam(required = false) Long answerId,
 			@RequestParam(value = "checkboxes", required = false) Long[] multipleAnswersId,
-			@RequestParam(required = false, defaultValue = "true") Boolean show,
+			@RequestParam(required = false, defaultValue = "false") Boolean show,
 			Model model,
 			HttpServletRequest request
 	) {
