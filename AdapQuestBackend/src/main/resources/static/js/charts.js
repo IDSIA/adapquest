@@ -7,7 +7,7 @@ const width = 500 - margin.left - margin.right;
 const height = 400 - margin.top - margin.bottom;
 
 // following is the entropy lines chart
-d3.json('/survey/states/' + token)
+d3.json(context + 'survey/states/' + token)
     .then((data) => {
         const entropies = []
 
@@ -99,7 +99,7 @@ d3.json('/survey/states/' + token)
     });
 
 // following is the distribution bar chart
-d3.json('/survey/state/' + token)
+d3.json(context + 'survey/state/' + token)
     .then(data => {
         const distributions = []
         data.skills.forEach(s => {
