@@ -21,7 +21,7 @@
             <form method="post" action="" enctype="multipart/form-data">
                 <div class="input-group mb-3">
                     <div class="">
-                        <a class="btn btn-primary" th:href="@{~/experiments/template}" role="button">
+                        <a class="btn btn-primary" th:href="@{/experiments/template}" role="button">
                             <i class="bi bi-download"></i>
                             &nbsp;
                             Template
@@ -58,13 +58,13 @@
                     <td th:text="${experiment.getName()}"></td>
                     <td th:text="${#temporals.format(experiment.getCreation(), 'yyyy-MM-dd HH:mm')}"></td>
                     <td>
-                        <a th:href="|@{~/experiments/experiment/}${experiment.getName()}|"><i
+                        <a th:href="|@{/experiments/experiment/}${experiment.getName()}|"><i
                                 class="bi bi-download"></i></a>
                     </td>
                     <td th:text="${#temporals.format(experiment.getCompletion(), 'yyyy-MM-dd HH:mm')}"></td>
                     <td>
                         <a th:if="${experiment.getCompleted()}"
-                           th:href="|@{~/experiments/result/}${experiment.getResult()}|">
+                           th:href="|@{/experiments/result/}${experiment.getResult()}|">
                             <i class="bi bi-download">
 
                             </i></a>
