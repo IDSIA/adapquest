@@ -178,6 +178,11 @@ public class InitializationService {
 						.setYesOnly(q.yesOnly)
 						.setMultipleSkills(q.multipleSkills)
 						.addAnswersAvailable(q.answers.stream()
+								.peek(a -> {
+									if (a.variable < 0) {
+										a.setVariable(v.get(q.name));
+									}
+								})
 								.map(a -> new QuestionAnswer()
 										.setName(a.name)
 										.setText(a.text)

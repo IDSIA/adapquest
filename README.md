@@ -78,6 +78,9 @@ chose `Postgres 13.1` but any other SQL-based engine supported by *Hibernate* sh
 
 Refer to the [Wiki](https://github.com/IDSIA/adapquest/wiki) for more details on the `docker-compose` configuration.
 
+> **Note:** to change the context path of the application it is possible to use the environment variable `SERVER_SERVLET_CONTEXT-PATH`.
+
+
 ## Keycloak integration
 
 It is possible to use Keycloak as identity provider instead of the simple APIkey internal mechanism.
