@@ -17,6 +17,8 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
+import java.util.Objects;
+
 @KeycloakConfiguration
 @AutoConfigureAfter(SecurityConfig.class)
 @ConditionalOnProperty(name = "keycloak.enabled", havingValue = "true")
@@ -24,7 +26,7 @@ class SecurityKeycloakConfig extends KeycloakWebSecurityConfigurerAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(SecurityKeycloakConfig.class);
 
 	@Value("${adapquest.keycloak.role}")
-	private String role = "user";
+	private String role = "";
 
 	@Value("${adapquest.keycloak.admin}")
 	private String admin = "admin";
@@ -49,14 +51,23 @@ class SecurityKeycloakConfig extends KeycloakWebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		super.configure(http);
-		http.authorizeRequests()
-				.antMatchers("/", "/css/**", "/webjars/**", "/img/**").permitAll()
-				.and()
-				.authorizeRequests()
-				.antMatchers("/demo**", "/survey**").hasRole(role)
-				.antMatchers("/console*").hasRole(admin)
-				.anyRequest()
-				.authenticated();
-		;
+		if (Objects.isNull(role) || role.isEmpty()) {
+			http.authorizeRequests()
+					.antMatchers("/", "/css/**", "/webjars/**", "/img/**").permitAll()
+					.and()
+					.authorizeRequests()
+					.antMatchers("/console*").hasRole(admin)
+					.anyRequest()
+					.authenticated();
+		} else {
+			http.authorizeRequests()
+					.antMatchers("/", "/css/**", "/webjars/**", "/img/**").permitAll()
+					.and()
+					.authorizeRequests()
+					.antMatchers("/demo**", "/survey**").hasRole(role)
+					.antMatchers("/console*").hasRole(admin)
+					.anyRequest()
+					.authenticated();
+		}
 	}
 }

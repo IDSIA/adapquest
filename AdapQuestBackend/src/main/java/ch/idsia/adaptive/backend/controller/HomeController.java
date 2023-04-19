@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class HomeController {
 	private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
+	@Value("${adapquest.page.title}")
+	private String pageTitle = "AdapQuest";
+
 	@Value("${adapquest.controller.assistant}")
 	private boolean assistant = true;
 	@Value("${adapquest.controller.dashboard}")
@@ -33,6 +36,7 @@ public class HomeController {
 		model.addAttribute("dashboard", dashboard);
 		model.addAttribute("demo", demo);
 		model.addAttribute("experiments", experiments);
+		model.addAttribute("pageTitle", pageTitle);
 
 		logger.debug("assistant flag={}", assistant);
 		logger.debug("dashboard flag={}", dashboard);

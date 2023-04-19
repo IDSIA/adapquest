@@ -11,6 +11,7 @@ import ch.idsia.adaptive.backend.persistence.responses.ResponseState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Author:  Claudio "Dna" Bonesana
@@ -33,6 +33,15 @@ import java.util.stream.Stream;
 @RequestMapping("/demo")
 public class DemoController {
 	private static final Logger logger = LoggerFactory.getLogger(DemoController.class);
+
+	@Value("${adapquest.page.title}")
+	private String pageTitle = "AdapQuest";
+
+	@Value("${adapquest.exit.url}")
+	private String exitUrl = "";
+
+	@Value("${adapquest.exit.text}")
+	private String exitText = "";
 
 	final SurveyRepository surveys;
 	final SurveyController controller;
@@ -47,13 +56,16 @@ public class DemoController {
 	public String index(Model model) {
 		final Collection<String> codes = surveys.findAllAccessCodes();
 		model.addAttribute("codes", new ArrayList<>(codes));
-		model.addAttribute("title", "AdapQuest Demo");
+		model.addAttribute("title", pageTitle);
+		model.addAttribute("pageTitle", pageTitle);
 		model.addAttribute("description", "This demo is not intended to be a final product or usable in a production environment.");
 		return "index";
 	}
 
 	@GetMapping("/results/{token}")
 	public String results(@PathVariable String token, Model model) {
+		model.addAttribute("pageTitle", pageTitle);
+
 		final ResponseEntity<ResponseResult> resResult = this.controller.surveyResults(token);
 		final Map<Question, List<Answer>> answers = this.controller.getAnswers(token)
 				.stream()
@@ -82,6 +94,14 @@ public class DemoController {
 		model.addAttribute("result", r);
 		model.addAttribute("questions", questions);
 		model.addAttribute("answers", answers);
+
+		if (!exitUrl.isEmpty() && !exitText.isEmpty()) {
+			model.addAttribute("exitButton", true);
+			model.addAttribute("exitURL", exitUrl + "?sid=" + token);
+			model.addAttribute("exitText", exitText);
+		} else {
+			model.addAttribute("exitButton", false);
+		}
 
 		return "results";
 	}
@@ -127,6 +147,7 @@ public class DemoController {
 	) {
 		model.addAttribute("token", token);
 		model.addAttribute("show", show);
+		model.addAttribute("pageTitle", pageTitle);
 
 		// check answer
 		if (questionId != null) {

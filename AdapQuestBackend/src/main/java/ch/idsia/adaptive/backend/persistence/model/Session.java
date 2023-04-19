@@ -50,9 +50,9 @@ public class Session {
 	private String accessCode;
 
 	/**
-	 * Group id from keaycloak (if used).
+	 * Field with data from Keycloak (if used).
 	 */
-	private String groupId;
+	private String field;
 
 	/**
 	 * When this session started. This is also used as a seed for the randomness.
