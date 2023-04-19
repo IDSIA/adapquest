@@ -32,8 +32,15 @@ services:
       ADAPQUEST_CONTROLLER_DEMO: "true"
       ADAPQUEST_CONTROLLER_EXPERIMENTS: "false"
 
-      ADAPQUEST_KEYCLOAK_ROLE: "user"
-      ADAPQUEST_KEYCLOAK_ADMIN: "admin"
+      ADAPQUEST_PAGE_TITLE: "AdapQuest"
+
+      ADAPQUEST_EXIT_URL: "" # not used if empty
+      ADAPQUEST_EXIT_TEXT: "" # not used if empty
+
+      ADAPQUEST_KEYCLOAK_ROLE: "user" # not used if empty
+      ADAPQUEST_KEYCLOAK_ADMIN: "admin" # ignorable
+
+      ADAPQUEST_KEYCLOAK_FIELD: "group_id" # can be a username
 
       KEYCLOAK_ENABLED: "true"
       KEYCLOAK_REALM: "<realm>"
