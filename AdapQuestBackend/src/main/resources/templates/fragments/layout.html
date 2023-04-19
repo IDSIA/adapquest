@@ -19,16 +19,18 @@
     <script src="https://d3js.org/d3.v6.js"></script>
 
     <meta charset="UTF-8">
-    <title th:include=":: #pageTitle">AdapQuest Project</title>
+    <title th:include=":: #pageTitle" th:text="${pageTitle}">AdapQuest Project</title>
 </head>
 <body>
+
+<div th:text="${pageTitle}"></div>
 
 <div class="container">
 
     <div th:fragment="header">
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" th:fragment="navbar">
             <div class="container">
-                <a class="navbar-brand" href="#" th:href="@{/}">AdapQuest</a>
+                <a class="navbar-brand" href="#" th:href="@{/}" th:text="${pageTitle}">AdapQuest</a>
                 <button aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation"
                         class="navbar-toggler"
                         data-target="#navbarColor01" data-toggle="collapse" type="button">
