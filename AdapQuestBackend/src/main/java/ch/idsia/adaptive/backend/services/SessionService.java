@@ -12,6 +12,7 @@ import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,9 @@ public class SessionService {
 	private static final Logger logger = LoggerFactory.getLogger(SessionService.class);
 
 	boolean keycloakEnabled;
+
+	@Value("${adapquest.keycloak.field}")
+	private String storeField = "group_id";
 
 	final SessionRepository repository;
 	final SurveyRepository surveys;
@@ -68,7 +72,7 @@ public class SessionService {
 					.setAccessCode(data.getAccessCode())
 					.setRemoteAddr(data.getRemoteAddress())
 					.setSurvey(survey)
-					.setGroupId(getGroupIdFromKeycloak())
+					.setField(getFieldFromKeycloak())
 					.setToken(SurveyToken.GUID());
 
 			session = repository.save(session);
@@ -148,12 +152,12 @@ public class SessionService {
 		return questionTotal - questionsDone;
 	}
 
-	private String getGroupIdFromKeycloak() {
-		String groupId = "";
+	private String getFieldFromKeycloak() {
+		String field = "";
 
 		if (keycloakEnabled) {
-			logger.info("Request group_id from keycloak");
-			// if keycloak is enabled, get group_id
+			logger.info("Request {} from keycloak", storeField);
+			// if keycloak is enabled, get storeField
 			final KeycloakAuthenticationToken token = (KeycloakAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 			final KeycloakPrincipal<?> principal = (KeycloakPrincipal<?>) token.getPrincipal();
 			final KeycloakSecurityContext session = principal.getKeycloakSecurityContext();
@@ -162,12 +166,15 @@ public class SessionService {
 
 			logger.info("(KC) Username={} id={}", accessToken.getPreferredUsername(), accessToken.getId());
 
-			if (customClaims.containsKey("group_id")) {
-				groupId = String.valueOf(customClaims.get("group_id"));
-				logger.info("Init for group_id={} from keycloak", groupId);
+			if (storeField.equalsIgnoreCase("username")) {
+				field = accessToken.getPreferredUsername();
+				logger.info("Init for username={} from keycloak", field);
+			} else if (customClaims.containsKey(storeField)) {
+				field = String.valueOf(customClaims.get(storeField));
+				logger.info("Init for {}}={} from keycloak", storeField, field);
 			}
 		}
 
-		return groupId;
+		return field;
 	}
 }
