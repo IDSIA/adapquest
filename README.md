@@ -80,6 +80,23 @@ Refer to the [Wiki](https://github.com/IDSIA/adapquest/wiki) for more details on
 
 > **Note:** to change the context path of the application it is possible to use the environment variable `SERVER_SERVLET_CONTEXT-PATH`.
 
+## Personalization
+
+It is possible to change the title of the page using the following environment variable:
+
+```
+ADAPQUEST_PAGE_TITLE: "AdapQuest"
+```
+
+If it is required to have an _exit button_, a button that can bring the survey token outside the AdapQuest platform, it is possible to use the following two environment variables.
+
+```
+ADAPQUEST_EXIT_URL: "<some valid url>"
+ADAPQUEST_EXIT_TEXT: "<the text to show>"
+```
+
+The required token will be available in the `sid` field.
+
 
 ## Keycloak integration
 
@@ -87,22 +104,30 @@ It is possible to use Keycloak as identity provider instead of the simple APIkey
 
 In order to do so, the following environment variables must be set:
 
-````
+```
 KEYCLOAK_ENABLED: "true"
 KEYCLOAK_REALM: "<realm>"
 KEYCLOAK_AUTH_SERVER_URL: "<url>"
 KEYCLOAK_RESOURCE: "<client-name>"
 KEYCLOAK_PRINCIPAL_ATTRIBUTE: "preferred_username"
-````
+```
 
 To control the roles, set the following two environment variables to the correct roles:
 
-````
+```
 ADAPQUEST_KEYCLOAK_ROLE: "user"
 ADAPQUEST_KEYCLOAK_ADMIN: "admin"
-````
+```
 
 The `user` role is who performs the survey; the `admin` role is who can add and manage surveys.
+
+If the `user` role is not filled or empty, then no checks will be made for this role and any logged user can perform surveys.
+
+If there is the need to save some field from the Keycloak user, it is possible to do so with the following environment variable:
+
+```
+ADAPQUEST_KEYCLOAK_FIELD: "<value>"
+```
 
 Both these variables can be used in a `docker-compose` file.
 
