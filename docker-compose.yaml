@@ -38,9 +38,9 @@ services:
       ADAPQUEST_EXIT_TEXT: "" # not used if empty
 
       ADAPQUEST_KEYCLOAK_ROLE: "user" # not used if empty
-      ADAPQUEST_KEYCLOAK_ADMIN: "admin" # ignorable
+      ADAPQUEST_KEYCLOAK_ADMIN: "admin"
 
-      ADAPQUEST_KEYCLOAK_FIELD: "group_id" # can be a username
+      ADAPQUEST_KEYCLOAK_FIELD: "group_id"
 
       KEYCLOAK_ENABLED: "true"
       KEYCLOAK_REALM: "<realm>"
