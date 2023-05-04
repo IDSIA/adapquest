@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="layout">
+    <link rel="shortcut icon" th:href="@{/img/favicon.ico}" type="image/ico"/>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.5.3/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.7.0/font/bootstrap-icons.css}">
+
+    <link rel="stylesheet" th:href="@{/css/style.live.css}"/>
+
+    <link rel="text/javascript" th:href="@{/webjars/jquery/3.6.0/jquery.min.js}"/>
+
+    <script th:fragment="paths" th:inline="javascript" type="text/javascript">
+        const context = /*[[@{/}]]*/ '';
+        const token = /*[[${token}]]*/ '';
+
+        console.debug('context: ' + context)
+        console.debug('token:   ' + token)
+    </script>
+
+    <script src="https://d3js.org/d3.v6.js"></script>
+
+    <meta charset="UTF-8">
+    <title th:include=":: #pageTitle">KITT4SME Adaptive Questionnaire</title>
+</head>
+<body>
+
+<div>KITT4SME Adaptive Questionnaire</div>
+
+<header th:fragment="header" class="navbar navbar-expand-lg navbar-dark bg-primary flex-column flex-md-row">
+    <div class="container">
+        <a class="navbar-brand" href="#" th:href="@{/}">KITT4SME Adaptive Questionnaire</a>
+        <button aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation"
+                class="navbar-toggler"
+                data-target="#navbarColor01" data-toggle="collapse" type="button">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</header>
+
+
+<div class="container">
+    <div class="row">
+        <div class="card jumbotron">
+            Some Content
+        </div>
+    </div>
+</div>
+
+<footer class="footer mt-auto py-3 fixed-bottom bg-light" th:fragment="footer">
+    <div style="text-align: center;">
+        <a href="http://www.idsia.ch">IDSIA</a>
+        <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}">2020</span>
+    </div>
+</footer>
+
+</body>
+</html>
