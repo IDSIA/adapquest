@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:include="live/layout :: layout">
+    <title id="pageTitle">KITT4SME Adaptive Questionnaire</title>
+</head>
+<body>
+
+<header th:replace="live/layout :: header"></header>
+
+<div class="container">
+    <div class="col-md-12" th:if="${error != null}">
+        <p>Error</p>
+        <p th:text="'Code:'+${code}"></p>
+        <p th:text="'Error:'+${error}"></p>
+    </div>
+
+    <div class="jumbotron">
+        <div class="text-center" th:if="${exitButton}">
+            <a class="btn btn-primary" th:href="${exitURL}" th:text="${exitText}"></a>
+        </div>
+
+        <div class="charts">
+            <div id="chart-distribution"></div>
+        </div>
+
+        <div>
+            <ul>
+                <li th:each="question : ${questions}">
+                    <div>
+                        <span style="font-weight: bold" th:text="${question.name}"></span>
+                        &nbsp;
+                        <span style="font-weight: bold" th:text="${question.question}"></span>
+                    </div>
+                    <div th:each="answer : ${answers.get(question)}"
+                         th:with="text=${answer.questionAnswer.text}">
+                        <span th:if="${!text.equals('no')}" th:text="${text}"></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="text-center" th:if="${exitButton}">
+            <a class="btn btn-primary" th:href="${exitURL}" th:text="${exitText}"></a>
+        </div>
+
+        <script th:src="@{/js/charts.live.js}"></script>
+    </div>
+</div>
+
+<footer th:replace="live/layout :: footer"></footer>
+
+</body>
+</html>

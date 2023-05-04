@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:include="live/layout :: layout">
+    <title id="pageTitle">KITT4SME Adaptive Questionnaire</title>
+</head>
+<body>
+
+<header th:replace="live/layout :: header"></header>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <p>Error</p>
+            <p th:text="${code}"></p>
+            <p th:text="${error}"></p>
+            <p></p>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="live/layout :: footer"></footer>
+
+</body>
+</html>

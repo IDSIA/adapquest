@@ -21,6 +21,8 @@ public class ActiveRoutesInterceptor implements HandlerInterceptor {
     private boolean demo = true;
     @Value("${adapquest.controller.experiments}")
     private boolean experiments = true;
+    @Value("${adapquest.controller.live}")
+    private boolean live = true;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -36,6 +38,8 @@ public class ActiveRoutesInterceptor implements HandlerInterceptor {
             return demo;
         if (path.contains("/experiments"))
             return experiments;
+        if (path.contains("/live"))
+            return live;
 
         return HandlerInterceptor.super.preHandle(request, response, handler);
     }
