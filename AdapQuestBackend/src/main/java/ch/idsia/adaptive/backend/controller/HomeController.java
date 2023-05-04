@@ -29,19 +29,25 @@ public class HomeController {
 	private boolean demo = true;
 	@Value("${adapquest.controller.experiments}")
 	private boolean experiments = true;
+	@Value("${adapquest.controller.live}")
+	private boolean live = true;
 
 	@GetMapping
 	public String home(Model model) {
+		logger.debug("assistant flag={}", assistant);
+		logger.debug("dashboard flag={}", dashboard);
+		logger.debug("demo flag={}", demo);
+		logger.debug("experiments flag={}", experiments);
+		logger.debug("live flag={}", live);
+
+		if (live)
+			return "redirect:/live/";
+
 		model.addAttribute("assistant", assistant);
 		model.addAttribute("dashboard", dashboard);
 		model.addAttribute("demo", demo);
 		model.addAttribute("experiments", experiments);
 		model.addAttribute("pageTitle", pageTitle);
-
-		logger.debug("assistant flag={}", assistant);
-		logger.debug("dashboard flag={}", dashboard);
-		logger.debug("demo flag={}", demo);
-		logger.debug("experiments flag={}", experiments);
 
 		return "home";
 	}
