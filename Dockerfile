@@ -20,7 +20,7 @@ COPY AdapQuestExperiments/src AdapQuestExperiments/src
 RUN mvn clean install package -Dmaven.test.skip
 
 # Package stage
-FROM openjdk:18.0-slim
+FROM openjdk:21-slim
 
 # create app directory
 WORKDIR /adaptive

@@ -141,3 +141,4 @@ local.properties
 .classpath
 
 logs
+*.xlsx
