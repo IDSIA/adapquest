@@ -100,38 +100,42 @@ The required token will be available in the `sid` field.
 
 ## Keycloak integration
 
-It is possible to use Keycloak as identity provider instead of the simple APIkey internal mechanism.
+It is possible to use Keycloak as identity provider instead of the simple internal mechanism based on APIkey.
 
-In order to do so, the following environment variables must be set:
+### Keycloak client entry
 
-```
-KEYCLOAK_ENABLED: "true"
-KEYCLOAK_REALM: "<realm>"
-KEYCLOAK_AUTH_SERVER_URL: "<url>"
-KEYCLOAK_RESOURCE: "<client-name>"
-KEYCLOAK_PRINCIPAL_ATTRIBUTE: "preferred_username"
-```
+In order to do so, first create a new `client` on Keycloak by assigning a new `client-id`.
+This client need to have `openid-connect` as _Client Protocol_ and `confidential` as _Access Type_.
+Fields `Valid Redirect URIs` and `Web Origins` can be set to the deployment location or to `*`.
 
-To control the roles, set the following two environment variables to the correct roles:
+In the page _Credentials_ generate and copy the `Secret` field.
 
-```
-ADAPQUEST_KEYCLOAK_ROLE: "user"
-ADAPQUEST_KEYCLOAK_ADMIN: "admin"
-```
+### Environment variables
 
-The `user` role is who performs the survey; the `admin` role is who can add and manage surveys.
+Then on the deployment environment variables, set them as following:
 
-If the `user` role is not filled or empty, then no checks will be made for this role and any logged user can perform surveys.
+* `KEYCLOAK_ENABLED` set to `true` to enable the Keycloak integration;
+* `KEYCLOAK_REALM` set to the value of the application realm;
+* `KEYCLOAK_AUTH_SERVER_URL` set to the authentication server url (ex. `http://keycloak.example.com/auth`);
+* `KEYCLOAK_RESOURCE` set as the `client-id` assigned in Keycloak for this application;
+* `KEYCLOAK_CREDENTIALS_SECRET` set as the generated `Secret` as above;
+* `ADAPQUEST_KEYCLOAK_FIELD`: set the filed to store in the database, if missing or set as empty (`""`) nothing is stored.
 
-If there is the need to save some field from the Keycloak user, it is possible to do so with the following environment variable:
+Default fields are: _email, username, birthdate, name, family_name, nickname, given_name, middle_name, phone_number, website_. For custom fields, assign new _scopes_ to the client. 
 
-```
-ADAPQUEST_KEYCLOAK_FIELD: "<value>"
-```
+### Application roles
 
-Both these variables can be used in a `docker-compose` file.
+The application can have two types of roles: a generic role, and an administrative role.
+
+The generic role (`ADAPQUEST_KEYCLOAK_ROLE`) is to allow only users that have the specified role to be able to perform the survey.
+If this variable is empty (`""`) then all users can access to the surveys.
+
+The administrative role (`ADAPQUEST_KEYCLOAK_ADMIN`) is only used to update and manage surveys through the admin console.
+
+### Docker-compose
+
+All these variables can be used in a `docker-compose` file.
 
 # Citation
 
-If you write a scientific paper describing research that made use of the `AdapQuest` tool, please see
-the [CreMA](https://github.com/IDSIA/crema#citation) library citation note.
+If you write a scientific paper describing research that made use of the `AdapQuest` tool, please see the [CreMA](https://github.com/IDSIA/crema#citation) library citation note.
