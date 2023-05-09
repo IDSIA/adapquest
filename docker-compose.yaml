@@ -27,10 +27,13 @@ services:
       DB_PASSWORD: "ada"
 
       ADAPQUEST_CONTROLLER_ASSISTANT: "false"
-      ADAPQUEST_CONTROLLER_CONSOLE: "true"
+      ADAPQUEST_CONTROLLER_CONSOLE: "false"
       ADAPQUEST_CONTROLLER_DASHBOARD: "false"
       ADAPQUEST_CONTROLLER_DEMO: "true"
       ADAPQUEST_CONTROLLER_EXPERIMENTS: "false"
+      ADAPQUEST_CONTROLLER_LIVE: "false"
+
+      SPRING_PROFILE_ACTIVE: "demo"
 
       ADAPQUEST_PAGE_TITLE: "AdapQuest"
 
@@ -38,15 +41,15 @@ services:
       ADAPQUEST_EXIT_TEXT: "" # not used if empty
 
       ADAPQUEST_KEYCLOAK_ROLE: "user" # not used if empty
-      ADAPQUEST_KEYCLOAK_ADMIN: "admin"
+      ADAPQUEST_KEYCLOAK_ADMIN: "admin" # used only with console
 
-      ADAPQUEST_KEYCLOAK_FIELD: "group_id"
+      ADAPQUEST_KEYCLOAK_FIELD: "email"
 
       KEYCLOAK_ENABLED: "true"
       KEYCLOAK_REALM: "<realm>"
       KEYCLOAK_AUTH_SERVER_URL: "<url>"
-      KEYCLOAK_RESOURCE: "<client-name>"
-      KEYCLOAK_PRINCIPAL_ATTRIBUTE: "preferred_username"
+      KEYCLOAK_RESOURCE: "<client-id>"
+      KEYCLOAK_CREDENTIALS_SECRET: "<secret>"
 
     restart: unless-stopped
     ports:
