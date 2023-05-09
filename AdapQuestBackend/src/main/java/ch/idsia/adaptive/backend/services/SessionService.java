@@ -156,7 +156,7 @@ public class SessionService {
 		String field = "";
 
 		if (keycloakEnabled) {
-			logger.info("Request {} from keycloak", storeField);
+			logger.info("(KC) Request {} from keycloak", storeField);
 			// if keycloak is enabled, get storeField
 			final KeycloakAuthenticationToken token = (KeycloakAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
 			final KeycloakPrincipal<?> principal = (KeycloakPrincipal<?>) token.getPrincipal();
@@ -164,14 +164,47 @@ public class SessionService {
 			final AccessToken accessToken = session.getToken();
 			final Map<String, Object> customClaims = accessToken.getOtherClaims();
 
-			logger.info("(KC) Username={} id={}", accessToken.getPreferredUsername(), accessToken.getId());
+			logger.info("(KC) user with id={} getting field={}", accessToken.getId(), field);
 
-			if (storeField.equalsIgnoreCase("username")) {
-				field = accessToken.getPreferredUsername();
-				logger.info("Init for username={} from keycloak", field);
-			} else if (customClaims.containsKey(storeField)) {
-				field = String.valueOf(customClaims.get(storeField));
-				logger.info("Init for {}}={} from keycloak", storeField, field);
+			// ugly, but it works to get the field from common values in keycloak
+			switch (storeField.toLowerCase()) {
+				case "email":
+					field = accessToken.getEmail();
+					break;
+				case "username":
+					field = accessToken.getPreferredUsername();
+					break;
+				case "birthdate":
+					field = accessToken.getBirthdate();
+					break;
+				case "name":
+					field = accessToken.getName();
+					break;
+				case "family_name":
+					field = accessToken.getFamilyName();
+					break;
+				case "nickname":
+					field = accessToken.getNickName();
+					break;
+				case "given_name":
+					field = accessToken.getGivenName();
+					break;
+				case "middle_name":
+					field = accessToken.getMiddleName();
+					break;
+				case "phone_number":
+					field = accessToken.getPhoneNumber();
+					break;
+				case "website":
+					field = accessToken.getWebsite();
+					break;
+
+				default:
+					if (customClaims.containsKey(storeField)) {
+						field = String.valueOf(customClaims.get(storeField));
+					} else {
+						logger.warn("(KC) Field {} not found", storeField);
+					}
 			}
 		}
 
