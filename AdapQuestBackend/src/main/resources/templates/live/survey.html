@@ -18,9 +18,7 @@
         <input th:name="questionId" th:value="${question.id}" type="hidden">
         <div class="jumbotron">
             <div>
-                <h3 th:text="${question.name}"></h3>
-                <p th:text="${question.explanation}"></p>
-                <p th:text="${question.question}"></p>
+                <p class="lead" th:text="${question.question}"></p>
 
                 <div th:class="${question.multipleChoice} ? 'answers multi' : 'answers'">
                     <div class="answer"

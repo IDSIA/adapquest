@@ -27,14 +27,13 @@
             <ul>
                 <li th:each="question : ${questions}">
                     <div>
-                        <span style="font-weight: bold" th:text="${question.name}"></span>
-                        &nbsp;
                         <span style="font-weight: bold" th:text="${question.question}"></span>
                     </div>
-                    <div th:each="answer : ${answers.get(question)}"
-                         th:with="text=${answer.questionAnswer.text}">
-                        <span th:if="${!text.equals('no')}" th:text="${text}"></span>
-                    </div>
+                    <ul>
+                        <li th:each="answer : ${answers.get(question).?[!questionAnswer.text.equals('no')]}">
+                            <span th:text="${answer.questionAnswer.text}"></span>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         </div>
