@@ -25,7 +25,8 @@
 
         <div>
             <ul>
-                <li th:each="question : ${questions}">
+                <li th:each="question : ${questions}"
+                    th:if="${answers.get(question).?[!questionAnswer.text.equals('no')].size() > 0}">
                     <div>
                         <span style="font-weight: bold" th:text="${question.question}"></span>
                     </div>
